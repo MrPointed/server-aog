@@ -9,70 +9,163 @@ import (
 )
 
 type SkillService struct {
+
 	mapService     *MapService
+
 	objectService  *ObjectService
+
 	messageService *MessageService
+
 	userService    *UserService
+
 	npcService     *NpcService
+
 	spellService   *SpellService
+
+	intervals      *IntervalService
+
 }
 
-func NewSkillService(mapService *MapService, objectService *ObjectService, messageService *MessageService, userService *UserService, npcService *NpcService, spellService *SpellService) *SkillService {
+
+
+func NewSkillService(mapService *MapService, objectService *ObjectService, messageService *MessageService, userService *UserService, npcService *NpcService, spellService *SpellService, intervals *IntervalService) *SkillService {
+
 	return &SkillService{
-		mapService:     mapService,
-		objectService:  objectService,
-		messageService: messageService,
-		userService:    userService,
-		npcService:     npcService,
-		spellService:   spellService,
+
+		mapService:		mapService,
+
+		objectService:	objectService,
+
+		messageService:	messageService,
+
+		userService:	userService,
+
+		npcService:		npcService,
+
+		spellService:	spellService,
+
+		intervals:		intervals,
+
 	}
+
 }
+
+
 
 func (s *SkillService) HandleUseSkillClick(user *model.Character, skill model.Skill, x, y byte) {
+
 	fmt.Printf("HandleUseSkillClick: Entered for User %s, Skill %d at %d,%d\n", user.Name, skill, x, y)
+
 	// Basic validation
+
 	if user.Dead {
+
 		fmt.Println("HandleUseSkillClick: User is dead")
+
 		return
+
 	}
+
+
+
+	// Check intervals for specific working skills (Mining, Fishing, Lumber, Stealing, Taming)
+
+	if skill != model.Magic {
+
+		if !s.intervals.CanWork(user) {
+
+			return
+
+		}
+
+	}
+
 	
+
 	// Range check (using Manhattan distance as per VB6)
+
 	dist := int(user.Position.X) - int(x)
+
 	if dist < 0 {
+
 		dist = -dist
+
 	}
+
 	dy := int(user.Position.Y) - int(y)
+
 	if dy < 0 {
+
 		dy = -dy
+
 	}
+
 	if dist+dy > 2 { // RANGO_VISION_X check? VB6 uses simple distance check for some skills, vision for others.
+
 		// VB6: If Not InRangoVision -> WritePosUpdate.
+
 		// Here we assume vision check passed or irrelevant for now.
+
 	}
+
+
 
 	switch skill {
+
 	case model.Magic:
+
 		s.handleMagic(user, x, y)
 
+
+
 	case model.Fishing:
+
 		s.handleFishing(user, x, y)
 
+		s.intervals.UpdateLastWork(user)
+
+
+
 	case model.Steal:
+
 		s.handleStealing(user, x, y)
 
+		s.intervals.UpdateLastWork(user)
+
+
+
 	case model.Lumber:
+
 		s.handleLumber(user, x, y)
 
+		s.intervals.UpdateLastWork(user)
+
+
+
 	case model.Mining:
+
 		s.handleMining(user, x, y)
 
+		s.intervals.UpdateLastWork(user)
+
+
+
 	case model.Tame:
+
 		s.handleTaming(user, x, y)
 
+		s.intervals.UpdateLastWork(user)
+
+
+
 	default:
+
 		fmt.Printf("HandleUseSkillClick: Default case hit for skill %d\n", skill)
+
 		s.messageService.SendConsoleMessage(user, fmt.Sprintf("Skill %d no implementada en click.", skill), outgoing.INFO)
+
 	}
+
 }
 
 func (s *SkillService) handleMagic(user *model.Character, x, y byte) {

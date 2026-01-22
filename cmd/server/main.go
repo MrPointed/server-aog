@@ -45,6 +45,14 @@ func NewServer(addr string) *Server {
 		fmt.Printf("Critical error loading cities: %v\n", err)
 	}
 
+	balanceDAO := persistence.NewBalanceDAO("../../resources/data/balances.dat")
+	archetypeMods, _, err := balanceDAO.Load()
+	if err != nil {
+		fmt.Printf("Critical error loading balances: %v\n", err)
+	}
+	combatFormulas := service.NewCombatFormulas(archetypeMods)
+	intervalService := service.NewIntervalService(cfg)
+
 	bodyService := service.NewCharacterBodyService()
 	userService := service.NewUserService(bodyService)
 
@@ -57,7 +65,7 @@ func NewServer(addr string) *Server {
 
 	areaService := service.NewAreaService(mapService, userService)
 	messageService := service.NewMessageService(userService, areaService, mapService)
-	combatService := service.NewCombatService(messageService, objectService, mapService)
+	combatService := service.NewCombatService(messageService, objectService, mapService, combatFormulas, intervalService)
 	timedEventsService := service.NewTimedEventsService(userService, messageService)
 	timedEventsService.Start()
 
@@ -65,12 +73,12 @@ func NewServer(addr string) *Server {
 	aiService.Start()
 
 	spellDAO := persistence.NewSpellDAO("../../resources/data/hechizos.dat")
-	spellService := service.NewSpellService(spellDAO, userService, messageService, objectService)
+	spellService := service.NewSpellService(spellDAO, userService, messageService, objectService, intervalService)
 	if err := spellService.LoadSpells(); err != nil {
 		fmt.Printf("Critical error loading spells: %v\n", err)
 	}
 
-	skillService := service.NewSkillService(mapService, objectService, messageService, userService, npcService, spellService)
+	skillService := service.NewSkillService(mapService, objectService, messageService, userService, npcService, spellService, intervalService)
 
 	fileDAO := persistence.NewFileDAO("../../resources/charfiles")
 	loginService := service.NewLoginService(fileDAO, fileDAO, cfg, userService, mapService, bodyService, indexManager, messageService, objectService, cityService, spellService, executor)
@@ -90,7 +98,7 @@ func NewServer(addr string) *Server {
 	m.RegisterHandler(protocol.CP_Drop, &incoming.DropPacket{MapService: mapService, MessageService: messageService, ObjectService: objectService})
 	m.RegisterHandler(protocol.CP_CastSpell, &incoming.CastSpellPacket{MapService: mapService, SpellService: spellService})
 	m.RegisterHandler(protocol.CP_LeftClick, &incoming.LeftClickPacket{MapService: mapService, NpcService: npcService, UserService: userService, ObjectService: objectService, AreaService: areaService})
-	m.RegisterHandler(protocol.CP_UseItem, &incoming.UseItemPacket{ObjectService: objectService, MessageService: messageService})
+	m.RegisterHandler(protocol.CP_UseItem, &incoming.UseItemPacket{ObjectService: objectService, MessageService: messageService, IntervalService: intervalService})
 	m.RegisterHandler(protocol.CP_EquipItem, &incoming.EquipItemPacket{ObjectService: objectService, MessageService: messageService, BodyService: bodyService})
 	m.RegisterHandler(protocol.CP_ChangeHeading, &incoming.ChangeHeadingPacket{AreaService: areaService})
 	m.RegisterHandler(protocol.CP_Double_Click, &incoming.DoubleClickPacket{MapService: mapService, NpcService: npcService, UserService: userService, ObjectService: objectService, AreaService: areaService})

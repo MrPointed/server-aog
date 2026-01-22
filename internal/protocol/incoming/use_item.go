@@ -11,8 +11,9 @@ import (
 )
 
 type UseItemPacket struct {
-	ObjectService  *service.ObjectService
-	MessageService *service.MessageService
+	ObjectService   *service.ObjectService
+	MessageService  *service.MessageService
+	IntervalService *service.IntervalService
 }
 
 func (p *UseItemPacket) Handle(buffer *network.DataBuffer, connection protocol.Connection) (bool, error) {
@@ -38,6 +39,11 @@ func (p *UseItemPacket) Handle(buffer *network.DataBuffer, connection protocol.C
 		return true, nil
 	}
 
+	// Check intervals
+	if !p.IntervalService.CanUseItem(char) {
+		return true, nil
+	}
+
 	switch obj.Type {
 	case model.OTFood:
 		char.Hunger = utils.Min(100, char.Hunger + obj.HungerPoints)
@@ -58,6 +64,7 @@ func (p *UseItemPacket) Handle(buffer *network.DataBuffer, connection protocol.C
 			Amount: itemSlot.Amount,
 			Equipped: itemSlot.Equipped,
 		})
+		p.IntervalService.UpdateLastItem(char)
 
 	case model.OTDrink:
 		char.Thirstiness = utils.Min(100, char.Thirstiness + obj.ThirstPoints)
@@ -76,6 +83,7 @@ func (p *UseItemPacket) Handle(buffer *network.DataBuffer, connection protocol.C
 			Amount: itemSlot.Amount,
 			Equipped: itemSlot.Equipped,
 		})
+		p.IntervalService.UpdateLastItem(char)
 
 	case model.OTPotion:
 		// TODO: Implement potion effects (HP, Mana, etc)
@@ -83,6 +91,7 @@ func (p *UseItemPacket) Handle(buffer *network.DataBuffer, connection protocol.C
 			Message: "Las pociones no están implementadas aún.",
 			Font:    outgoing.INFO,
 		})
+		p.IntervalService.UpdateLastItem(char)
 
 	default:
 		connection.Send(&outgoing.ConsoleMessagePacket{

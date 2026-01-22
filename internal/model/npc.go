@@ -33,6 +33,11 @@ type NPC struct {
 	MinHit int
 	MaxHit int
 
+	AttackPower  int
+	EvasionPower int
+	Defense      int
+	MagicDefense int
+
 	Hostile bool
 
 	// Spawning

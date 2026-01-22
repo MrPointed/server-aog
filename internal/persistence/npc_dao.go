@@ -55,14 +55,18 @@ func (d *NpcDAO) Load() (map[int]*model.NPC, error) {
 			Exp:         toInt(props["EXP"]),
 			MinHit:      toInt(props["MIN_HIT"]),
 			MaxHit:      toInt(props["MAX_HIT"]),
+			AttackPower:  toInt(props["PODERATAQUE"]),
+			EvasionPower: toInt(props["PODEREVASION"]),
+			Defense:      toInt(props["DEF"]),
+			MagicDefense: toInt(props["DEFENSAMAGICA"]),
 			Hostile:     props["HOSTILE"] == "1",
 			Movement:    toInt(props["MOVEMENT"]),
 		}
 
 		// HP can be MinHP/MaxHP or just HP
-		if hp, ok := props["MAX_HP"]; ok {
+		if hp, ok := props["MAXHP"]; ok {
 			npc.MaxHp = toInt(hp)
-			npc.Hp = toInt(props["MIN_HP"])
+			npc.Hp = toInt(props["MINHP"])
 		} else if hp, ok := props["HP"]; ok {
 			npc.MaxHp = toInt(hp)
 			npc.Hp = npc.MaxHp

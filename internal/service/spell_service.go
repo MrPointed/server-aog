@@ -14,15 +14,17 @@ type SpellService struct {
 	userService    *UserService
 	messageService *MessageService
 	objectService  *ObjectService
+	intervals      *IntervalService
 	spells         map[int]*model.Spell
 }
 
-func NewSpellService(dao *persistence.SpellDAO, userService *UserService, messageService *MessageService, objectService *ObjectService) *SpellService {
+func NewSpellService(dao *persistence.SpellDAO, userService *UserService, messageService *MessageService, objectService *ObjectService, intervals *IntervalService) *SpellService {
 	return &SpellService{
 		dao:            dao,
 		userService:    userService,
 		messageService: messageService,
 		objectService:  objectService,
+		intervals:      intervals,
 		spells:         make(map[int]*model.Spell),
 	}
 }
@@ -52,6 +54,11 @@ func (s *SpellService) CastSpell(caster *model.Character, spellID int, target an
 
 	conn := s.userService.GetConnection(caster)
 
+	// Check intervals
+	if !s.intervals.CanCastSpell(caster) {
+		return
+	}
+
 	// Validations
 	if caster.Mana < spell.ManaRequired {
 		fmt.Println("CastSpell: Not enough mana")
@@ -78,6 +85,10 @@ func (s *SpellService) CastSpell(caster *model.Character, spellID int, target an
 	// Consume resources
 	caster.Mana -= spell.ManaRequired
 	caster.Stamina -= spell.StaminaRequired
+	
+	// Update last spell time
+	s.intervals.UpdateLastSpell(caster)
+
 	if conn != nil {
 		conn.Send(outgoing.NewUpdateUserStatsPacket(caster))
 	}

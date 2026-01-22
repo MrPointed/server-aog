@@ -1,5 +1,7 @@
 package model
 
+import "time"
+
 type Account struct {
 	Nick       string
 	Password   string
@@ -80,6 +82,12 @@ type Character struct {
 	TargetUser    int16
 	TargetNPC     int16
 	TargetNpcType NPCType
+
+	// Action Timestamps
+	LastAttack time.Time
+	LastSpell  time.Time
+	LastItem   time.Time
+	LastWork   time.Time
 }
 
 type InventorySlot struct {

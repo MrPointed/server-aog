@@ -48,23 +48,23 @@ type Skill int
 
 const (
 	Magic Skill = iota + 1
-	Steal
-	CombatTactics
-	HandToHandCombat
 	Meditate
+	CombatTactics
+	MeleeCombat
+	Wrestling
+	Projectiles
+	Defense
+	Steal
 	Stab
 	Hiding
 	Survive
 	Lumber
 	Trade
-	Defense
 	Fishing
 	Mining
 	Woodwork
 	Ironwork
 	Leadership
 	Tame
-	Projectiles
-	Wrestling
 	Sailing
 )

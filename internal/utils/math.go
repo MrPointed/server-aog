@@ -1,5 +1,7 @@
 package utils
 
+import "math/rand"
+
 func Min(a, b int) int {
 	if a < b {
 		return a
@@ -12,4 +14,11 @@ func Max(a, b int) int {
 		return a
 	}
 	return b
+}
+
+func RandomNumber(min, max int) int {
+	if min > max {
+		return min
+	}
+	return rand.Intn(max-min+1) + min
 }
