@@ -1,0 +1,109 @@
+package persistence
+
+import (
+	"fmt"
+	"strconv"
+	"strings"
+
+	"github.com/ao-go-server/internal/model"
+)
+
+type ObjectDAO struct {
+	path string
+}
+
+func NewObjectDAO(path string) *ObjectDAO {
+	return &ObjectDAO{path: path}
+}
+
+func (d *ObjectDAO) Load() (map[int]*model.Object, error) {
+	data, err := ReadINI(d.path)
+	if err != nil {
+		return nil, err
+	}
+
+	objects := make(map[int]*model.Object)
+
+	for section, props := range data {
+		if !strings.HasPrefix(section, "OBJ") {
+			continue
+		}
+
+		id, err := strconv.Atoi(section[3:])
+		if err != nil {
+			fmt.Printf("Skipping invalid object section: %s\n", section)
+			continue
+		}
+
+		obj := &model.Object{
+			ID:           id,
+			Name:         props["NAME"],
+			GraphicIndex: toInt(props["GRAPHIC_INDEX"]),
+			Type:         model.ObjectType(toInt(props["OBJECT_TYPE"])),
+			Value:        toInt(props["VALUE"]),
+			Pickupable:   true,
+		}
+		
+		if obj.Name == "" {
+			fmt.Printf("Warning: Object ID %d has no name in data file (searched key NAME)\n", id)
+		}
+
+		// Stats
+		obj.MinHit = toInt(props["MIN_HIT"])
+		obj.MaxHit = toInt(props["MAX_HIT"])
+		obj.MinDef = toInt(props["MIN_DEF"])
+		obj.MaxDef = toInt(props["MAX_DEF"])
+
+		// Consumables
+		obj.HungerPoints = toInt(props["HUNGER_POINTS"])
+		obj.ThirstPoints = toInt(props["THIRST_POINTS"])
+
+		// Graphics
+		obj.EquippedWeaponGraphic = toInt(props["EQUIPPED_WEAPON_GRAPHIC"])
+		obj.EquippedBodyGraphic = toInt(props["EQUIPPED_BODY_GRAPHIC"])
+		obj.EquippedHeadGraphic = toInt(props["EQUIPPED_HEAD_GRAPHIC"])
+
+		// Map interaction overrides
+		if p, ok := props["PICKUPABLE"]; ok {
+			obj.Pickupable = p == "1"
+		} else {
+			// Defaults based on type
+			if obj.Type == model.OTTree || obj.Type == model.OTDeposit || obj.Type == model.OTBonfire {
+				obj.Pickupable = false
+			}
+		}
+
+		// Forbidden Archetypes (simplified parsing for now)
+		for i := 1; i <= 10; i++ {
+			archKey := fmt.Sprintf("FORBIDDEN_ARCHETYPE%d", i)
+			if archName, ok := props[archKey]; ok {
+				arch := parseArchetype(archName)
+				if arch != 0 {
+					obj.ForbiddenArchetypes = append(obj.ForbiddenArchetypes, arch)
+				}
+			}
+		}
+
+		objects[id] = obj
+	}
+
+	return objects, nil
+}
+
+func parseArchetype(name string) model.UserArchetype {
+	switch strings.ToUpper(name) {
+	case "MAGO": return model.Mage
+	case "CLERIGO": return model.Cleric
+	case "GUERRERO": return model.Warrior
+	case "ASESINO": return model.Assasin
+	case "LADRON": return model.Thief
+	case "BARDO": return model.Bard
+	case "DRUIDA": return model.Druid
+	case "BANDIDO": return model.Bandit
+	case "PALADIN": return model.Paladin
+	case "CAZADOR": return model.Hunter
+	case "TRABAJADOR": return model.Worker
+	case "PIRATA": return model.Pirate
+	}
+	return 0
+}

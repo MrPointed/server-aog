@@ -1,0 +1,48 @@
+package outgoing
+
+import (
+	"github.com/ao-go-server/internal/network"
+	"github.com/ao-go-server/internal/model"
+)
+
+type UpdateUserStatsPacket struct {
+	MaxHp       int
+	Hp          int
+	MaxMana     int
+	Mana        int
+	MaxStamina  int
+	Stamina     int
+	Money       int
+	Level       byte
+	ExpToNext   int
+	Exp         int
+}
+
+func NewUpdateUserStatsPacket(char *model.Character) *UpdateUserStatsPacket {
+	return &UpdateUserStatsPacket{
+		MaxHp:       char.MaxHp,
+		Hp:          char.Hp,
+		MaxMana:     char.MaxMana,
+		Mana:        char.Mana,
+		MaxStamina:  char.MaxStamina,
+		Stamina:     char.Stamina,
+		Money:       0, // TODO Money in Character
+		Level:       char.Level,
+		ExpToNext:   0, // TODO ExpToNext
+		Exp:         char.Exp,
+	}
+}
+
+func (p *UpdateUserStatsPacket) Write(buffer *network.DataBuffer) error {
+	buffer.PutShort(int16(p.MaxHp))
+	buffer.PutShort(int16(p.Hp))
+	buffer.PutShort(int16(p.MaxMana))
+	buffer.PutShort(int16(p.Mana))
+	buffer.PutShort(int16(p.MaxStamina))
+	buffer.PutShort(int16(p.Stamina))
+	buffer.PutInt(int32(p.Money))
+	buffer.Put(p.Level)
+	buffer.PutInt(int32(p.ExpToNext))
+	buffer.PutInt(int32(p.Exp))
+	return nil
+}

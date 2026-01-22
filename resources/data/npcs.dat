@@ -1,0 +1,6659 @@
+## npc_type
+# 0: Comun - Los npcs comunes abarcan las secciones varios/decorativos/Guardias Legion/No Hostiles/Hostiles (separar)
+# 1: Sacerdote
+# 2: Imperial
+# 3: Entrenador
+# 4: Banquero
+# 5: Noble
+# 6: Dragon
+# 7: Timbero
+# 8: Guardia del caos
+# 9: Sacerdote de newbies
+# 10: Pretoriano
+# 11: Gobernador
+# 12: Comerciante
+
+## Orden
+# Vende Casas
+# Resucitadores
+# Enlistadores
+# Entrenadores
+# Varios
+# Comerciantes
+# Decorativos
+# Ullathorpe
+# Nix
+# Banderbill
+# Lindos
+# Arghal
+# Arkhein
+# Esperanza
+# Ciudad Perdida
+# Guardias Armada
+# Guardias Legion
+# No Hostiles
+# Hostiles
+# Pretorianos
+
+# sound
+# sound1 = Golpe de la criatura
+# sound2 = Golpe a la criatura
+# sound3 = Muerte de la criatura
+
+# heading
+# 1 = Norte
+# 2 = Este
+# 3 = Sur
+# 4 = Oeste
+
+# TODO Algunas claves de object_count no coinciden con la cantidad de objectos
+# TODO Claves no especificadas en el codigo: backup, GuardiaPersigue, Faccion, AtacaDoble, GolpeExacto
+# TODO No se en que momento elimine 5 npcs que eran 4 guardias imperiales y una arquera real, todos pertenecientes a la seccion "Guardias Armada". Ver el archivo NPCs.dat original para mas informacion.
+# TODO No se de donde salio el [NPC308]
+
+[INIT]
+npc_count = 332
+
+#################### Vende Casas ####################
+
+[NPC1]
+name = Cullighan
+npc_type = 12
+description = Usted sabe que no hay persona noble o respetable en estas tierras que no tenga su propia vivienda. Acerquese y sea dueño de una de las exclusivas casas de Ullathorpe. Sera admirado por toda la poblacion!
+head = 33
+heading = 3
+body = 240
+ai_type = 1
+object_type = 9
+object_count = 4
+object1 = 54-0
+object2 = 65-0
+object3 = 69-0
+object4 = 73-0
+restockable = 1
+backup = 1
+
+[NPC2]
+name = Moraday
+npc_type = 12
+description = ¿Ha descubierto que la ciudad de Nix es la mas hermosa de todo Argentum, verdad? Pues que mejor que ser un terrateniente de este paraiso! Acercate que haremos negocios!
+head = 35
+heading = 3
+body = 239
+ai_type = 1
+object_type = 9
+object_count = 10
+object1 = 87-0
+object2 = 91-0
+object3 = 95-0
+object4 = 99-0
+object5 = 103-0
+object6 = 107-0
+object7 = 111-0
+object8 = 115-0
+object9 = 119-0
+object10 = 140-0
+restockable = 1
+backup = 1
+
+[NPC3]
+name = Rantarisk
+npc_type = 12
+description = De lejos pude ver vuestro blazon, seguro busca una de las moradas mas lujosas de todo el Argentum. En la ciudad real de Banderbill es donde deben habitar la flor y la nata de la nobleza. Venga y hagamos negocios!
+head = 32
+heading = 3
+body = 241
+ai_type = 1
+object_type = 9
+object_count = 18
+object1 = 266-0
+object2 = 270-0
+object3 = 274-0
+object4 = 278-0
+object5 = 282-0
+object6 = 286-0
+object7 = 290-0
+object8 = 294-0
+object9 = 298-0
+object10 = 323-0
+object11 = 327-0
+object12 = 331-0
+object13 = 335-0
+object14 = 339-0
+object15 = 343-0
+object16 = 347-0
+object17 = 351-0
+object18 = 355-0
+restockable = 1
+backup = 1
+
+[NPC4]
+name = Guldorf
+npc_type = 12
+description = Si esta buscando la paz y la tranquilidad en estas tierras ha llegado al lugar indicado... adquiera una de nuestras exclusivas residencias, y cambie su vida para siempre.
+head = 36
+body = 234
+heading = 3
+ai_type = 1
+object_type = 9
+object_count = 6
+object1 = 420-0
+object2 = 424-0
+object3 = 428-0
+object4 = 436-0
+object5 = 436-0
+object6 = 440-0
+restockable = 1
+backup = 1
+
+[NPC5]
+name = Vendedor de propiedades
+npc_type = 12
+description = En estas tierras demoniacas estan las mejores residencias para los miembros de la Legion Oscura... Si no eres legionario puedes tambien vivir aca, pero os aseguro que los augura un infierno! jajaja!
+head = 34
+body = 170
+heading = 3
+ai_type = 1
+object_type = 9
+object_count = 8
+object1 = 583-0
+object2 = 587-0
+object3 = 591-0
+object4 = 595-0
+object5 = 599-0
+object6 = 603-0
+object7 = 607-0
+object8 = 611-0
+restockable = 1
+backup = 1
+
+#################### Resucitadores ####################
+
+[NPC6]
+name = Sacerdote
+npc_type = 1
+description = Hola, hijo mio! Soy el sacerdote de estas tierras. Si quieres que te resucite escribe /resucitar, o haz doble click sobre mi.
+head = 3
+heading = 3
+body = 49
+ai_type = 1
+
+[NPC7]
+name = Sacerdote
+npc_type = 9
+description = Hola, hijo mio! Soy el sacerdote de estas tierras. Si eres newbie te podra resucitar, solo necesitas tipear /resucitar o hacer doble click sobre mi cabeza.
+head = 3
+heading = 3
+body = 49
+ai_type = 1
+
+#################### Enlistadores ####################
+
+[NPC8]
+name = Tancredo de Hauteville, soberano de Banderbill
+npc_type = 5
+description = Saludos ciudadano, soy Tancredo de Hauteville, nuevo soberano de Banderbill. Mi deber es mantener el nuevo orden del Imperio. Si deseas unirte a mis filas y ayudarme di /enlistar.
+head = 510
+heading = 3
+body = 409
+ai_type = 1
+alignment = 1
+
+[NPC9]
+name = Demonio Legionario
+npc_type = 5
+description = Si deseas unirte a la Legion Oscura escribe /enlistar.
+head = 0
+heading = 3
+body = 405
+ai_type = 1
+alignment = 1
+Faccion = 1
+
+#################### Entrenadores ####################
+
+[NPC10]
+name = O'Riley de Banderbill
+description = Hola amigo! Soy el maestro de armas de la milicia de Banderbill, si deseas que traiga una criatura solo debes pedirmelo escribiendo /entrenar.
+npc_type = 3
+head = 6
+heading = 3
+body = 57
+ai_type = 1
+creature_count = 4
+creature_id1 = 156
+creature_id2 = 160
+creature_id3 = 185
+creature_id4 = 161
+creature_name1 = Murcielago
+creature_name2 = Serpiente
+creature_name3 = Escorpion
+creature_name4 = Goblin
+
+[NPC11]
+name = O'Riley de Arkhein
+npc_type = 3
+description = Hola amigo! Escribe /entrenar para divertirte con estas almas malvadas que hemos domado para tu diversion en estos festejos.
+head = 6
+heading = 3
+body = 57
+ai_type = 1
+creature_count = 5
+creature_id1 = 190
+creature_id2 = 195
+creature_id3 = 197
+creature_id4 = 210
+creature_id5 = 222
+creature_name1 = Hormiga gigante
+creature_name2 = Tortuga gigante
+creature_name3 = Ogro
+creature_name4 = Liche
+creature_name5 = Duende Magico
+
+#################### Varios ####################
+
+[NPC12]
+name = Centinela
+npc_type = 0
+head = 0
+heading = 3
+body = 540
+ai_type = 1
+aquatic = 1
+
+[NPC13]
+name = Banquero
+npc_type = 4
+description = Hola, bienvenido a la cadena de finanzas Goliath. Somos la cadena mas grande en Argentum, contamos con bancos en las ciudades mas importantes.
+head = 503
+heading = 3
+body = 201
+ai_type = 1
+
+[NPC14]
+name = Timbero
+npc_type = 7
+description = Hola joven! Si deseas apostar escribe /apostar x.
+head = 9
+heading = 3
+body = 47
+ai_type = 1
+
+#################### Comerciantes ####################
+
+[NPC15]
+name = Lilith
+npc_type = 12
+description = Hola, tengo las mejores pociones de la alquimia.
+head = 77
+heading = 3
+body = 200
+ai_type = 1
+object_type = 11
+object_count = 6
+object1 = 36-1000
+object2 = 37-1000
+object3 = 38-1000
+object4 = 39-1000
+object5 = 166-1000
+object6 = 645-1000
+backup = 1
+
+[NPC16]
+name = Leñador
+npc_type = 12
+description = Hola muchacho! Si deseas vender o comprar madera escribe /comerciar.
+head = 4
+heading = 3
+body = 1
+ai_type = 1
+object_type = 14
+object_count = 2
+object1 = 127-1000
+object2 = 1005-1000
+backup = 1
+
+[NPC17]
+name = Carpintero
+npc_type = 12
+description = Hola muchacho! Bienvenido a mi humilde carpinteria.
+head = 2
+heading = 3
+body = 1
+ai_type = 1
+object_type = 20
+object_count = 5
+object1 = 163-1000
+object2 = 167-1000
+object3 = 168-1000
+object4 = 198-1000
+object5 = 480-10000
+backup = 1
+
+[NPC18]
+name = Pescador
+npc_type = 12
+description = Bienvenido al gremio de pescadores!
+head = 2
+heading = 3
+body = 3
+ai_type = 1
+object_type = 1
+object_count = 2
+object1 = 138-1000
+object2 = 139-1000
+backup = 1
+
+[NPC19]
+name = Pescador
+npc_type = 12
+description = Bienvenido al gremio de pescadores!
+head = 101
+heading = 3
+body = 3
+ai_type = 2
+object_type = 1
+object_count = 2
+object1 = 138-1000
+object2 = 139-1000
+backup = 1
+
+[NPC20]
+name = Minero
+npc_type = 12
+description = Tengo los mejores utensillos para mineros de todo Argentum.
+head = 2
+heading = 3
+body = 1
+ai_type = 1
+object_type = 23
+object_count = 1
+object1 = 187-1000
+backup = 1
+
+[NPC21]
+name = Mercader
+npc_type = 12
+description = Hola buen amigo, compro y vendo todo tipo de mercancias!
+head = 2
+heading = 3
+body = 3
+ai_type = 1
+object_type = 1000
+object_count = 1
+object1 = 534-1000
+backup = 1
+
+[NPC22]
+name = Ralph
+npc_type = 12
+description = Hola, pequeño aventurero, tengo aqui unas mercaderias para saciar tu hambre y sed!
+head = 504
+heading = 3
+body = 202
+ai_type = 1
+object_type = 1
+object_count = 3
+object1 = 1-1000
+object2 = 158-1000
+object3 = 43-1000
+backup = 1
+
+[NPC23]
+name = Antogne
+npc_type = 12
+description = Hola aventurero! Si estais hambriento habeis venido al lugar apropiador, tengo todo tipo de frutas.
+head = 505
+heading = 3
+body = 202
+ai_type = 1
+object_type = 1
+object_count = 6
+object1 = 1-1000
+object2 = 158-1000
+object3 = 22-1000
+object4 = 754-1000
+object5 = 29-1000
+object6 = 43-1000
+backup = 1
+
+[NPC24]
+name = Sastreria Real
+npc_type = 12
+description = Bienvenido a la sastreria real.
+head = 171
+heading = 3
+body = 174
+ai_type = 1
+object_type = 3
+object_count = 13
+object1 = 675-1000
+object2 = 516-1000
+object3 = 517-1000
+object4 = 372-1000
+object5 = 521-1000
+object6 = 679-1000
+object7 = 520-1000
+object8 = 680-1000
+object9 = 629-1000
+object10 = 687-1000
+object11 = 691-1000
+object12 = 693-1000
+object13 = 1038-1000
+backup = 1
+
+[NPC25]
+name = Sastreria Real
+npc_type = 12
+description = Bienvenido a la sastreria real.
+head = 309
+heading = 3
+body = 175
+ai_type = 1
+object_type = 3
+object_count = 10
+object1 = 676-1000
+object2 = 549-1000
+object3 = 1039-1000
+object4 = 492-1000
+object5 = 682-1000
+object6 = 1040-1000
+object7 = 681-1000
+object8 = 688-1000
+object9 = 694-1000
+object10 = 1038-1000
+backup = 1
+
+[NPC26]
+name = SC
+npc_type = 12
+description = Aqui obtendras tu armadura legionaria!
+head = 0
+heading = 3
+body = 69
+ai_type = 1
+object_type = 3
+object_count = 12
+object1 = 677-1000
+object2 = 509-1000
+object3 = 518-1000
+object4 = 523-1000
+object5 = 369-1000
+object6 = 634-1000
+object7 = 684-1000
+object8 = 635-1000
+object9 = 683-1000
+object10 = 689-1000
+object11 = 701-1000
+object12 = 1037-1000
+backup = 1
+
+[NPC27]
+name = SC
+npc_type = 12
+description = Aqui obtendras tu armadura legionaria!
+head = 318
+heading = 3
+body = 177
+ai_type = 1
+object_type = 3
+object_count = 10
+object1 = 678-1000
+object2 = 558-1000
+object3 = 1041-1000
+object4 = 379-1000
+object5 = 686-1000
+object6 = 1042-1000
+object7 = 685-1000
+object8 = 690-1000
+object9 = 695-1000
+object10 = 1037-1000
+backup = 1
+
+[NPC28]
+name = Ireth
+npc_type = 12
+description = Bienvenido amigo, vendo ropajes para mujeres humanas.
+head = 71
+heading = 3
+body = 254
+ai_type = 1
+object_type = 3
+object_count = 15
+object1 = 879-1000
+object2 = 880-1000
+object3 = 884-1000
+object4 = 885-1000
+object5 = 886-1000
+object6 = 891-1000
+object7 = 892-1000
+object8 = 893-1000
+object9 = 894-1000
+object10 = 896-1000
+object11 = 899-1000
+object12 = 900-1000
+object13 = 901-1000
+object14 = 902-1000
+object15 = 904-1000
+backup = 1
+
+[NPC29]
+name = Isaac
+npc_type = 12
+description = Buscas ropas para hombres humanos? Entonces has hecho bien en acudir a mi.
+head = 7
+heading = 3
+body = 240
+ai_type = 1
+object_type = 3
+object_count = 7
+object1 = 882-1000
+object2 = 887-1000
+object3 = 888-1000
+object4 = 889-1000
+object5 = 890-1000
+object6 = 897-1000
+object7 = 903-1000
+backup = 1
+
+[NPC30]
+name = Nelvi
+npc_type = 12
+description = Poseo una gran cantidad de ropajes para los astutos gnomos, ¿deseas algo en particular?
+head = 403
+heading = 3
+body = 294
+ai_type = 1
+object_type = 3
+object_count = 20
+object1 = 908-1000
+object2 = 910-1000
+object3 = 911-1000
+object4 = 912-1000
+object5 = 913-1000
+object6 = 915-1000
+object7 = 916-1000
+object8 = 917-1000
+object9 = 918-1000
+object10 = 919-1000
+object11 = 920-1000
+object12 = 921-1000
+object13 = 922-1000
+object14 = 923-1000
+object15 = 924-1000
+object16 = 927-1000
+object17 = 928-1000
+object18 = 929-1000
+object19 = 930-1000
+object20 = 932-1000
+backup = 1
+
+[NPC31]
+name = Aile
+npc_type = 12
+description = Bienvenido, vendo ropas para los hermosos gnomos de estas tierras.
+head = 473
+heading = 3
+body = 288
+ai_type = 1
+object_type = 3
+object_count = 15
+object1 = 909-1000
+object2 = 914-1000
+object3 = 925-1000
+object4 = 926-1000
+object5 = 931-1000
+object6 = 933-1000
+object7 = 935-1000
+object8 = 936-1000
+object9 = 938-1000
+object10 = 941-1000
+object11 = 942-1000
+object12 = 934-1000
+object13 = 937-1000
+object14 = 939-1000
+object15 = 940-1000
+backup = 1
+
+[NPC32]
+name = Varinya
+npc_type = 12
+description = Tengo para ofrecerte los mejores ropajes para elfos.
+head = 172
+heading = 3
+body = 234
+ai_type = 1
+object_type = 3
+object_count = 14
+object1 = 943-1000
+object2 = 944-1000
+object3 = 945-1000
+object4 = 946-1000
+object5 = 947-1000
+object6 = 948-1000
+object7 = 949-1000
+object8 = 950-1000
+object9 = 951-1000
+object10 = 952-1000
+object11 = 953-1000
+object12 = 954-1000
+object13 = 955-1000
+object14 = 956-1000
+backup = 1
+
+[NPC33]
+name = Torke
+npc_type = 12
+description = Solo tengo ropajes para enanos, si no las puedes usar, vete de aqui!
+head = 371
+heading = 3
+body = 306
+ai_type = 1
+object_type = 3
+object_count = 18
+object1 = 957-1000
+object2 = 958-1000
+object3 = 959-1000
+object4 = 960-1000
+object5 = 961-1000
+object6 = 962-1000
+object7 = 963-1000
+object8 = 964-1000
+object9 = 965-1000
+object10 = 966-1000
+object11 = 967-1000
+object12 = 968-1000
+object13 = 969-1000
+object14 = 970-1000
+object15 = 971-1000
+object16 = 972-1000
+object17 = 973-1000
+object18 = 974-1000
+backup = 1
+
+[NPC34]
+name = Gourk
+npc_type = 12
+description = Vendo ropas para elfos drows, de hermosas telas y refinados detalles.
+head = 203
+heading = 3
+body = 264
+ai_type = 1
+object_type = 3
+object_count = 9
+object1 = 977-1000
+object2 = 978-1000
+object3 = 979-1000
+object4 = 980-1000
+object5 = 981-1000
+object6 = 982-1000
+object7 = 983-1000
+object8 = 984-1000
+object9 = 985-1000
+backup = 1
+
+#################### Decorativos ####################
+
+[NPC35]
+name = Astor
+npc_type = 0
+description = orcoszhh zson todsh orcshhh... hip...
+head = 2140
+body = 285
+heading = 3
+ai_type = 1
+
+[NPC36]
+name = Aldeano
+npc_type = 0
+description = Hola forastero! Bienvenido a nuestra humilde aldea.
+head = 0
+heading = 3
+body = 18
+ai_type = 2
+
+[NPC37]
+name = Bardo
+npc_type = 0
+description = ¿Hola, os gustaria oir una hermosa melodia?
+head = 0
+heading = 3
+body = 17
+ai_type = 1
+
+[NPC38]
+name = Aldeana
+npc_type = 0
+description = Hola forastero! Bienvenido a nuestra humilde aldea.
+head = 0
+heading = 3
+body = 19
+ai_type = 2
+
+[NPC39]
+name = Gobernador
+npc_type = 11
+description = Hola, soy el gobernador de Ullathorpe. Bienvenido a nuestra pequeña aldea! Escribe /hogar para obtener la ciudadania.
+head = 0
+heading = 3
+body = 4
+ai_type = 1
+city = 1
+
+[NPC40]
+name = Alarnick, antiguo soberano de Banderbill
+npc_type = 0
+description = Esto no es digno de un soberano! Exijo me devuelvan mi trono y me saquen de esta pocilga! Maldito Tancredo, me las pagaras!
+head = 101
+heading = 3
+body = 348
+ai_type = 2
+
+[NPC41]
+name = Nelmasil
+npc_type = 0
+description = El pueblo de Ullathorpe en contra del alcalde... Todos aquellos que estan en contra se presenten en el castillo del rey en Banderbill!
+head = 0
+body = 410
+heading = 3
+ai_type = 1
+
+[NPC42]
+name = Gael Azrraed
+npc_type = 0
+description = Todos arderan! Arderan en el infierno y luciernagas saldran de sus ojos!
+head = 2070
+body = 75
+heading = 3
+ai_type = 1
+
+[NPC43]
+name = Altair de Oteren
+npc_type = 0
+description = Aprovechad que la pesca es buena a estas horas... Si deseas pescar, puedes comprarle una caña al comerciante que se encuentra al oeste del muelle.
+head = 60
+body = 75
+heading = 3
+ai_type = 1
+
+[NPC44]
+name = Linderoth
+npc_type = 0
+description = Hey tu, ¿que me andas mirando? He matado medusas en peligrosos dungeons desde que era un niño...
+head = 2280
+body = 285
+heading = 3
+ai_type = 1
+
+[NPC45]
+name = Sebastien
+npc_type = 0
+description = EH, EH?! no! Yo no he hecho nada! Vete si no quieres problemas!
+head = 2154
+body = 31
+heading = 3
+ai_type = 1
+
+[NPC46]
+name = Anthares
+npc_type = 0
+description = Shhh, ten cuidado, planeo raptar al Demonio. Buscar refuerzos y la ciudad sera asediada.
+head = 2050
+body = 378
+heading = 3
+ai_type = 1
+
+[NPC47]
+name = Vuragon
+npc_type = 0
+description = Estoy hasta la coronilla de que se escape mi vaca! Ya recibira su merecido cuando la encuentre.
+head = 60
+body = 501
+heading = 3
+ai_type = 1
+
+[NPC48]
+name = Belial
+npc_type = 0
+description = Maldito seas Tancredo de Hauteville! Me obligan limpiar esta mugrosa ciudad por haber hecho algo que no hice!
+head = 63
+body = 641
+heading = 3
+ai_type = 1
+
+[NPC49]
+name = Efral
+npc_type = 0
+description = ¿Que miras tu? ¿Acaso quieres sufrir?
+head = 69
+body = 442
+heading = 3
+ai_type = 1
+
+[NPC50]
+name = Manrique
+npc_type = 0
+description = El Rey es avaro y sus terratenientes tambien, dame algo por favor, no seas como el...
+head = 0
+body = 411
+heading = 3
+ai_type = 1
+
+[NPC51]
+name = Abel, el monje pensador
+npc_type = 0
+description = Cuando hayas caido en combate, puedes acercarte al sacerdote de la ciudad para que te devuelva a la vida.
+head = 2050
+body = 381
+heading = 3
+ai_type = 1
+
+[NPC52]
+name = Clipsa
+npc_type = 0
+description = Que la diosa naturaleza te guie.
+head = 67
+body = 357
+heading = 3
+ai_type = 1
+
+[NPC53]
+name = Astor
+npc_type = 0
+description = orcoszhh zson todsh orcshhh..hip..
+head = 0
+body = 412
+heading = 3
+ai_type = 1
+
+[NPC54]
+name = Zairot
+npc_type = 0
+description = Podrash caminar de norte a shur, *hip* podrash encontrar sherveza de la mejor *hip* pero ninguna como la del meshon *hip*
+head = 0
+body = 416
+heading = 3
+ai_type = 1
+
+[NPC55]
+name = Onkin
+npc_type = 0
+description = Dejenme tarnquilo... hip hip... descargara lo que he... hip hip... bebido
+head = 0
+body = 424
+heading = 3
+ai_type = 1
+
+[NPC56]
+name = Fethresor
+npc_type = 0
+description = En las batallas mas escalofriantes, mas sangrientas... un bardo siempre esta presente.
+head = 0
+body = 418
+heading = 3
+ai_type = 1
+
+[NPC57]
+name = Whyx
+npc_type = 0
+description = Mis melodias podrian hacer que hasta el mas habil guerrero, caiga a mis pies...
+head = 0
+body = 419
+heading = 3
+ai_type = 1
+
+[NPC58]
+name = Iklot
+npc_type = 0
+description = Cuando te encuentres solo, perdido, sin saber para donde correr... Respira profundo y susurra mi melodia.
+head = 0
+body = 420
+heading = 3
+ai_type = 1
+
+[NPC59]
+name = Unurbar Gorog
+npc_type = 12
+description = Hola! Poseo las mejores y mas extrañas bebidas de estas tierras, ¿que desea que le sirva?
+head = 304
+heading = 3
+body = 372
+ai_type = 1
+object_type = 13
+object_count = 8
+object1 = 498-1000
+object2 = 522-1000
+object3 = 550-1000
+object4 = 160-1000
+object5 = 557-1000
+object6 = 612-1000
+object7 = 42-1000
+object8 = 622-1000
+backup = 1
+
+[NPC60]
+name = Dugh Dhail
+npc_type = 0
+description = Hola forastero! Pronto se celebrara un nuevo aniversario de la creacion de la cerveza ¿Acudiras a los festejos?
+head = 0
+heading = 3
+body = 410
+ai_type = 1
+backup = 1
+
+#################### Ullathorpe ####################
+
+[NPC61]
+name = Thorkis
+npc_type = 12
+description = Hooooola jovencito, tengo las mejores provisiones de Ullathorpe!
+head = 504
+heading = 3
+body = 202
+ai_type = 1
+object_type = 1
+object_count = 5
+object1 = 1-10000
+object2 = 158-1000
+object3 = 22-1000
+object4 = 43-1000
+object5 = 160-1000
+backup = 1
+
+[NPC62]
+name = Herrero
+npc_type = 12
+description = Bienvenido, rata de alcantarilla, soy el herrero de Ullathorpe... tengo algunas armas que pueden ayudarte en tus viajes.
+head = 505
+heading = 3
+body = 199
+ai_type = 1
+object_type = 2
+object_count = 9
+object1 = 15-1000
+object2 = 619-1000
+object3 = 165-1000
+object4 = 9-1000
+object5 = 2-1000
+object6 = 125-1000
+object7 = 123-1000
+object8 = 389-1000
+object9 = 124-1000
+backup = 1
+
+[NPC63]
+name = Mago
+npc_type = 12
+description = Bienvenido a mi pequeña tienda de Ullathorpe... Tengo algunos hechizos que podrian interesarte.
+head = 110
+heading = 3
+body = 46
+ai_type = 1
+object_type = 24
+object_count = 8
+object1 = 363-1000
+object2 = 199-1000
+object3 = 200-1000
+object4 = 197-1000
+object5 = 658-1000
+object6 = 659-1000
+object7 = 696-1000
+object8 = 208-1000
+backup = 1
+
+[NPC64]
+name = Sastre
+npc_type = 12
+description = Hola forastero! Soy el sastre de Ullathorpe, bienvenido!
+head = 9
+heading = 3
+body = 50
+ai_type = 1
+object_type = 3
+object_count = 9
+object1 = 31-1000
+object2 = 32-1000
+object3 = 35-1000
+object4 = 641-1000
+object5 = 501-1000
+object6 = 135-1000
+object7 = 238-1000
+object8 = 239-1000
+object9 = 873-1000
+backup = 1
+
+[NPC65]
+name = Sastre
+npc_type = 12
+description = Bienvenida viajera! Tengo hermosas vestimentas para ofrecerte...
+head = 70
+heading = 3
+body = 80
+ai_type = 1
+object_type = 3
+object_count = 5
+object1 = 170-1000
+object2 = 504-1000
+object3 = 505-1000
+object4 = 506-1000
+object5 = 382-1000
+backup = 1
+
+[NPC66]
+name = Sastre
+npc_type = 12
+description = Acerquese! Tengo pequeñas prendas que seran de su agrado...
+head = 303
+heading = 3
+body = 180
+ai_type = 1
+object_type = 3
+object_count = 6
+object1 = 240-1000
+object2 = 527-1000
+object3 = 486-1000
+object4 = 507-1000
+object5 = 502-1000
+object6 = 707-1000
+backup = 1
+
+[NPC67]
+name = Armaduras
+npc_type = 12
+description = Acercate, tengo algunas armaduras que podrian protegerte.
+head = 6
+body = 93
+heading = 4
+ai_type = 1
+object_type = 3
+object_count = 5
+object1 = 30-1000
+object2 = 529-1000
+object3 = 668-1000
+object4 = 1001-1000
+object5 = 1002-1000
+backup = 1
+
+#################### Nix ####################
+
+[NPC68]
+name = Thorkis
+npc_type = 12
+description = Que tal amigo! Entra, pues tengo las mejores provisiones de Nix!
+head = 504
+heading = 3
+body = 202
+ai_type = 1
+object_type = 1
+object_count = 4
+object1 = 139-1000
+object2 = 26-1000
+object3 = 43-1000
+object4 = 160-1000
+backup = 1
+
+[NPC69]
+name = Herrero
+npc_type = 12
+description = Bienvenido, rata de alcantarilla, soy el herrero de Nix, tengo algunas armas que pueden ayudarte en tus viajes.
+head = 505
+heading = 3
+body = 199
+ai_type = 1
+object_type = 2
+object_count = 9
+object1 = 15-1000
+object2 = 619-1000
+object3 = 165-1000
+object4 = 389-1000
+object5 = 3-1000
+object6 = 2-1000
+object7 = 398-1000
+object8 = 990-1000
+object9 = 1009-1000
+backup = 1
+
+[NPC70]
+name = Mago
+npc_type = 12
+description = Bienvenido a mi pequeña tienda de Nix... Tengo algunos hechizos que podrian interesarte.
+head = 110
+heading = 3
+body = 46
+ai_type = 1
+object_type = 24
+object_count = 11
+object1 = 201-1000
+object2 = 204-1000
+object3 = 364-1000
+object4 = 205-1000
+object5 = 380-1000
+object6 = 661-1000
+object7 = 383-1000
+object8 = 658-1000
+object9 = 659-1000
+object10 = 696-1000
+object11 = 208-1000
+backup = 1
+
+[NPC71]
+name = Sastre
+npc_type = 12
+description = Hola forastero! Soy el sastre de Nix, bienvenido!
+head = 7
+heading = 3
+body = 50
+ai_type = 1
+object_type = 3
+object_count = 10
+object1 = 31-1000
+object2 = 32-1000
+object3 = 35-1000
+object4 = 45-1000
+object5 = 80-1000
+object6 = 501-1000
+object7 = 135-1000
+object8 = 238-1000
+object9 = 239-1000
+object10 = 1036-1000
+backup = 1
+
+[NPC72]
+name = Sastre
+npc_type = 12
+description = Bienvenida viajera! Entra a mi tienda, tengo las mejores prendas de Nix!
+head = 71
+heading = 3
+body = 80
+ai_type = 1
+object_type = 3
+object_count = 5
+object1 = 170-1000
+object2 = 504-1000
+object3 = 505-1000
+object4 = 506-1000
+object5 = 382-1000
+backup = 1
+
+[NPC73]
+name = Sastre
+npc_type = 12
+description = Acerquese! Tengo pequeñas prendas que seran de su agrado...
+head = 404
+heading = 3
+body = 180
+ai_type = 1
+object_type = 3
+object_count = 6
+object1 = 240-1000
+object2 = 527-1000
+object3 = 486-1000
+object4 = 507-1000
+object5 = 502-1000
+object6 = 707-1000
+backup = 1
+
+[NPC74]
+name = Armaduras
+npc_type = 12
+description = Acercate, tengo algunas armaduras que podrian protegerte.
+head = 6
+body = 93
+heading = 4
+ai_type = 1
+object_type = 3
+object_count = 8
+object1 = 30-1000
+object2 = 529-1000
+object3 = 668-1000
+object4 = 359-1000
+object5 = 499-1000
+object6 = 667-1000
+object7 = 1001-1000
+object8 = 1002-1000
+backup = 1
+
+#################### Banderbill ####################
+
+[NPC75]
+name = Tellez
+npc_type = 12
+description = Hola! Bienvenido al Meson Hostigado ¿Que desea que le sirva?
+head = 505
+heading = 3
+body = 202
+ai_type = 1
+object_type = 13
+object_count = 10
+object1 = 21-1000
+object2 = 23-1000
+object3 = 24-1000
+object4 = 28-1000
+object5 = 29-1000
+object6 = 26-1000
+object7 = 25-1000
+object8 = 160-1000
+object9 = 42-1000
+object10 = 161-1000
+backup = 1
+
+[NPC76]
+name = Herrero
+npc_type = 12
+description = Ven, pasa, que he fabricado las mas poderosas armas de Banderbill para ti!
+head = 505
+heading = 3
+body = 199
+ai_type = 1
+object_type = 2
+object_count = 9
+object1 = 164-1000
+object2 = 2-1000
+object3 = 19-1000
+object4 = 123-1000
+object5 = 389-1000
+object6 = 401-1000
+object7 = 478-1000
+object8 = 990-1000
+object9 = 1009-1000
+backup = 1
+
+[NPC77]
+name = Mago
+npc_type = 12
+description = Bienvenido a mi pequeña tienda de Banderbill... Tengo algunos hechizos que podrian interesarte.
+head = 110
+heading = 3
+body = 46
+ai_type = 1
+object_type = 24
+object_count = 15
+object1 = 394-1000
+object2 = 203-1000
+object3 = 207-1000
+object4 = 657-1000
+object5 = 206-1000
+object6 = 361-1000
+object7 = 319-1000
+object8 = 531-1000
+object9 = 318-1000
+object10 = 537-1000
+object11 = 662-1000
+object12 = 658-1000
+object13 = 659-1000
+object14 = 696-1000
+object15 = 208-1000
+backup = 1
+
+[NPC78]
+name = Sastre
+npc_type = 12
+description = Bienvenido a la sastreria de Banderbill! En que lo puedo ayudar?
+head = 7
+heading = 3
+body = 56
+ai_type = 1
+object_type = 3
+object_count = 11
+object1 = 501-1000
+object2 = 135-1000
+object3 = 238-1000
+object4 = 239-1000
+object5 = 381-1000
+object6 = 196-1000
+object7 = 357-1000
+object8 = 986-1000
+object9 = 873-1000
+object10 = 1036-1000
+object11 = 1010-1000
+backup = 1
+
+[NPC79]
+name = Sastre
+npc_type = 12
+description = Adelante hermosa niña! En mi tienda encontraras vestidos hechos para ti!
+head = 173
+heading = 3
+body = 121
+ai_type = 1
+object_type = 3
+object_count = 5
+object1 = 504-1000
+object2 = 505-1000
+object3 = 506-1000
+object4 = 382-1000
+object5 = 511-1000
+backup = 1
+
+[NPC80]
+name = Sastre
+npc_type = 12
+description = Ven y mira estas prendas que he confeccionado para nuestra raza!
+head = 305
+heading = 3
+body = 159
+ai_type = 1
+object_type = 3
+object_count = 6
+object1 = 486-1000
+object2 = 507-1000
+object3 = 502-1000
+object4 = 707-1000
+object5 = 671-1000
+object6 = 670-1000
+backup = 1
+
+[NPC81]
+name = Armaduras
+npc_type = 12
+description = Ven, tengo resistentes armaduras para ofrecerte.
+head = 6
+body = 93
+heading = 4
+ai_type = 1
+object_type = 3
+object_count = 6
+object1 = 359-1000
+object2 = 499-1000
+object3 = 667-1000
+object4 = 360-1000
+object5 = 648-1000
+object6 = 1003-1000
+backup = 1
+
+#################### Lindos ####################
+
+[NPC82]
+name = Sorks
+npc_type = 12
+description = ¿Estas sediento y hambriento?
+head = 505
+heading = 3
+body = 202
+ai_type = 1
+object_type = 13
+object_count = 4
+object1 = 139-1000
+object2 = 754-1000
+object3 = 43-1000
+object4 = 160-1000
+backup = 1
+
+[NPC83]
+name = Herrero
+npc_type = 12
+description = Ven, pasa, que he fabricado, aqui en Lindos, poderosas armas para ti!
+head = 505
+heading = 3
+body = 199
+ai_type = 1
+object_type = 2
+object_count = 8
+object1 = 2-1000
+object2 = 19-1000
+object3 = 123-1000
+object4 = 401-1000
+object5 = 125-1000
+object6 = 753-1000
+object7 = 404-1000
+object8 = 990-1000
+backup = 1
+
+[NPC84]
+name = Mago
+npc_type = 12
+description = Ven por aqui joven, las artes magicas superiores te estan llamando...
+head = 110
+heading = 3
+body = 46
+ai_type = 1
+object_type = 24
+object_count = 17
+object1 = 530-1000
+object2 = 396-1000
+object3 = 397-1000
+object4 = 470-1000
+object5 = 471-1000
+object6 = 319-1000
+object7 = 673-1000
+object8 = 394-1000
+object9 = 395-1000
+object10 = 538-1000
+object11 = 536-1000
+object12 = 532-1000
+object13 = 542-1000
+object14 = 658-1000
+object15 = 659-1000
+object16 = 696-1000
+object17 = 208-1000
+backup = 1
+
+[NPC85]
+name = Sastre
+npc_type = 12
+description = Ven aqui! Te puedo ofrecer las mejores ropas de la isla...
+head = 7
+heading = 3
+body = 46
+ai_type = 1
+object_type = 3
+object_count = 11
+object1 = 31-1000
+object2 = 32-1000
+object3 = 35-1000
+object4 = 135-1000
+object5 = 238-1000
+object6 = 239-1000
+object7 = 381-1000
+object8 = 196-1000
+object9 = 986-1000
+object10 = 873-1000
+object11 = 1010-1000
+backup = 1
+
+[NPC86]
+name = Sastre
+npc_type = 12
+description = Ven y mira estas vestimentas, seguro te encantaran!
+head = 75
+heading = 3
+body = 118
+ai_type = 1
+object_type = 3
+object_count = 5
+object1 = 170-1000
+object2 = 382-1000
+object3 = 511-1000
+object4 = 488-1000
+object5 = 508-1000
+backup = 1
+
+[NPC87]
+name = Sastre
+npc_type = 12
+description = Hola forastero! Confeccionamos las mejores ropas de la zona.
+head = 304
+heading = 3
+body = 135
+ai_type = 1
+object_type = 3
+object_count = 7
+object1 = 507-1000
+object2 = 502-1000
+object3 = 707-1000
+object4 = 671-1000
+object5 = 670-1000
+object6 = 524-1000
+object7 = 370-1000
+backup = 1
+
+[NPC88]
+name = Armaduras
+npc_type = 12
+description = Tengo a la venta las mejores armaduras de la isla!
+head = 6
+body = 93
+heading = 4
+ai_type = 1
+object_type = 3
+object_count = 7
+object1 = 359-1000
+object2 = 499-1000
+object3 = 667-1000
+object4 = 360-1000
+object5 = 648-1000
+object6 = 484-1000
+object7 = 1004-1000
+backup = 1
+
+#################### Arghal ####################
+
+[NPC89]
+name = Carahuel
+npc_type = 12
+description = Hola, pequeño amigo! ¿Estas buscando algo para llenar tu estomago? Creo que puedo ayudarte...
+head = 474
+heading = 3
+body = 309
+ai_type = 1
+object_type = 13
+object_count = 4
+object1 = 1-1000
+object2 = 29-1000
+object3 = 158-1000
+object4 = 754-1000
+backup = 1
+
+[NPC90]
+name = Bhoemond
+npc_type = 12
+description = Sea bienvenido a la famosa taberna de Arghal! Aqui podra saciarse con la mejor comida y la mejor bebida de toda la zona.
+head = 17
+heading = 3
+body = 100
+ai_type = 1
+object_type = 13
+object_count = 10
+object1 = 21-1000
+object2 = 23-1000
+object3 = 24-1000
+object4 = 28-1000
+object5 = 29-1000
+object6 = 26-1000
+object7 = 25-1000
+object8 = 160-1000
+object9 = 42-1000
+object10 = 161-1000
+backup = 1
+
+[NPC91]
+name = Herrero
+npc_type = 12
+description = Con estas manos he construido algunas armas que te podran servir en tus aventuras... Paga por ellas y seran tuyas!
+head = 16
+heading = 3
+body = 199
+ai_type = 1
+object_type = 2
+object_count = 8
+object1 = 15-1000
+object2 = 619-1000
+object3 = 165-1000
+object4 = 389-1000
+object5 = 9-1000
+object6 = 2-1000
+object7 = 125-1000
+object8 = 123-1000
+backup = 1
+
+[NPC92]
+name = Mago
+npc_type = 12
+description = Bienvenido a mi pequeña escuela de magia, ubicada en el corazon mismo de la ciudad de Arghal.
+head = 20
+heading = 3
+body = 34
+ai_type = 1
+object_type = 24
+object_count = 7
+object1 = 199-1000
+object2 = 200-1000
+object3 = 201-1000
+object4 = 202-1000
+object5 = 204-1000
+object6 = 658-1000
+object7 = 659-1000
+backup = 1
+
+[NPC93]
+name = Steve
+npc_type = 12
+description = Ven, acercate, que tengo para ofrecerte las mejores prendas masculinas de todo Arghal...
+head = 22
+heading = 3
+body = 342
+ai_type = 1
+object_type = 3
+object_count = 10
+object1 = 31-1000
+object2 = 32-1000
+object3 = 35-1000
+object4 = 641-1000
+object5 = 501-1000
+object6 = 135-1000
+object7 = 238-1000
+object8 = 239-1000
+object9 = 873-1000
+object10 = 1036-1000
+backup = 1
+
+[NPC94]
+name = Virgin
+npc_type = 12
+description = Bienvenida jovencita! Soy quien hace los mejores atuendos femeninos de todo Arghal, ven y prueba mi mercaderia.
+head = 70
+heading = 3
+body = 80
+ai_type = 1
+object_type = 3
+object_count = 5
+object1 = 170-1000
+object2 = 504-1000
+object3 = 505-1000
+object4 = 506-1000
+object5 = 382-1000
+backup = 1
+
+[NPC95]
+name = Odkon
+npc_type = 12
+description = Acerquese pequeño visitante de Arghal... Tengo prendas a su medida.
+head = 404
+heading = 3
+body = 371
+ai_type = 1
+object_type = 3
+object_count = 7
+object1 = 240-1000
+object2 = 527-1000
+object3 = 486-1000
+object4 = 507-1000
+object5 = 502-1000
+object6 = 707-1000
+object7 = 867-1000
+backup = 1
+
+[NPC96]
+name = Armaduras
+npc_type = 12
+description = Si tienes agallas como para abandonar la ciudad y enfrentar el peligro de los bosques, deberias comprar una de las armaduras que he fabricado.
+head = 39
+body = 93
+heading = 3
+ai_type = 1
+object_type = 3
+object_count = 3
+object1 = 30-1000
+object2 = 529-1000
+object3 = 668-1000
+backup = 1
+
+#################### Arkhein ####################
+
+[NPC97]
+name = Tolloz
+npc_type = 12
+description = Hola! Bienvenido a la taberna de Arkhein, ¿que desea que le sirva?
+head = 505
+heading = 3
+body = 202
+ai_type = 1
+object_type = 13
+object_count = 10
+object1 = 21-1000
+object2 = 23-1000
+object3 = 24-1000
+object4 = 28-1000
+object5 = 29-1000
+object6 = 26-1000
+object7 = 25-1000
+object8 = 160-1000
+object9 = 42-1000
+object10 = 161-1000
+backup = 1
+
+[NPC98]
+name = Herrero
+npc_type = 12
+description = Ven, pasa, que he fabricado las mas poderosas armas de Arkhein para ti!
+head = 505
+heading = 3
+body = 199
+ai_type = 1
+object_type = 2
+object_count = 9
+object1 = 164-1000
+object2 = 2-1000
+object3 = 19-1000
+object4 = 123-1000
+object5 = 389-1000
+object6 = 401-1000
+object7 = 478-1000
+object8 = 990-1000
+object9 = 1009-1000
+backup = 1
+
+[NPC99]
+name = Mago
+npc_type = 12
+description = Bienvenido a mi pequeña tienda de Arkhein... Tengo algunos hechizos que podrian interesarte.
+head = 110
+heading = 3
+body = 46
+ai_type = 1
+object_type = 24
+object_count = 16
+object1 = 395-1000
+object2 = 203-1000
+object3 = 207-1000
+object4 = 657-1000
+object5 = 206-1000
+object6 = 361-1000
+object7 = 673-1000
+object8 = 202-1000
+object9 = 531-1000
+object10 = 318-1000
+object11 = 537-1000
+object12 = 662-1000
+object13 = 658-1000
+object14 = 659-1000
+object15 = 696-1000
+object16 = 208-1000
+backup = 1
+
+[NPC100]
+name = Sastre
+npc_type = 12
+description = Entrad valiente viajero! En la sastreria de Arkhein estan las mejores ropas del continente.
+head = 15
+heading = 3
+body = 56
+ai_type = 1
+object_type = 3
+object_count = 14
+object1 = 45-1000
+object2 = 80-1000
+object3 = 641-1000
+object4 = 501-1000
+object5 = 135-1000
+object6 = 238-1000
+object7 = 239-1000
+object8 = 381-1000
+object9 = 196-1000
+object10 = 357-1000
+object11 = 986-1000
+object12 = 873-1000
+object13 = 1036-1000
+object14 = 1010-1000
+backup = 1
+
+[NPC101]
+name = Sastre
+npc_type = 12
+description = Ven y mira estas vestimentas, seguro te encantaran!
+head = 173
+heading = 3
+body = 80
+ai_type = 1
+object_type = 3
+object_count = 4
+object1 = 504-1000
+object2 = 505-1000
+object3 = 506-1000
+object4 = 382-1000
+backup = 1
+
+[NPC102]
+name = Sastre
+npc_type = 12
+description = Aqui encontraras las mejores prendas para enanos y a muy buen precio!
+head = 404
+heading = 3
+body = 159
+ai_type = 1
+object_type = 3
+object_count = 6
+object1 = 486-1000
+object2 = 507-1000
+object3 = 502-1000
+object4 = 707-1000
+object5 = 671-1000
+object6 = 670-1000
+backup = 1
+
+[NPC103]
+name = Armaduras
+npc_type = 12
+description = Ven, tengo resistentes armaduras para ofrecerte.
+head = 6
+body = 93
+heading = 4
+ai_type = 1
+object_type = 3
+object_count = 6
+object1 = 359-1000
+object2 = 499-1000
+object3 = 667-1000
+object4 = 360-1000
+object5 = 648-1000
+object6 = 1003-1000
+backup = 1
+
+#################### Nueva Esperanza ####################
+
+[NPC104]
+name = Roksar
+npc_type = 12
+description = Hola, buen viajero! Dispongo de todo tipo de provisiones... ¿Que deseas?
+head = 505
+heading = 3
+body = 202
+ai_type = 1
+object_type = 1
+object_count = 8
+object1 = 28-1000
+object2 = 29-1000
+object3 = 26-1000
+object4 = 25-1000
+object5 = 27-1000
+object6 = 42-1000
+object7 = 161-1000
+object8 = 533-1000
+backup = 1
+
+#################### Ciudad Perdida ####################
+
+[NPC105]
+name = Herrero
+npc_type = 12
+description = Tened aqui las armas mas poderosas de estas tierras... Pasad y ved!
+head = 505
+heading = 3
+body = 199
+ai_type = 1
+object_type = 2
+object_count = 9
+object1 = 164-1000
+object2 = 19-1000
+object3 = 123-1000
+object4 = 124-1000
+object5 = 401-1000
+object6 = 125-1000
+object7 = 753-1000
+object8 = 990-1000
+object9 = 1009-1000
+backup = 1
+
+[NPC106]
+name = Mago
+npc_type = 12
+description = ¿Estas buscando los hechizos mas poderosos? A buen puerto has llegado...
+head = 110
+heading = 3
+body = 46
+ai_type = 1
+object_type = 24
+object_count = 6
+object1 = 542-1000
+object2 = 532-1000
+object3 = 658-1000
+object4 = 659-1000
+object5 = 696-1000
+object6 = 208-1000
+backup = 1
+
+[NPC107]
+name = Sastre
+npc_type = 12
+description = Bienvenidos a la gran sastreria de la Ciudad Perdida! Aqui encontraran las ropas mas exoticas del mundo...
+head = 406
+heading = 3
+body = 130
+ai_type = 1
+object_type = 3
+object_count = 10
+object1 = 515-1000
+object2 = 490-1000
+object3 = 381-1000
+object4 = 196-1000
+object5 = 357-1000
+object6 = 519-1000
+object7 = 986-1000
+object8 = 873-1000
+object9 = 1036-1000
+object10 = 1010-1000
+backup = 1
+
+[NPC108]
+name = Sastre
+npc_type = 12
+description = Entra! Jamas veras prendas mas bellas que las que tengo para ofrecerte...
+head = 474
+heading = 3
+body = 124
+ai_type = 1
+object_type = 3
+object_count = 6
+object1 = 511-1000
+object2 = 488-1000
+object3 = 508-1000
+object4 = 510-1000
+object5 = 513-1000
+object6 = 514-1000
+backup = 1
+
+[NPC109]
+name = Sastre
+npc_type = 12
+description = Aqui en la Ciudad Perdida encontraran las mejores ropas pequeñas de todo el mundo!
+head = 402
+heading = 3
+body = 136
+ai_type = 1
+object_type = 3
+object_count = 6
+object1 = 671-1000
+object2 = 670-1000
+object3 = 512-1000
+object4 = 672-1000
+object5 = 525-1000
+object6 = 526-1000
+backup = 1
+
+[NPC110]
+name = Armaduras
+npc_type = 12
+description = Si estas buscando las mejores armaduras de estas tierras, has llegado al lugar correcto...
+head = 6
+body = 93
+heading = 4
+ai_type = 1
+object_type = 3
+object_count = 11
+object1 = 672-1000
+object2 = 359-1000
+object3 = 499-1000
+object4 = 667-1000
+object5 = 360-1000
+object6 = 648-1000
+object7 = 356-1000
+object8 = 854-1000
+object9 = 195-1000
+object10 = 243-1000
+object11 = 1004-1000
+backup = 1
+
+#################### Guardias Armada ####################
+
+[NPC111]
+name = Sacerdote Imperial
+npc_type = 2
+description = Ohhh hijo mio! que la llama de la virtud arda en tu corazon!
+head = 4
+heading = 3
+body = 101
+ai_type = 5
+returning = 1
+attackable = 1
+min_hp = 9550
+max_hp = 9550
+max_hit = 100
+min_hit = 100
+defense = 10
+attack = 1500
+evasion = 190
+spell_count = 2
+spell1 = 25
+spell2 = 9
+
+[NPC112]
+name = Sacerdote Imperial
+npc_type = 2
+description = Ohhh hijo mio! que la llama de la virtud arda en tu corazon!
+head = 5
+heading = 3
+body = 101
+ai_type = 5
+returning = 1
+attackable = 1
+min_hp = 9550
+max_hp = 9550
+max_hit = 100
+min_hit = 100
+defense = 10
+attack = 1500
+evasion = 190
+spell_count = 2
+spell1 = 25
+spell2 = 9
+
+[NPC113]
+name = Druida Imperial
+npc_type = 2
+description = Ohhh hijo mio! que la llama de la virtud arda en tu corazon!
+head = 101
+heading = 3
+body = 56
+ai_type = 5
+returning = 1
+attackable = 1
+min_hp = 9550
+max_hp = 9550
+max_hit = 100
+min_hit = 100
+defense = 10
+attack = 1500
+evasion = 190
+spell_count = 2
+spell1 = 24
+spell2 = 23
+
+[NPC114]
+name = Druida Imperial
+npc_type = 2
+description = Ohhh hijo mio! que la llama de la virtud arda en tu corazon!
+head = 102
+heading = 3
+body = 56
+ai_type = 2
+returning = 1
+attackable = 1
+min_hp = 9550
+max_hp = 9550
+max_hit = 100
+min_hit = 100
+defense = 10
+attack = 1500
+evasion = 190
+spell_count = 2
+spell1 = 24
+spell2 = 23
+
+[NPC115]
+name = Druida Imperial
+npc_type = 2
+description = Ohhh hijo mio! que la llama de la virtud arda en tu corazon!
+head = 103
+heading = 3
+body = 56
+ai_type = 2
+returning = 1
+attackable = 1
+min_hp = 9550
+max_hp = 9550
+max_hit = 100
+min_hit = 100
+defense = 10
+attack = 1500
+evasion = 190
+spell_count = 2
+spell1 = 24
+spell2 = 23
+
+[NPC116]
+name = Mago Imperial
+npc_type = 2
+description = Ohhh hijo mio! Que la llama de la virtud arda en tu corazon!
+head = 6
+heading = 3
+body = 130
+ai_type = 2
+returning = 1
+attackable = 1
+min_hp = 9550
+max_hp = 9550
+max_hit = 100
+min_hit = 100
+defense = 10
+attack = 1500
+evasion = 190
+spell_count = 2
+spell1 = 24
+spell2 = 23
+
+[NPC117]
+name = Mago Imperial
+npc_type = 2
+description = Ohhh hijo mio! Que la llama de la virtud arda en tu corazon!
+head = 6
+heading = 3
+body = 128
+ai_type = 2
+returning = 1
+attackable = 1
+min_hp = 9550
+max_hp = 9550
+max_hit = 100
+min_hit = 100
+defense = 10
+attack = 1500
+evasion = 190
+spell_count = 2
+spell1 = 24
+spell2 = 23
+
+[NPC118]
+name = Guardia Imperial
+npc_type = 2
+description = Dare carcel a todos los criminales!
+head = 0
+heading = 3
+body = 15
+ai_type = 1
+returning = 1
+min_hp = 1000
+max_hp = 1000
+defense = 30
+attack = 400
+evasion = 190
+
+[NPC119]
+name = Gobernador
+npc_type = 11
+description = Hola, soy el gobernador de Nix. Bienvenido a nuestra pequeña aldea! Escribe /hogar para obtener la ciudadania.
+head = 0
+heading = 3
+body = 4
+ai_type = 1
+city = 2
+
+[NPC120]
+name = Gobernador
+npc_type = 11
+description = Hola, soy el gobernador de Banderbill. Bienvenido a nuestra pequeña aldea! Escribe /hogar para obtener la ciudadania.
+head = 0
+heading = 3
+body = 4
+ai_type = 1
+city = 3
+
+[NPC121]
+name = Gobernador
+npc_type = 11
+description = Hola, soy el gobernador de Lindos. Bienvenido a nuestra pequeña aldea! Escribe /hogar para obtener la ciudadania.
+head = 0
+heading = 3
+body = 4
+ai_type = 1
+city = 4
+
+[NPC122]
+name = Gobernador
+npc_type = 11
+description = Hola, soy el gobernador de Arghal. Bienvenido a nuestra pequeña aldea! Escribe /hogar para obtener la ciudadania.
+head = 0
+heading = 3
+body = 4
+ai_type = 1
+city = 5
+
+[NPC123]
+name = Gobernador
+npc_type = 11
+description = Hola, soy el gobernador de Arkhein. Bienvenido a nuestra pequeña aldea! Escribe /hogar para obtener la ciudadania.
+head = 0
+heading = 3
+body = 4
+ai_type = 1
+city = 6
+
+#################### Guardias Legion ####################
+
+[NPC124]
+name = Guardia Infernal
+npc_type = 8
+description = Por el Señor Oscuro, aniquilara a quienes lo deshonran!
+head = 201
+heading = 3
+body = 170
+ai_type = 2
+alignment = 2
+returning = 1
+GuardiaPersigue = 0
+attackable = 1
+min_hp = 1000
+max_hp = 1000
+max_hit = 250
+min_hit = 115
+defense = 30
+attack = 400
+evasion = 190
+
+[NPC125]
+name = Mago del Caos
+npc_type = 8
+description = El mal prevalecera sobre estas tierras!
+head = 202
+heading = 3
+body = 129
+ai_type = 2
+alignment = 2
+returning = 1
+attackable = 1
+min_hp = 9550
+max_hp = 9550
+max_hit = 100
+min_hit = 100
+defense = 10
+attack = 1500
+evasion = 190
+spell_count = 2
+spell1 = 24
+spell2 = 23
+
+[NPC126]
+name = Golem Oscuro
+npc_type = 8
+head = 0
+heading = 3
+body = 141
+ai_type = 2
+alignment = 2
+attackable = 1
+unparalyzable = 1
+min_hp = 49000
+max_hp = 49000
+max_hit = 450
+min_hit = 300
+defense = 30
+attack = 400
+evasion = 50
+
+[NPC127]
+name = Guardia Infernal
+npc_type = 0
+description = Atencion! Si eres ciudadano e ingresas aqui seras atacado por los guardias de la Legion.
+head = 201
+heading = 3
+body = 170
+ai_type = 1
+returning = 1
+GuardiaPersigue = 0
+min_hp = 1000
+max_hp = 1000
+defense = 30
+attack = 400
+evasion = 190
+
+[NPC128]
+name = Lilith
+npc_type = 12
+description = Hola, tengo las mejores pociones de la alquimia para principiantes.
+head = 77
+heading = 3
+body = 200
+ai_type = 1
+object_type = 11
+object_count = 5
+object1 = 855-1000
+object2 = 856-1000
+object3 = 857-1000
+object4 = 858-1000
+object5 = 166-1000
+backup = 1
+
+[NPC129]
+name = Armaduras Newbie
+npc_type = 12
+description = Si estas buscando tonicas y armaduras para principiantes, has llegado al lugar indicado.
+head = 6
+heading = 3
+body = 93
+ai_type = 1
+object_type = 3
+object_count = 7
+object1 = 1044-1000
+object2 = 1045-1000
+object3 = 1046-1000
+object4 = 1047-1000
+object5 = 1048-1000
+object6 = 1051-1000
+object7 = 1052-1000
+backup = 1
+
+[NPC130]
+name = Armas Newbie
+npc_type = 12
+description = Hola novato, tengo algunas armas que pueden ayudarte en tus aventuras.
+head = 505
+heading = 3
+body = 199
+ai_type = 1
+object_type = 2
+object_count = 8
+object1 = 861-1000
+object2 = 859-1000
+object3 = 860-1000
+object4 = 564-1000
+object5 = 565-1000
+object6 = 562-1000
+object7 = 561-1000
+object8 = 563-1000
+backup = 1
+
+[NPC131]
+name = Magia Newbie
+npc_type = 12
+description = Bienvenido a mi pequeña tienda. Tengo algunos hechizos que podrian interesarte.
+head = 110
+heading = 3
+body = 46
+ai_type = 1
+object_type = 24
+object_count = 12
+object1 = 199-1000
+object2 = 197-1000
+object3 = 204-1000
+object4 = 205-1000
+object5 = 202-1000
+object6 = 200-1000
+object7 = 201-1000
+object8 = 363-1000
+object9 = 364-1000
+object10 = 862-1000
+object11 = 863-1000
+object12 = 864-1000
+backup = 1
+
+#################### No Hostiles ####################
+
+[NPC132]
+name = Gallo
+npc_type = 0
+head = 0
+heading = 3
+body = 5
+ai_type = 2
+attackable = 1
+temeable = 450
+experience = 10
+min_hp = 15
+max_hp = 15
+max_hit = 1
+min_hit = 1
+attack = 5
+evasion = 5
+
+[NPC133]
+name = Cerdo
+npc_type = 0
+head = 0
+heading = 3
+body = 6
+ai_type = 2
+attackable = 1
+temeable = 500
+experience = 15
+min_hp = 35
+max_hp = 35
+max_hit = 2
+min_hit = 1
+attack = 10
+evasion = 15
+sound2 = 4
+
+[NPC134]
+name = Vaca
+npc_type = 0
+head = 0
+heading = 3
+body = 7
+ai_type = 2
+attackable = 1
+temeable = 810
+experience = 10
+min_hp = 65
+max_hp = 65
+max_hit = 5
+min_hit = 2
+defense = 2
+attack = 25
+evasion = 15
+sound2 = 8
+
+[NPC135]
+name = Conejo
+npc_type = 0
+head = 0
+heading = 3
+body = 11
+ai_type = 2
+attackable = 1
+temeable = 450
+experience = 10
+min_hp = 15
+max_hp = 15
+max_hit = 1
+min_hit = 1
+attack = 5
+evasion = 5
+
+[NPC136]
+name = Pavo Real
+npc_type = 0
+head = 0
+heading = 3
+body = 20
+ai_type = 2
+attackable = 1
+temeable = 450
+experience = 10
+min_hp = 15
+max_hp = 15
+max_hit = 1
+min_hit = 1
+attack = 5
+evasion = 5
+
+[NPC137]
+name = Espiritu
+npc_type = 0
+description = Huye de aqui mientras puedas!
+head = 514
+heading = 3
+body = 8
+ai_type = 2
+
+[NPC138]
+name = Gallo
+npc_type = 0
+head = 0
+heading = 3
+body = 5
+ai_type = 2
+experience = 10
+min_hp = 15
+max_hp = 15
+max_hit = 1
+min_hit = 1
+attack = 5
+evasion = 5
+
+[NPC139]
+name = Cerdo
+npc_type = 0
+head = 0
+heading = 3
+body = 6
+ai_type = 2
+experience = 15
+min_hp = 35
+max_hp = 35
+max_hit = 2
+min_hit = 1
+attack = 5
+evasion = 5
+
+[NPC140]
+name = Vaca
+npc_type = 0
+head = 0
+heading = 3
+body = 7
+ai_type = 2
+experience = 10
+min_hp = 45
+max_hp = 45
+max_hit = 3
+min_hit = 1
+defense = 2
+attack = 5
+evasion = 5
+
+[NPC141]
+name = Cuervo
+npc_type = 0
+head = 0
+heading = 3
+body = 68
+ai_type = 2
+aquatic = 1
+attackable = 1
+temeable = 1100
+experience = 55
+min_hp = 30
+max_hp = 30
+max_hit = 10
+min_hit = 4
+attack = 25
+evasion = 50
+
+[NPC142]
+name = Hormiga
+npc_type = 0
+head = 0
+heading = 3
+body = 70
+ai_type = 2
+attackable = 1
+temeable = 425
+experience = 5
+min_hp = 5
+max_hp = 5
+max_hit = 1
+min_hit = 1
+attack = 5
+evasion = 3
+
+[NPC143]
+name = Rata
+npc_type = 0
+head = 0
+heading = 3
+body = 71
+ai_type = 2
+attackable = 1
+temeable = 700
+experience = 5
+min_hp = 15
+max_hp = 15
+max_hit = 4
+min_hit = 2
+attack = 10
+evasion = 20
+sound1 = 47
+sound2 = 47
+
+[NPC144]
+name = Oso Pardo Domesticado
+npc_type = 0
+head = 0
+heading = 3
+body = 73
+ai_type = 2
+attackable = 1
+temeable = 2010
+experience = 550
+min_hp = 600
+max_hp = 600
+max_hit = 100
+min_hit = 65
+attack = 250
+evasion = 65
+
+[NPC145]
+name = Tortuga de Mar
+npc_type = 0
+head = 0
+heading = 3
+body = 74
+ai_type = 2
+attackable = 1
+temeable = 2010
+experience = 350
+min_hp = 315
+max_hp = 315
+max_hit = 50
+min_hit = 35
+attack = 100
+evasion = 45
+
+[NPC146]
+name = Ely
+npc_type = 0
+head = 0
+heading = 3
+body = 143
+ai_type = 2
+aquatic = 1
+max_hit = 1
+min_hit = 1
+spell_count = 1
+spell1 = 5
+
+[NPC147]
+name = Fuego Fatuo
+npc_type = 0
+head = 0
+heading = 3
+body = 144
+ai_type = 2
+aquatic = 1
+attackable = 1
+experience = 6000
+gold = 1000
+min_hp = 15000
+max_hp = 15000
+max_hit = 100
+min_hit = 100
+attack = 1000
+evasion = 500
+spell_count = 2
+spell1 = 24
+spell2 = 23
+
+[NPC148]
+name = Morgolock
+npc_type = 0
+head = 0
+heading = 3
+body = 144
+ai_type = 2
+aquatic = 1
+experience = 2000
+gold = 2000
+min_hp = 29550
+max_hp = 29550
+max_hit = 100
+min_hit = 100
+attack = 1500
+evasion = 1500
+spell_count = 2
+spell1 = 24
+spell2 = 23
+
+[NPC149]
+name = Gran Aguila
+npc_type = 0
+head = 0
+heading = 3
+body = 59
+ai_type = 2
+attackable = 1
+temeable = 1200
+experience = 75
+min_hp = 40
+max_hp = 40
+max_hit = 15
+min_hit = 4
+attack = 25
+evasion = 160
+
+[NPC150]
+name = Elemental de Agua
+npc_type = 0
+head = 0
+heading = 3
+body = 541
+ai_type = 2
+aquatic = 1
+attackable = 1
+min_hp = 400
+max_hp = 400
+max_hit = 120
+min_hit = 100
+attack = 150
+evasion = 200
+
+[NPC151]
+name = Elemental de Fuego
+npc_type = 0
+head = 0
+heading = 3
+body = 153
+ai_type = 2
+attackable = 1
+min_hp = 200
+max_hp = 200
+max_hit = 120
+min_hit = 100
+attack = 100
+evasion = 100
+spell_count = 1
+spell1 = 15
+
+[NPC152]
+name = Elemental de Tierra
+npc_type = 0
+head = 0
+heading = 3
+body = 543
+ai_type = 2
+attackable = 1
+min_hp = 200
+max_hp = 200
+max_hit = 120
+min_hit = 100
+attack = 150
+evasion = 100
+spell_count = 1
+spell1 = 9
+
+[NPC153]
+name = Jabali
+npc_type = 0
+head = 0
+heading = 3
+body = 150
+ai_type = 2
+attackable = 1
+temeable = 2010
+experience = 550
+min_hp = 515
+max_hp = 515
+max_hit = 100
+min_hit = 65
+attack = 130
+evasion = 70
+
+[NPC154]
+name = Tigre de Bengala
+npc_type = 0
+head = 0
+heading = 3
+body = 147
+ai_type = 2
+attackable = 1
+temeable = 2010
+experience = 600
+min_hp = 800
+max_hp = 800
+max_hit = 70
+min_hit = 30
+attack = 700
+evasion = 45
+
+[NPC155]
+name = Pato
+npc_type = 0
+head = 0
+heading = 3
+body = 88
+ai_type = 2
+attackable = 1
+temeable = 660
+experience = 20
+min_hp = 30
+max_hp = 30
+max_hit = 5
+min_hit = 3
+attack = 10
+evasion = 10
+sound3 = 96
+
+#################### Hostiles ####################
+
+[NPC156]
+name = Murcielago
+npc_type = 0
+head = 0
+heading = 3
+body = 9
+ai_type = 3
+attackable = 1
+hostile = 1
+temeable = 400
+experience = 10
+min_hp = 15
+max_hp = 15
+max_hit = 4
+min_hit = 1
+magic_defense = 3
+attack = 30
+evasion = 10
+object_count = 5
+drop1 = 12-1
+drop2 = 12-2
+drop4 = 12-15
+drop5 = 12-70
+
+[NPC157]
+name = Lobo
+npc_type = 0
+head = 0
+heading = 3
+body = 10
+ai_type = 3
+attackable = 1
+hostile = 1
+temeable = 1250
+experience = 100
+min_hp = 75
+max_hp = 75
+max_hit = 18
+min_hit = 1
+defense = 8
+attack = 80
+evasion = 25
+sound1 = 35
+sound2 = 9
+object_count = 5
+drop1 = 414-1
+drop2 = 27-3
+drop3 = 1002-1
+drop4 = 394-1
+
+[NPC158]
+name = Zombie
+npc_type = 0
+head = 507
+heading = 3
+body = 196
+ai_type = 3
+attackable = 1
+hostile = 1
+experience = 175
+min_hp = 250
+max_hp = 250
+max_hit = 12
+min_hit = 4
+defense = 20
+attack = 100
+evasion = 20
+sound2 = 33
+sound3 = 164
+object_count = 5
+drop1 = 12-21
+drop2 = 45-1
+drop3 = 12-50
+drop4 = 38-30
+
+[NPC159]
+name = Esqueleto
+npc_type = 0
+head = 0
+heading = 3
+body = 12
+ai_type = 3
+attackable = 1
+hostile = 1
+experience = 47
+min_hp = 50
+max_hp = 50
+max_hit = 8
+min_hit = 1
+defense = 10
+attack = 30
+evasion = 30
+object_count = 5
+drop1 = 12-8
+drop2 = 12-8
+drop3 = 363-1
+drop4 = 2-2
+drop5 = 197-1
+
+[NPC160]
+name = Serpiente
+npc_type = 0
+head = 0
+heading = 3
+body = 13
+ai_type = 3
+attackable = 1
+hostile = 1
+temeable = 400
+experience = 15
+min_hp = 22
+max_hp = 22
+max_hit = 1
+min_hit = 1
+attack = 10
+sound2 = 103
+object_count = 5
+drop3 = 38-10
+drop4 = 200-1
+drop5 = 202-1
+
+[NPC161]
+name = Goblin
+npc_type = 0
+head = 0
+heading = 3
+body = 14
+ai_type = 3
+attackable = 1
+hostile = 1
+temeable = 1500
+experience = 95
+min_hp = 110
+max_hp = 110
+max_hit = 12
+min_hit = 4
+defense = 15
+attack = 60
+evasion = 40
+sound3 = 142
+object_count = 5
+drop1 = 12-15
+drop2 = 12-22
+drop3 = 15-1
+drop4 = 132-1
+drop5 = 39-10
+
+[NPC162]
+name = Gallo Salvaje
+npc_type = 0
+head = 0
+heading = 3
+body = 5
+ai_type = 3
+attackable = 1
+hostile = 1
+temeable = 450
+experience = 10
+min_hp = 15
+max_hp = 15
+max_hit = 1
+min_hit = 1
+attack = 5
+evasion = 5
+sound3 = 67
+object_count = 5
+drop1 = 26-1
+drop2 = 12-5
+drop3 = 12-50
+
+[NPC163]
+name = Lord Zombie
+npc_type = 0
+head = 508
+heading = 3
+body = 197
+ai_type = 3
+attackable = 1
+hostile = 1
+experience = 355
+min_hp = 350
+max_hp = 350
+max_hit = 25
+min_hit = 10
+defense = 34
+attack = 150
+evasion = 35
+sound2 = 33
+sound3 = 164
+object_count = 5
+drop1 = 12-50
+drop2 = 38-7
+drop3 = 37-5
+drop5 = 395-1
+
+[NPC164]
+name = Esqueleto Guerrero
+npc_type = 0
+head = 0
+heading = 3
+body = 393
+ai_type = 3
+attackable = 1
+hostile = 1
+experience = 155
+min_hp = 150
+max_hp = 150
+max_hit = 18
+min_hit = 8
+defense = 19
+attack = 60
+evasion = 50
+object_count = 5
+drop1 = 12-25
+drop3 = 132-1
+drop4 = 126-1
+drop5 = 380-1
+
+[NPC165]
+name = Dragon Rojo
+npc_type = 0
+head = 0
+heading = 3
+body = 41
+ai_type = 3
+attackable = 1
+hostile = 1
+experience = 8500
+min_hp = 5000
+max_hp = 5000
+max_hit = 300
+min_hit = 250
+GolpeExacto = 1
+defense = 50
+attack = 380
+evasion = 250
+sound3 = 160
+object_count = 5
+drop1 = 12-1000
+drop2 = 239-1
+drop3 = 12-4700
+drop4 = 981-2
+drop5 = 481-1
+
+[NPC166]
+name = Araña Gigante
+npc_type = 0
+head = 0
+heading = 3
+body = 42
+ai_type = 3
+attackable = 1
+hostile = 1
+poisonous = 1
+experience = 1450
+min_hp = 1000
+max_hp = 1000
+max_hit = 100
+min_hit = 75
+attack = 150
+evasion = 70
+object_count = 5
+drop1 = 12-175
+drop2 = 38-30
+drop3 = 164-1
+drop4 = 480-110
+drop5 = 206-1
+
+[NPC167]
+name = Ogro Esclavo
+npc_type = 0
+head = 0
+heading = 3
+body = 205
+ai_type = 3
+attackable = 1
+hostile = 1
+experience = 4110
+min_hp = 2750
+max_hp = 2750
+max_hit = 190
+min_hit = 70
+defense = 10
+magic_defense = 15
+attack = 200
+evasion = 210
+sound2 = 78
+object_count = 5
+drop1 = 12-350
+drop2 = 37-55
+drop3 = 401-1
+drop5 = 697-1
+
+# Repetio
+[NPC168]
+name = Lobo
+npc_type = 0
+head = 0
+heading = 3
+body = 10
+ai_type = 3
+attackable = 1
+hostile = 1
+min_hp = 75
+max_hp = 75
+max_hit = 20
+min_hit = 10
+defense = 8
+attack = 80
+evasion = 25
+sound1 = 35
+sound2 = 9
+
+[NPC169]
+name = Ciclope Guardian
+npc_type = 0
+head = 0
+heading = 3
+body = 206
+ai_type = 3
+attackable = 1
+hostile = 1
+experience = 7288
+min_hp = 4500
+max_hp = 4500
+max_hit = 250
+min_hit = 100
+defense = 30
+magic_defense = 10
+attack = 260
+evasion = 245
+sound2 = 78
+object_count = 5
+drop1 = 12-900
+drop2 = 37-145
+drop3 = 990-1
+drop4 = 698-1
+drop5 = 359-3
+
+[NPC170]
+name = Serpiente de Anthares
+npc_type = 0
+head = 0
+heading = 3
+body = 207
+ai_type = 3
+attackable = 1
+hostile = 1
+experience = 3410
+min_hp = 5000
+max_hp = 5000
+max_hit = 45
+min_hit = 10
+magic_defense = 50
+attack = 300
+evasion = 150
+sound2 = 103
+object_count = 5
+drop1 = 12-3000
+drop2 = 697-3
+drop3 = 698-2
+drop4 = 699-1
+drop5 = 503-2
+
+[NPC171]
+name = Gorila Salvaje
+npc_type = 0
+head = 0
+heading = 3
+body = 213
+ai_type = 3
+attackable = 1
+hostile = 1
+experience = 1880
+min_hp = 1300
+max_hp = 1300
+max_hit = 130
+min_hit = 90
+defense = 10
+magic_defense = 10
+attack = 160
+evasion = 70
+object_count = 5
+drop1 = 12-175
+drop2 = 38-30
+drop3 = 37-50
+drop4 = 480-310
+drop5 = 697-2
+
+[NPC172]
+name = Goblin
+npc_type = 0
+head = 0
+heading = 3
+body = 14
+ai_type = 3
+attackable = 1
+hostile = 1
+experience = 45
+min_hp = 90
+max_hp = 90
+max_hit = 12
+min_hit = 4
+defense = 15
+attack = 50
+evasion = 40
+
+[NPC173]
+name = Djinn de Viento
+npc_type = 0
+heading = 3
+body = 215
+ai_type = 3
+aquatic = 1
+attackable = 1
+hostile = 1
+experience = 7000
+min_hp = 4200
+max_hp = 4200
+max_hit = 140
+min_hit = 75
+defense = 45
+attack = 200
+evasion = 250
+spell_count = 2
+spell1 = 9
+spell2 = 23
+object_count = 5
+drop1 = 12-1200
+drop2 = 12-1550
+drop3 = 37-175
+drop4 = 206-1
+drop5 = 531-1
+
+[NPC174]
+name = Dragon de las Profundidades
+npc_type = 0
+head = 0
+heading = 3
+body = 218
+ai_type = 3
+aquatic = 1
+attackable = 1
+hostile = 1
+experience = 2100
+min_hp = 2000
+max_hp = 2000
+max_hit = 150
+min_hit = 90
+defense = 50
+attack = 300
+evasion = 250
+spell_count = 2
+spell1 = 9
+spell2 = 15
+sound3 = 89
+object_count = 5
+drop1 = 12-150
+drop3 = 37-120
+drop4 = 361-1
+drop5 = 206-1
+
+[NPC175]
+name = Gusano de Arena
+npc_type = 0
+head = 0
+heading = 3
+body = 216
+ai_type = 3
+attackable = 1
+hostile = 1
+poisonous = 1
+experience = 1450
+min_hp = 1000
+max_hp = 1000
+max_hit = 100
+min_hit = 75
+attack = 150
+evasion = 70
+object_count = 5
+drop1 = 12-175
+drop2 = 38-30
+drop3 = 36-10
+drop4 = 480-365
+
+[NPC176]
+name = Esqueleto Guerrero
+npc_type = 0
+head = 0
+heading = 3
+body = 393
+ai_type = 3
+attackable = 1
+hostile = 1
+min_hp = 320
+max_hp = 320
+max_hit = 94
+min_hit = 55
+defense = 25
+attack = 130
+evasion = 100
+
+[NPC177]
+name = Tigre Salvaje
+npc_type = 0
+head = 0
+heading = 3
+body = 147
+ai_type = 3
+attackable = 1
+hostile = 1
+temeable = 2010
+experience = 600
+min_hp = 800
+max_hp = 800
+max_hit = 70
+min_hit = 30
+attack = 700
+evasion = 45
+object_count = 5
+drop1 = 414-20
+drop3 = 27-23
+drop4 = 30-1
+drop5 = 1004-1
+
+# Repetido
+[NPC178]
+name = Orco
+npc_type = 0
+head = 0
+heading = 3
+body = 185
+ai_type = 3
+attackable = 1
+hostile = 1
+experience = 395
+min_hp = 350
+max_hp = 350
+max_hit = 35
+min_hit = 5
+defense = 30
+attack = 100
+evasion = 75
+object_count = 5
+drop1 = 12-114
+drop2 = 3-1
+drop3 = 39-10
+drop4 = 990-2
+drop5 = 359-2
+
+[NPC179]
+name = Orco
+npc_type = 0
+head = 0
+heading = 3
+body = 185
+ai_type = 3
+attackable = 1
+hostile = 1
+experience = 395
+gold = 44
+min_hp = 350
+max_hp = 350
+max_hit = 35
+min_hit = 5
+defense = 30
+attack = 100
+evasion = 75
+object_count = 5
+drop1 = 12-114
+drop2 = 3-1
+drop3 = 39-10
+drop4 = 990-2
+drop5 = 359-2
+
+[NPC180]
+name = Jefe Orco
+npc_type = 0
+head = 0
+heading = 3
+body = 43
+ai_type = 3
+attackable = 1
+hostile = 1
+experience = 2000
+min_hp = 1000
+max_hp = 1000
+max_hit = 400
+min_hit = 75
+defense = 30
+attack = 250
+evasion = 200
+object_count = 5
+drop1 = 183-1
+drop2 = 183-1
+drop3 = 183-1
+drop4 = 183-1
+drop5 = 183-1
+
+[NPC181]
+name = Aguila
+npc_type = 0
+head = 0
+heading = 3
+body = 59
+ai_type = 3
+attackable = 1
+hostile = 1
+temeable = 1200
+experience = 10
+min_hp = 40
+max_hp = 40
+max_hit = 15
+min_hit = 4
+attack = 25
+evasion = 160
+sound3 = 62
+object_count = 5
+drop2 = 139-1
+drop3 = 544-5
+
+[NPC182]
+name = Araña Malaheing
+npc_type = 0
+head = 0
+heading = 3
+body = 42
+ai_type = 3
+attackable = 1
+hostile = 1
+poisonous = 1
+experience = 1450
+min_hp = 3000
+max_hp = 3000
+max_hit = 100
+min_hit = 75
+defense = 10
+attack = 200
+evasion = 150
+object_count = 5
+drop1 = 174-1
+drop2 = 174-1
+drop3 = 174-1
+drop4 = 174-1
+drop5 = 174-1
+
+[NPC183]
+name = Dragon Rojo
+npc_type = 0
+head = 0
+heading = 3
+body = 41
+ai_type = 3
+attackable = 1
+hostile = 1
+experience = 8500
+min_hp = 5000
+max_hp = 5000
+max_hit = 300
+min_hit = 250
+defense = 20
+attack = 300
+evasion = 250
+object_count = 5
+drop1 = 178-1
+drop2 = 178-1
+drop3 = 178-1
+drop4 = 178-1
+drop5 = 178-1
+
+[NPC184]
+name = Anfisbena
+npc_type = 0
+head = 0
+heading = 3
+body = 203
+ai_type = 3
+attackable = 1
+hostile = 1
+experience = 51
+min_hp = 75
+max_hp = 75
+max_hit = 5
+min_hit = 5
+attack = 30
+sound2 = 103
+object_count = 5
+drop1 = 12-5
+drop2 = 12-10
+drop3 = 12-50
+
+[NPC185]
+name = Escorpion
+npc_type = 0
+head = 0
+heading = 3
+body = 51
+ai_type = 3
+attackable = 1
+hostile = 1
+poisonous = 1
+temeable = 600
+experience = 32
+min_hp = 32
+max_hp = 32
+max_hit = 3
+min_hit = 1
+magic_defense = 3
+attack = 30
+evasion = 10
+object_count = 5
+drop1 = 12-2
+drop3 = 12-30
+drop4 = 2-1
+drop5 = 164-1
+
+[NPC186]
+name = Bandido
+npc_type = 0
+head = 2
+heading = 3
+body = 47
+ai_type = 3
+attackable = 1
+hostile = 1
+experience = 266
+min_hp = 200
+max_hp = 200
+max_hit = 39
+min_hit = 15
+attack = 70
+evasion = 50
+sound3 = 157
+object_count = 5
+drop1 = 12-50
+drop2 = 641-1
+drop3 = 38-10
+drop4 = 873-1
+
+[NPC187]
+name = Asesino
+npc_type = 0
+head = 201
+heading = 3
+body = 48
+ai_type = 3
+attackable = 1
+hostile = 1
+experience = 1500
+min_hp = 850
+max_hp = 850
+max_hit = 139
+min_hit = 15
+attack = 200
+evasion = 200
+sound3 = 155
+object_count = 5
+drop1 = 12-200
+drop2 = 38-10
+drop3 = 366-1
+drop4 = 367-1
+drop5 = 356-1
+
+[NPC188]
+name = Osezno
+npc_type = 0
+head = 0
+heading = 3
+body = 236
+ai_type = 3
+attackable = 1
+hostile = 1
+experience = 550
+min_hp = 400
+max_hp = 400
+max_hit = 70
+min_hit = 55
+attack = 230
+evasion = 60
+object_count = 5
+drop1 = 415-1
+drop3 = 38-10
+drop4 = 480-50
+
+[NPC189]
+name = Cuervo Salvaje
+npc_type = 0
+head = 0
+heading = 3
+body = 68
+ai_type = 3
+attackable = 1
+hostile = 1
+temeable = 1100
+experience = 41
+min_hp = 50
+max_hp = 50
+max_hit = 6
+min_hit = 1
+defense = 2
+magic_defense = 3
+attack = 20
+evasion = 25
+sound3 = 63
+object_count = 5
+drop1 = 12-4
+drop3 = 12-53
+drop4 = 12-250
+drop5 = 12-1000
+
+[NPC190]
+name = Hormiga Gigante
+npc_type = 0
+head = 0
+heading = 3
+body = 69
+ai_type = 3
+attackable = 1
+hostile = 1
+temeable = 2010
+experience = 500
+min_hp = 400
+max_hp = 400
+max_hit = 100
+min_hit = 50
+defense = 5
+attack = 150
+evasion = 100
+object_count = 5
+drop1 = 12-100
+drop2 = 478-1
+drop3 = 479-1
+drop4 = 38-15
+drop5 = 480-500
+
+[NPC191]
+name = Hormiga Marabunta
+npc_type = 0
+head = 0
+heading = 3
+body = 70
+ai_type = 3
+attackable = 1
+hostile = 1
+temeable = 425
+experience = 5
+min_hp = 5
+max_hp = 5
+max_hit = 1
+min_hit = 1
+attack = 5
+evasion = 3
+object_count = 5
+drop1 = 12-1
+drop3 = 12-10
+drop5 = 12-200
+
+[NPC192]
+name = Rata Salvaje
+npc_type = 0
+head = 0
+heading = 3
+body = 71
+ai_type = 3
+attackable = 1
+hostile = 1
+temeable = 700
+experience = 16
+min_hp = 15
+max_hp = 15
+max_hit = 4
+min_hit = 2
+attack = 10
+evasion = 20
+NROEXP = 2
+EXP1 = Crick Crick
+EXP2 = Clir chuik
+object_count = 5
+drop1 = 12-2
+drop3 = 28-10
+drop4 = 12-100
+
+[NPC193]
+name = Beholder
+npc_type = 0
+head = 0
+heading = 3
+body = 72
+ai_type = 3
+attackable = 1
+hostile = 1
+experience = 2500
+min_hp = 1400
+max_hp = 1400
+max_hit = 300
+min_hit = 45
+attack = 350
+evasion = 200
+object_count = 5
+drop1 = 12-360
+drop2 = 12-500
+drop3 = 37-100
+drop4 = 205-1
+drop5 = 12-10000
+
+[NPC194]
+name = Oso Pardo
+npc_type = 0
+head = 0
+heading = 3
+body = 73
+ai_type = 3
+attackable = 1
+hostile = 1
+temeable = 2010
+experience = 850
+min_hp = 600
+max_hp = 600
+max_hit = 100
+min_hit = 65
+attack = 250
+evasion = 65
+object_count = 5
+drop1 = 415-1
+drop2 = 12-26
+drop3 = 480-50
+drop4 = 479-1
+drop5 = 38-100
+
+[NPC195]
+name = Tortuga Gigante
+npc_type = 0
+head = 0
+heading = 3
+body = 74
+ai_type = 3
+attackable = 1
+hostile = 1
+temeable = 2010
+experience = 500
+min_hp = 550
+max_hp = 550
+max_hit = 50
+min_hit = 35
+attack = 100
+evasion = 45
+object_count = 5
+drop1 = 404-1
+drop2 = 12-175
+drop3 = 38-20
+drop4 = 203-1
+
+[NPC196]
+name = Duende
+npc_type = 0
+head = 0
+heading = 3
+body = 75
+ai_type = 3
+attackable = 1
+hostile = 1
+temeable = 1700
+experience = 245
+min_hp = 210
+max_hp = 210
+max_hit = 32
+min_hit = 8
+attack = 80
+evasion = 60
+sound3 = 161
+object_count = 5
+drop1 = 12-23
+drop3 = 12-150
+drop4 = 197-1
+drop5 = 204-1
+
+[NPC197]
+name = Ogro
+npc_type = 0
+head = 0
+heading = 3
+body = 76
+ai_type = 3
+attackable = 1
+hostile = 1
+experience = 3500
+min_hp = 2250
+max_hp = 2250
+max_hit = 232
+min_hit = 88
+defense = 10
+attack = 260
+evasion = 230
+sound2 = 78
+object_count = 5
+drop1 = 12-512
+drop2 = 398-20
+drop3 = 38-120
+drop4 = 37-150
+drop5 = 698-1
+
+[NPC198]
+name = Gran Dragon Rojo
+npc_type = 6
+head = 0
+heading = 3
+body = 82
+ai_type = 3
+attackable = 1
+hostile = 1
+unparalyzable = 1
+experience = 265000
+min_hp = 200000
+max_hp = 200000
+max_hit = 5000
+min_hit = 1000
+attack = 400
+evasion = 320
+spell_count = 2
+spell1 = 15
+spell2 = 25
+sound1 = 30
+sound2 = 31
+sound3 = 32
+object_count = 5
+drop1 = 12-65000
+drop2 = 194-5000
+drop3 = 402-1
+drop4 = 532-1
+drop5 = 481-3
+
+[NPC199]
+name = Demonio
+npc_type = 0
+head = 0
+heading = 3
+body = 83
+ai_type = 3
+attackable = 1
+hostile = 1
+experience = 14200
+min_hp = 15000
+max_hp = 15000
+max_hit = 350
+min_hit = 75
+attack = 230
+evasion = 220
+sound3 = 159
+object_count = 5
+drop1 = 12-6000
+drop2 = 12-10000
+drop3 = 126-1
+drop4 = 129-3
+drop5 = 495-1
+
+[NPC200]
+name = Unicornio
+npc_type = 0
+head = 0
+heading = 3
+body = 183
+ai_type = 3
+attackable = 1
+hostile = 1
+experience = 200
+min_hp = 500
+max_hp = 500
+max_hit = 7
+min_hit = 5
+attack = 10
+evasion = 10
+object_count = 5
+drop1 = 12-50
+drop2 = 12-80
+drop3 = 12-150
+drop4 = 37-50
+drop5 = 12-5000
+
+# Repetido
+[NPC201]
+name = Licantropo
+npc_type = 0
+head = 0
+heading = 3
+body = 212
+ai_type = 3
+attackable = 1
+hostile = 1
+experience = 850
+min_hp = 600
+max_hp = 600
+max_hit = 100
+min_hit = 65
+attack = 250
+evasion = 65
+object_count = 5
+drop1 = 12-100
+drop2 = 38-10
+drop3 = 414-30
+drop4 = 1002-1
+drop5 = 394-1
+
+# Repetido
+[NPC202]
+name = Zombie
+npc_type = 0
+head = 507
+heading = 3
+body = 196
+ai_type = 3
+attackable = 1
+hostile = 1
+min_hp = 250
+max_hp = 250
+max_hit = 50
+min_hit = 23
+defense = 20
+attack = 100
+evasion = 20
+sound2 = 33
+
+[NPC203]
+name = Tarantula
+npc_type = 0
+head = 0
+heading = 3
+body = 36
+ai_type = 3
+attackable = 1
+hostile = 1
+poisonous = 1
+experience = 1450
+min_hp = 1000
+max_hp = 1000
+max_hit = 100
+min_hit = 75
+attack = 150
+evasion = 70
+object_count = 5
+drop1 = 12-175
+drop2 = 38-25
+drop3 = 36-15
+drop4 = 39-20
+drop5 = 159-5
+
+[NPC204]
+name = Leviathan
+npc_type = 0
+head = 0
+heading = 3
+body = 99
+ai_type = 3
+aquatic = 1
+attackable = 1
+hostile = 1
+experience = 8500
+min_hp = 6000
+max_hp = 6000
+max_hit = 250
+min_hit = 60
+attack = 220
+evasion = 180
+sound2 = 59
+object_count = 5
+drop1 = 12-2100
+drop2 = 36-30
+drop3 = 39-30
+drop4 = 537-1
+drop5 = 496-1
+
+[NPC205]
+name = Orco Brujo
+npc_type = 0
+head = 0
+heading = 3
+body = 186
+ai_type = 3
+attackable = 1
+hostile = 1
+temeable = 2250
+experience = 2810
+min_hp = 1900
+max_hp = 1900
+max_hit = 120
+min_hit = 75
+defense = 30
+attack = 150
+evasion = 180
+spell_count = 1
+spell1 = 8
+sound3 = 171
+object_count = 5
+drop1 = 12-500
+drop2 = 12-650
+drop3 = 205-1
+drop4 = 38-300
+drop5 = 37-500
+
+[NPC206]
+name = Bruja
+npc_type = 0
+head = 271
+heading = 3
+body = 125
+ai_type = 3
+attackable = 1
+hostile = 1
+experience = 6100
+min_hp = 4200
+max_hp = 4200
+max_hit = 140
+min_hit = 75
+defense = 30
+attack = 200
+evasion = 250
+sound2 = 118
+sound3 = 158
+spell_count = 3
+spell1 = 8
+spell2 = 9
+spell3 = 15
+object_count = 5
+drop1 = 12-1000
+drop2 = 659-1
+drop3 = 514-1
+drop4 = 12-5000
+drop5 = 12-15000
+
+[NPC207]
+name = Mago Malvado
+npc_type = 0
+head = 401
+heading = 3
+body = 135
+ai_type = 3
+attackable = 1
+hostile = 1
+experience = 4000
+min_hp = 3000
+max_hp = 3000
+max_hit = 126
+min_hit = 75
+defense = 30
+attack = 200
+evasion = 150
+spell_count = 3
+spell1 = 8
+spell2 = 9
+spell3 = 15
+object_count = 5
+drop1 = 12-1500
+drop2 = 12-2000
+drop3 = 524-2
+drop4 = 206-1
+drop5 = 660-5
+
+[NPC208]
+name = Golem
+npc_type = 0
+head = 0
+heading = 3
+body = 141
+ai_type = 3
+attackable = 1
+hostile = 1
+experience = 41800
+min_hp = 35000
+max_hp = 35000
+max_hit = 600
+min_hit = 300
+defense = 30
+attack = 300
+evasion = 50
+sound2 = 79
+sound3 = 89
+object_count = 5
+drop1 = 12-2000
+drop2 = 12-2750
+drop3 = 12-10000
+drop4 = 403-2
+drop5 = 485-1
+
+[NPC209]
+name = Medusa
+npc_type = 0
+head = 0
+heading = 3
+body = 151
+ai_type = 3
+attackable = 1
+hostile = 1
+experience = 12250
+min_hp = 6500
+max_hp = 6500
+max_hit = 185
+min_hit = 125
+defense = 20
+attack = 220
+evasion = 160
+sound3 = 169
+spell_count = 3
+spell1 = 15
+spell2 = 23
+spell3 = 9
+object_count = 5
+drop1 = 12-1200
+drop2 = 38-100
+drop3 = 12-7500
+drop4 = 206-1
+drop5 = 531-1
+
+[NPC210]
+name = Liche
+npc_type = 0
+head = 0
+heading = 3
+body = 149
+ai_type = 3
+attackable = 1
+hostile = 1
+experience = 3000
+min_hp = 2000
+max_hp = 2000
+max_hit = 250
+min_hit = 120
+defense = 30
+attack = 220
+evasion = 190
+sound3 = 168
+object_count = 5
+drop1 = 12-1000
+drop2 = 12-2000
+drop3 = 196-5
+drop4 = 380-1
+drop5 = 660-5
+
+[NPC211]
+name = Lord Orco
+npc_type = 0
+head = 0
+heading = 3
+body = 187
+ai_type = 3
+attackable = 1
+hostile = 1
+experience = 2500
+min_hp = 1750
+max_hp = 1750
+max_hit = 200
+min_hit = 200
+defense = 30
+attack = 170
+evasion = 100
+object_count = 5
+drop1 = 12-800
+drop2 = 38-100
+drop3 = 132-2
+drop4 = 126-5
+drop5 = 130-3
+
+[NPC212]
+name = Quark
+npc_type = 0
+head = 0
+heading = 3
+body = 146
+ai_type = 3
+attackable = 1
+hostile = 1
+temeable = 800
+experience = 25
+min_hp = 50
+max_hp = 50
+max_hit = 10
+min_hit = 5
+defense = 5
+attack = 45
+evasion = 50
+object_count = 5
+drop1 = 12-15
+drop2 = 12-20
+drop3 = 12-100
+drop4 = 12-250
+drop5 = 12-750
+
+[NPC213]
+name = Jabali Salvaje
+npc_type = 0
+head = 0
+heading = 3
+body = 150
+ai_type = 2
+attackable = 1
+hostile = 1
+temeable = 2010
+experience = 340
+min_hp = 515
+max_hp = 515
+max_hit = 100
+min_hit = 65
+attack = 130
+evasion = 70
+sound2 = 98
+object_count = 5
+drop1 = 27-10
+drop2 = 12-50
+drop3 = 38-20
+
+[NPC214]
+name = Dark mOrGoLoCk
+npc_type = 0
+head = 101
+heading = 3
+body = 56
+ai_type = 3
+attackable = 1
+hostile = 1
+experience = 45000
+gold = 25000
+min_hp = 45000
+max_hp = 45000
+max_hit = 400
+min_hit = 50
+defense = 10
+attack = 350
+evasion = 300
+
+[NPC215]
+name = Dark NuKeR
+npc_type = 0
+head = 102
+heading = 3
+body = 93
+ai_type = 3
+attackable = 1
+hostile = 1
+experience = 45000
+gold = 25000
+min_hp = 45000
+max_hp = 45000
+max_hit = 400
+min_hit = 50
+defense = 10
+attack = 350
+evasion = 300
+
+[NPC216]
+name = Dark Valkira
+npc_type = 0
+head = 72
+heading = 3
+body = 104
+ai_type = 3
+attackable = 1
+hostile = 1
+experience = 45000
+gold = 25000
+min_hp = 45000
+max_hp = 45000
+max_hit = 400
+min_hit = 50
+defense = 10
+attack = 350
+evasion = 300
+
+[NPC217]
+name = Dark Chatillon
+npc_type = 0
+head = 9
+heading = 3
+body = 140
+ai_type = 3
+attackable = 1
+hostile = 1
+experience = 45000
+gold = 25000
+min_hp = 45000
+max_hp = 45000
+max_hit = 400
+min_hit = 50
+defense = 10
+attack = 350
+evasion = 300
+
+# Quien fue el HPD xd?
+[NPC218]
+name = Dark Jennifer
+npc_type = 0
+head = 72
+heading = 3
+body = 64
+ai_type = 3
+attackable = 1
+hostile = 1
+experience = 45000
+gold = 25000
+min_hp = 45000
+max_hp = 45000
+max_hit = 400
+min_hit = 50
+defense = 10
+attack = 350
+evasion = 300
+
+[NPC219]
+name = Escorpion
+npc_type = 0
+head = 0
+heading = 3
+body = 51
+ai_type = 3
+attackable = 1
+hostile = 1
+poisonous = 1
+experience = 32
+min_hp = 32
+max_hp = 32
+max_hit = 3
+min_hit = 1
+attack = 30
+evasion = 10
+
+[NPC220]
+name = Serpiente
+npc_type = 0
+head = 0
+heading = 3
+body = 13
+ai_type = 3
+attackable = 1
+hostile = 1
+experience = 15
+min_hp = 22
+max_hp = 22
+max_hit = 1
+min_hit = 1
+attack = 10
+sound2 = 103
+
+[NPC221]
+name = Murcielago
+npc_type = 0
+head = 0
+heading = 3
+body = 9
+ai_type = 3
+attackable = 1
+hostile = 1
+experience = 12
+min_hp = 10
+max_hp = 10
+max_hit = 1
+min_hit = 1
+attack = 15
+evasion = 10
+
+[NPC222]
+name = Duende Magico
+npc_type = 0
+head = 0
+heading = 3
+body = 75
+ai_type = 3
+attackable = 1
+hostile = 1
+min_hp = 310
+max_hp = 310
+max_hit = 10
+min_hit = 2
+attack = 80
+evasion = 60
+spell_count = 1
+spell1 = 2
+object_count = 5
+drop1 = 12-50
+drop2 = 12-75
+drop3 = 12-150
+drop4 = 199-5
+
+[NPC223]
+name = Galeon Pirata
+npc_type = 0
+head = 0
+heading = 3
+body = 86
+ai_type = 3
+aquatic = 1
+attackable = 1
+hostile = 1
+experience = 6000
+min_hp = 4000
+max_hp = 4000
+max_hit = 250
+min_hit = 200
+attack = 200
+evasion = 150
+sound3 = 172
+object_count = 5
+drop2 = 12-5000
+drop3 = 474-1
+drop4 = 475-1
+drop5 = 476-1
+
+[NPC224]
+name = Galeon Fantasmal
+npc_type = 0
+head = 0
+heading = 3
+body = 487
+ai_type = 3
+aquatic = 1
+attackable = 1
+hostile = 1
+experience = 10000
+min_hp = 7000
+max_hp = 7000
+max_hit = 350
+min_hit = 150
+defense = 50
+attack = 300
+evasion = 450
+spell_count = 1
+spell1 = 15
+object_count = 5
+drop2 = 12-3500
+drop3 = 474-1
+drop4 = 475-1
+
+[NPC225]
+name = Arbol Encantado
+npc_type = 0
+description = Odio los leñadores!
+head = 0
+heading = 4
+body = 25
+ai_type = 2
+attackable = 1
+hostile = 1
+poisonous = 1
+experience = 100
+min_hp = 10
+max_hp = 10
+max_hit = 2
+min_hit = 1
+attack = 500
+evasion = 10
+object_count = 5
+drop2 = 58-15
+
+[NPC226]
+name = Ucorno
+npc_type = 0
+head = 0
+heading = 3
+body = 25
+ai_type = 3
+attackable = 1
+hostile = 1
+poisonous = 1
+experience = 900
+min_hp = 1500
+max_hp = 1500
+max_hit = 90
+min_hit = 85
+attack = 100
+evasion = 100
+sound1 = 13
+sound2 = 13
+object_count = 5
+drop1 = 58-50
+drop2 = 58-100
+drop3 = 58-500
+drop4 = 58-3000
+drop5 = 58-10000
+
+[NPC227]
+name = Arbol de Jungla
+npc_type = 0
+head = 0
+heading = 3
+body = 25
+ai_type = 2
+attackable = 1
+hostile = 1
+poisonous = 1
+experience = 100
+min_hp = 1500
+max_hp = 1500
+max_hit = 250
+min_hit = 150
+attack = 100
+evasion = 100
+sound1 = 13
+sound2 = 13
+object_count = 5
+drop1 = 58-10
+drop2 = 208-1
+drop3 = 696-5
+
+[NPC228]
+name = Arbol de Jungla
+npc_type = 0
+head = 0
+heading = 4
+body = 25
+ai_type = 1
+attackable = 1
+hostile = 1
+poisonous = 1
+experience = 100
+min_hp = 10
+max_hp = 10
+max_hit = 2
+min_hit = 1
+attack = 500
+evasion = 10
+object_count = 5
+drop2 = 58-15
+
+[NPC229]
+name = Alma Putrefacta
+npc_type = 0
+description = Soy un esclavo del señor del mal
+head = 514
+heading = 3
+body = 145
+ai_type = 3
+attackable = 1
+hostile = 1
+experience = 500
+min_hp = 700
+max_hp = 700
+max_hit = 100
+min_hit = 90
+attack = 200
+evasion = 140
+sound1 = 30
+sound2 = 31
+sound3 = 32
+object_count = 5
+drop1 = 12-50
+drop2 = 12-100
+drop3 = 645-1
+
+[NPC230]
+name = Cerdo Salvaje
+npc_type = 0
+description = Oink Oink
+head = 0
+heading = 3
+body = 6
+ai_type = 3
+attackable = 1
+hostile = 1
+temeable = 500
+experience = 15
+min_hp = 35
+max_hp = 35
+max_hit = 2
+min_hit = 1
+attack = 10
+evasion = 15
+object_count = 5
+drop1 = 27-1
+drop2 = 12-10
+
+[NPC231]
+name = Vaca Salvaje
+npc_type = 0
+description = Muuuuu
+head = 0
+heading = 3
+body = 7
+ai_type = 3
+attackable = 1
+hostile = 1
+temeable = 810
+experience = 25
+min_hp = 65
+max_hp = 65
+max_hit = 5
+min_hit = 2
+defense = 2
+attack = 25
+evasion = 15
+sound2 = 8
+object_count = 5
+drop1 = 27-5
+drop2 = 12-50
+
+[NPC232]
+name = Enano de las Profundidades
+npc_type = 0
+head = 304
+heading = 3
+body = 54
+ai_type = 10
+attackable = 1
+hostile = 1
+unparalyzable = 1
+experience = 5000
+min_hp = 3000
+max_hp = 3000
+max_hit = 165
+min_hit = 93
+defense = 30
+attack = 200
+evasion = 140
+object_count = 5
+drop1 = 12-500
+drop2 = 38-50
+drop3 = 159-1
+drop4 = 243-2
+drop5 = 393-3
+
+[NPC233]
+name = Liche Infernal
+npc_type = 0
+head = 0
+heading = 3
+body = 149
+ai_type = 3
+attackable = 1
+hostile = 1
+unparalyzable = 1
+experience = 10000
+min_hp = 10000
+max_hp = 10000
+max_hit = 250
+min_hit = 120
+defense = 30
+attack = 220
+evasion = 190
+spell_count = 3
+spell1 = 9
+spell2 = 23
+spell3 = 15
+object_count = 5
+drop1 = 12-10000
+drop2 = 12-15000
+drop3 = 361-2
+drop4 = 206-3
+drop5 = 400-3
+
+[NPC234]
+name = Demonio Infernal
+npc_type = 0
+head = 0
+heading = 3
+body = 83
+ai_type = 3
+attackable = 1
+hostile = 1
+experience = 10000
+min_hp = 15000
+max_hp = 15000
+max_hit = 350
+min_hit = 75
+attack = 230
+evasion = 220
+sound3 = 100
+object_count = 5
+drop1 = 12-8000
+drop2 = 12-16000
+drop3 = 126-3
+drop4 = 129-5
+drop5 = 495-2
+
+[NPC235]
+name = Dragon Rojo Infernal
+npc_type = 0
+head = 0
+heading = 3
+body = 41
+ai_type = 3
+attackable = 1
+hostile = 1
+experience = 2500
+min_hp = 5000
+max_hp = 5000
+max_hit = 300
+min_hit = 250
+GolpeExacto = 1
+defense = 50
+attack = 380
+evasion = 250
+object_count = 5
+drop1 = 12-4000
+drop2 = 12-6000
+drop3 = 12-10000
+drop4 = 12-50000
+drop5 = 402-1
+
+[NPC236]
+name = Golem Infernal
+npc_type = 0
+head = 0
+heading = 3
+body = 181
+ai_type = 3
+attackable = 1
+hostile = 1
+experience = 35000
+min_hp = 49000
+max_hp = 49000
+max_hit = 600
+min_hit = 300
+defense = 40
+attack = 300
+evasion = 50
+sound2 = 79
+sound3 = 89
+object_count = 5
+drop1 = 12-15000
+drop2 = 38-1000
+drop3 = 37-2000
+drop4 = 12-100000
+drop5 = 485-2
+
+[NPC237]
+name = Astaroth
+npc_type = 0
+head = 0
+heading = 3
+body = 204
+ai_type = 3
+attackable = 1
+hostile = 1
+experience = 2000
+min_hp = 3500
+max_hp = 3500
+max_hit = 126
+min_hit = 75
+defense = 30
+attack = 200
+evasion = 150
+spell_count = 3
+spell1 = 8
+spell2 = 9
+spell3 = 15
+sound3 = 156
+object_count = 5
+drop1 = 12-2500
+drop2 = 37-200
+drop3 = 361-1
+drop4 = 530-2
+drop5 = 699-3
+
+[NPC238]
+name = Elemental de Fuego
+npc_type = 0
+head = 0
+heading = 3
+body = 153
+ai_type = 3
+attackable = 1
+hostile = 1
+experience = 100
+min_hp = 600
+max_hp = 600
+max_hit = 250
+min_hit = 75
+defense = 30
+attack = 200
+evasion = 70
+spell_count = 1
+spell1 = 8
+object_count = 5
+drop1 = 12-500
+drop2 = 38-100
+drop3 = 239-1
+drop4 = 205-1
+
+[NPC239]
+name = Elemental de Fuego Anciano
+npc_type = 0
+head = 0
+heading = 3
+body = 394
+ai_type = 3
+attackable = 1
+hostile = 1
+unparalyzable = 1
+experience = 1000
+min_hp = 7000
+max_hp = 7000
+max_hit = 140
+min_hit = 75
+defense = 30
+attack = 250
+evasion = 250
+sound2 = 118
+sound3 = 1
+spell_count = 2
+spell1 = 15
+spell2 = 25
+object_count = 5
+drop1 = 12-10000
+drop2 = 12-15000
+drop3 = 361-2
+drop4 = 536-1
+drop5 = 532-1
+
+[NPC240]
+name = Blattodea
+npc_type = 0
+head = 0
+heading = 3
+body = 231
+ai_type = 3
+attackable = 1
+hostile = 1
+experience = 455
+min_hp = 435
+max_hp = 435
+max_hit = 90
+min_hit = 50
+defense = 10
+attack = 150
+evasion = 50
+object_count = 5
+drop1 = 12-100
+drop2 = 12-150
+drop3 = 12-300
+drop4 = 12-600
+drop5 = 12-1200
+
+[NPC241]
+name = Artopleura
+npc_type = 0
+head = 0
+heading = 3
+body = 229
+ai_type = 3
+attackable = 1
+hostile = 1
+experience = 1100
+min_hp = 700
+max_hp = 700
+max_hit = 100
+min_hit = 65
+defense = 10
+attack = 200
+evasion = 80
+object_count = 5
+drop1 = 12-125
+drop2 = 12-200
+drop3 = 12-300
+drop4 = 12-500
+drop5 = 12-1500
+
+[NPC242]
+name = Araña de los Rincones
+npc_type = 0
+head = 0
+heading = 3
+body = 230
+ai_type = 3
+attackable = 1
+hostile = 1
+experience = 700
+min_hp = 650
+max_hp = 650
+max_hit = 75
+min_hit = 35
+attack = 110
+evasion = 70
+object_count = 5
+drop1 = 12-75
+drop2 = 619-1
+drop4 = 202-1
+
+[NPC243]
+name = Pirata
+npc_type = 0
+head = 509
+heading = 3
+body = 386
+ai_type = 3
+attackable = 1
+hostile = 1
+experience = 850
+min_hp = 700
+max_hp = 700
+max_hit = 100
+min_hit = 65
+attack = 250
+evasion = 85
+object_count = 5
+drop1 = 12-50
+drop3 = 19-1
+drop4 = 125-1
+drop5 = 873-1
+
+[NPC244]
+name = Escarabajo Gigante
+npc_type = 0
+head = 0
+heading = 3
+body = 391
+ai_type = 3
+attackable = 1
+hostile = 1
+experience = 500
+min_hp = 550
+max_hp = 550
+max_hit = 80
+min_hit = 35
+attack = 100
+evasion = 45
+object_count = 5
+drop1 = 12-150
+drop2 = 12-200
+drop3 = 12-600
+
+[NPC245]
+name = Tentaculo Putrefacto
+npc_type = 0
+head = 0
+heading = 3
+body = 392
+ai_type = 3
+attackable = 1
+hostile = 1
+experience = 900
+min_hp = 600
+max_hp = 600
+max_hit = 80
+min_hit = 35
+attack = 80
+evasion = 100
+object_count = 5
+drop1 = 12-70
+drop2 = 12-140
+drop3 = 12-200
+
+[NPC246]
+name = Espiritu Chocarrero
+npc_type = 0
+head = 0
+heading = 3
+body = 219
+ai_type = 3
+attackable = 1
+hostile = 1
+experience = 500
+min_hp = 400
+max_hp = 400
+max_hit = 130
+min_hit = 50
+defense = 5
+attack = 150
+evasion = 150
+sound3 = 163
+object_count = 5
+drop1 = 12-50
+drop2 = 38-10
+
+[NPC247]
+name = Protector de los Muertos
+npc_type = 0
+head = 0
+heading = 3
+body = 426
+ai_type = 3
+attackable = 1
+hostile = 1
+experience = 455
+min_hp = 435
+max_hp = 435
+max_hit = 90
+min_hit = 50
+defense = 10
+attack = 150
+evasion = 50
+object_count = 5
+drop1 = 12-50
+drop2 = 12-65
+drop5 = 380-1
+
+[NPC248]
+name = Hada Oscura
+npc_type = 0
+head = 511
+heading = 3
+body = 427
+ai_type = 3
+attackable = 1
+hostile = 1
+experience = 700
+min_hp = 650
+max_hp = 650
+max_hit = 75
+min_hit = 35
+attack = 110
+evasion = 70
+sound3 = 166
+object_count = 5
+drop1 = 12-75
+drop2 = 978-2
+drop4 = 697-2
+drop5 = 513-1
+
+[NPC249]
+name = Engendro de las Profundidades
+npc_type = 0
+head = 0
+heading = 3
+body = 387
+ai_type = 3
+attackable = 1
+hostile = 1
+experience = 500
+min_hp = 550
+max_hp = 550
+max_hit = 80
+min_hit = 35
+attack = 100
+evasion = 45
+sound3 = 162
+object_count = 5
+drop1 = 12-75
+drop2 = 38-12
+drop3 = 398-4
+drop4 = 30-1
+
+[NPC250]
+name = Ave de las Profundidades
+npc_type = 0
+head = 0
+heading = 3
+body = 425
+ai_type = 3
+attackable = 1
+hostile = 1
+experience = 900
+min_hp = 700
+max_hp = 700
+max_hit = 100
+min_hit = 65
+defense = 10
+attack = 200
+evasion = 80
+object_count = 5
+drop1 = 12-125
+drop2 = 551-50
+drop3 = 552-50
+
+[NPC251]
+name = Licantropo
+npc_type = 0
+head = 0
+heading = 3
+body = 212
+ai_type = 3
+attackable = 1
+hostile = 1
+experience = 850
+min_hp = 600
+max_hp = 600
+max_hit = 100
+min_hit = 65
+defense = 10
+attack = 250
+evasion = 65
+sound3 = 167
+object_count = 5
+drop1 = 12-100
+drop2 = 414-20
+drop5 = 1002-5
+
+[NPC252]
+name = Piraña
+npc_type = 0
+head = 0
+heading = 3
+body = 433
+ai_type = 3
+aquatic = 1
+attackable = 1
+hostile = 1
+experience = 1150
+min_hp = 800
+max_hp = 800
+max_hit = 75
+min_hit = 110
+defense = 15
+attack = 200
+evasion = 70
+object_count = 5
+drop1 = 12-150
+drop2 = 12-275
+drop3 = 36-10
+
+[NPC253]
+name = Sirena
+npc_type = 0
+head = 0
+heading = 3
+body = 434
+ai_type = 3
+aquatic = 1
+attackable = 1
+hostile = 1
+experience = 1825
+min_hp = 1300
+max_hp = 1300
+max_hit = 110
+min_hit = 85
+defense = 25
+magic_defense = 15
+attack = 150
+evasion = 70
+AtacaDoble = 1
+spell_count = 1
+spell1 = 9
+object_count = 5
+drop1 = 12-230
+drop3 = 208-2
+drop5 = 542-1
+
+[NPC254]
+name = Manta raya
+npc_type = 0
+head = 0
+heading = 3
+body = 407
+ai_type = 3
+aquatic = 1
+attackable = 1
+hostile = 1
+experience = 550
+min_hp = 600
+max_hp = 600
+max_hit = 55
+min_hit = 45
+defense = 15
+attack = 120
+evasion = 45
+object_count = 5
+drop1 = 12-100
+drop2 = 38-20
+drop3 = 36-4
+
+[NPC255]
+name = Lutra
+npc_type = 0
+head = 0
+heading = 3
+body = 435
+ai_type = 3
+aquatic = 1
+attackable = 1
+hostile = 1
+experience = 2730
+min_hp = 2100
+max_hp = 2100
+max_hit = 115
+min_hit = 60
+defense = 20
+magic_defense = 10
+attack = 150
+evasion = 150
+object_count = 5
+drop1 = 12-550
+drop2 = 36-15
+drop3 = 39-15
+drop4 = 12-13500
+
+[NPC256]
+name = Tiburon
+npc_type = 0
+head = 0
+heading = 3
+body = 436
+ai_type = 3
+aquatic = 1
+attackable = 1
+hostile = 1
+experience = 3500
+min_hp = 2500
+max_hp = 2500
+max_hit = 175
+min_hit = 100
+defense = 15
+magic_defense = 5
+attack = 220
+evasion = 180
+object_count = 5
+drop1 = 12-150
+drop2 = 38-25
+drop3 = 39-5
+drop4 = 12-2100
+
+[NPC257]
+name = Capiton Pirata
+npc_type = 0
+head = 512
+heading = 3
+body = 428
+ai_type = 3
+attackable = 1
+hostile = 1
+experience = 2700
+min_hp = 2700
+max_hp = 2700
+max_hit = 250
+min_hit = 130
+defense = 35
+magic_defense = 10
+attack = 220
+evasion = 190
+object_count = 5
+drop1 = 12-1000
+drop2 = 12-1640
+drop3 = 125-2
+drop4 = 474-1
+
+[NPC258]
+name = Guardion de las Profundidades
+npc_type = 0
+head = 0
+heading = 3
+body = 218
+ai_type = 3
+aquatic = 1
+attackable = 1
+hostile = 1
+experience = 3500
+min_hp = 2000
+max_hp = 2000
+max_hit = 300
+min_hit = 100
+defense = 15
+attack = 350
+evasion = 210
+sound3 = 210
+object_count = 5
+drop1 = 12-400
+drop2 = 37-50
+drop3 = 38-130
+drop4 = 361-1
+
+[NPC259]
+name = Elemental de Agua Anciano
+npc_type = 0
+head = 0
+heading = 3
+body = 542
+ai_type = 3
+aquatic = 1
+attackable = 1
+hostile = 1
+unparalyzable = 1
+experience = 2000
+min_hp = 7000
+max_hp = 7000
+max_hit = 250
+min_hit = 150
+defense = 30
+magic_defense = 10
+attack = 250
+evasion = 250
+spell_count = 1
+spell1 = 31
+AtacaDoble = 1
+object_count = 5
+drop1 = 12-10000
+drop2 = 12-19050
+drop3 = 657-1
+drop4 = 542-1
+drop5 = 537-1
+
+[NPC260]
+name = Kraken
+npc_type = 0
+head = 0
+heading = 3
+body = 408
+ai_type = 3
+aquatic = 1
+attackable = 1
+hostile = 1
+experience = 10500
+min_hp = 6250
+max_hp = 6250
+max_hit = 220
+min_hit = 95
+defense = 15
+attack = 220
+evasion = 170
+sound2 = 174
+sound3 = 175
+spell_count = 1
+spell1 = 9
+AtacaDoble = 1
+object_count = 5
+drop1 = 12-1200
+drop2 = 38-110
+drop3 = 405-1
+drop4 = 206-1
+drop5 = 475-1
+
+[NPC261]
+name = Fango
+npc_type = 0
+head = 0
+heading = 3
+body = 403
+ai_type = 3
+attackable = 1
+hostile = 1
+experience = 800
+min_hp = 750
+max_hp = 750
+max_hit = 110
+min_hit = 50
+attack = 200
+evasion = 70
+object_count = 5
+drop1 = 12-100
+drop2 = 38-18
+drop3 = 37-30
+drop4 = 36-10
+drop5 = 39-10
+
+[NPC262]
+name = Cocodrilo
+npc_type = 0
+head = 0
+heading = 3
+body = 208
+ai_type = 3
+attackable = 1
+hostile = 1
+experience = 1000
+min_hp = 550
+max_hp = 550
+max_hit = 100
+min_hit = 75
+defense = 10
+magic_defense = 5
+attack = 220
+evasion = 60
+object_count = 5
+drop4 = 619-1
+drop5 = 365-1
+
+[NPC263]
+name = Unicornio
+npc_type = 0
+head = 0
+heading = 3
+body = 183
+ai_type = 3
+attackable = 1
+hostile = 1
+experience = 1900
+min_hp = 1350
+max_hp = 1350
+max_hit = 115
+min_hit = 60
+defense = 5
+magic_defense = 10
+attack = 150
+evasion = 70
+object_count = 5
+drop1 = 12-150
+drop2 = 37-23
+drop3 = 658-1
+drop4 = 697-1
+drop5 = 698-1
+
+[NPC264]
+name = Elfo Guardian
+npc_type = 0
+head = 0
+heading = 3
+body = 402
+ai_type = 3
+attackable = 1
+hostile = 1
+experience = 2300
+min_hp = 1500
+max_hp = 1500
+max_hit = 115
+min_hit = 60
+defense = 15
+attack = 135
+evasion = 150
+spell_count = 1
+spell1 = 44
+object_count = 5
+drop1 = 12-500
+drop2 = 480-115
+drop3 = 479-3
+drop4 = 551-200
+drop5 = 665-6
+
+[NPC265]
+name = Arbol Capturador de Almas
+npc_type = 0
+head = 0
+heading = 3
+body = 401
+ai_type = 3
+attackable = 1
+hostile = 1
+unparalyzable = 1
+experience = 3100
+min_hp = 2500
+max_hp = 2500
+max_hit = 150
+min_hit = 100
+defense = 15
+attack = 150
+evasion = 60
+spell_count = 2
+spell1 = 24
+spell2 = 45
+sound3 = 173
+object_count = 5
+drop1 = 12-1000
+drop2 = 1005-2
+drop3 = 38-300
+drop4 = 203-1
+
+[NPC266]
+name = Sapo
+npc_type = 0
+head = 0
+heading = 3
+body = 432
+ai_type = 3
+attackable = 1
+hostile = 1
+temeable = 900
+experience = 60
+min_hp = 35
+max_hp = 35
+max_hit = 7
+min_hit = 2
+attack = 40
+evasion = 35
+object_count = 5
+drop3 = 12-50
+drop4 = 12-500
+drop5 = 12-5000
+
+[NPC267]
+name = Pequeño Escarabajo
+npc_type = 0
+head = 0
+heading = 3
+body = 533
+ai_type = 3
+attackable = 1
+hostile = 1
+experience = 175
+min_hp = 200
+max_hp = 200
+max_hit = 14
+min_hit = 1
+defense = 5
+magic_defense = 5
+attack = 75
+evasion = 25
+object_count = 5
+drop1 = 12-10
+drop2 = 855-10
+drop3 = 858-20
+drop5 = 126-1
+
+[NPC268]
+name = Pequeño Duende
+npc_type = 0
+head = 0
+heading = 3
+body = 75
+ai_type = 3
+attackable = 1
+hostile = 1
+experience = 80
+min_hp = 100
+max_hp = 100
+max_hit = 17
+min_hit = 10
+defense = 8
+attack = 90
+evasion = 100
+object_count = 5
+drop1 = 12-65
+drop2 = 856-24
+drop4 = 208-1
+drop5 = 696-1
+
+[NPC269]
+name = Hada del Bosque
+npc_type = 0
+head = 0
+heading = 3
+body = 532
+ai_type = 3
+attackable = 1
+hostile = 1
+experience = 417
+min_hp = 278
+max_hp = 278
+max_hit = 23
+min_hit = 15
+defense = 5
+attack = 150
+evasion = 150
+sound3 = 166
+object_count = 5
+drop1 = 12-40
+drop2 = 12-85
+drop3 = 857-20
+drop4 = 658-1
+drop5 = 205-1
+
+[NPC270]
+name = Pequeña Araña
+npc_type = 0
+head = 0
+heading = 3
+body = 534
+ai_type = 3
+attackable = 1
+hostile = 1
+experience = 75
+min_hp = 125
+max_hp = 125
+max_hit = 8
+min_hit = 3
+defense = 4
+magic_defense = 5
+attack = 50
+evasion = 20
+object_count = 5
+drop1 = 12-12
+drop3 = 12-110
+drop4 = 366-1
+drop5 = 30-1
+
+[NPC271]
+name = Piraña
+npc_type = 0
+head = 0
+heading = 3
+body = 433
+ai_type = 3
+aquatic = 1
+attackable = 1
+hostile = 1
+experience = 135
+min_hp = 150
+max_hp = 150
+max_hit = 16
+min_hit = 10
+defense = 4
+magic_defense = 5
+attack = 75
+evasion = 25
+object_count = 5
+drop1 = 12-20
+drop2 = 480-15
+drop3 = 855-30
+drop4 = 1009-20
+
+[NPC272]
+name = Pequeño Dragon Magico
+npc_type = 0
+head = 0
+heading = 3
+body = 537
+ai_type = 3
+aquatic = 1
+attackable = 1
+hostile = 1
+experience = 160
+min_hp = 200
+max_hp = 200
+max_hit = 17
+min_hit = 5
+defense = 5
+magic_defense = 10
+attack = 84
+evasion = 27
+sound3 = 89
+object_count = 5
+drop1 = 12-40
+drop2 = 480-25
+drop3 = 480-150
+drop4 = 664-1
+drop5 = 665-1
+
+[NPC273]
+name = Mini Elemental de Fuego
+npc_type = 0
+head = 0
+heading = 3
+body = 535
+ai_type = 3
+attackable = 1
+hostile = 1
+experience = 120
+min_hp = 210
+max_hp = 210
+max_hit = 13
+min_hit = 5
+defense = 3
+magic_defense = 2
+attack = 45
+evasion = 30
+object_count = 5
+drop1 = 12-50
+drop2 = 12-75
+drop4 = 205-1
+drop5 = 123-3
+
+[NPC274]
+name = Pequeño Dragon Rojo
+npc_type = 0
+head = 0
+heading = 3
+body = 536
+ai_type = 3
+attackable = 1
+hostile = 1
+experience = 500
+min_hp = 300
+max_hp = 300
+max_hit = 13
+min_hit = 2
+defense = 7
+attack = 40
+evasion = 50
+sound3 = 160
+object_count = 5
+drop1 = 12-25
+drop2 = 12-25
+drop4 = 204-1
+drop5 = 990-3
+
+[NPC275]
+name = Vibora
+npc_type = 0
+head = 0
+heading = 3
+body = 13
+ai_type = 3
+attackable = 1
+hostile = 1
+experience = 30
+min_hp = 22
+max_hp = 22
+max_hit = 6
+min_hit = 2
+defense = 3
+attack = 35
+evasion = 20
+sound2 = 103
+object_count = 5
+drop3 = 38-10
+drop4 = 200-1
+drop5 = 202-1
+
+[NPC276]
+name = Goblin Travieso
+npc_type = 0
+head = 0
+heading = 3
+body = 14
+ai_type = 3
+attackable = 1
+hostile = 1
+experience = 70
+min_hp = 75
+max_hp = 75
+max_hit = 9
+min_hit = 2
+defense = 2
+magic_defense = 4
+attack = 58
+evasion = 15
+sound3 = 142
+object_count = 5
+drop1 = 12-6
+drop3 = 480-10
+drop4 = 479-1
+
+[NPC277]
+name = Protector de Almas
+npc_type = 0
+head = 0
+heading = 3
+body = 426
+ai_type = 3
+attackable = 1
+hostile = 1
+experience = 100
+min_hp = 130
+max_hp = 130
+max_hit = 23
+min_hit = 15
+defense = 10
+magic_defense = 5
+attack = 69
+evasion = 55
+object_count = 5
+drop1 = 12-41
+drop2 = 12-41
+drop3 = 364-1
+drop4 = 19-2
+drop5 = 470-1
+
+[NPC278]
+name = Tarantula venenosa
+npc_type = 0
+head = 0
+heading = 3
+body = 538
+ai_type = 3
+attackable = 1
+hostile = 1
+poisonous = 1
+experience = 95
+min_hp = 95
+max_hp = 95
+max_hit = 15
+min_hit = 6
+defense = 2
+attack = 63
+evasion = 32
+object_count = 5
+drop1 = 166-5
+drop3 = 201-1
+drop4 = 396-1
+
+[NPC279]
+name = Guerrero tutor I
+npc_type = 0
+description = Los guerreros se especializan en el combate cuerpo a cuerpo por lo que las criaturas mas adecuadas para ellos son aquellas que no poseen demasiada evasion y poder de ataque.
+head = 301
+heading = 3
+body = 54
+ai_type = 1
+
+[NPC280]
+name = Guerrero tutor II
+npc_type = 0
+description = Debido a sus caracterasticas, dentro de esta isla, los guerreros prefieren entrenar en el desierto al este de la ciudad.
+head = 370
+heading = 3
+body = 54
+ai_type = 1
+
+[NPC281]
+name = Cazador tutor I
+npc_type = 0
+description = Los cazadores se especializan en el combate a distancia, por lo que las criaturas mas indicadas para ellos, son las que no tengan un gran poder de evasion.
+head = 303
+heading = 3
+body = 155
+ai_type = 1
+
+[NPC282]
+name = Cazador tutor II
+npc_type = 0
+description = Debido a sus caracteristicas, dentro de esta isla, los cazadores, prefieren entrenar en el bosque, al oeste de la ciudad
+head = 4
+heading = 3
+body = 58
+ai_type = 1
+
+[NPC283]
+name = Pirata tutor I
+npc_type = 0
+description = Los piratas pueden combatir tanto cuerpo a cuerpo como a distancia, por lo tanto, las criaturas mas adecuadas para ellos, son aquellas que no posean gran poder de evasion ni de ataque.
+head = 380
+heading = 3
+body = 161
+ai_type = 1
+
+[NPC284]
+name = Pirata tutor II
+npc_type = 0
+description = Por sus caracteristicas, dentro de esta isla, los piratas, pueden entrenar tanto en el desierto (cuerpo a cuerpo) como en el bosque (a distancia), al este u oeste de la ciudad.
+head = 305
+heading = 3
+body = 161
+ai_type = 1
+
+[NPC285]
+name = Bandido tutor I
+npc_type = 0
+description = Los bandidos se especializan en el combate cuerpo a cuerpo, por lo tanto, las criaturas mas adecuadas para esta clase, son aquellas que no posean un gran poder de evasion ni de ataque.
+head = 9
+heading = 3
+body = 321
+ai_type = 1
+
+[NPC286]
+name = Bandido tutor II
+npc_type = 0
+description = Debido a sus caracteristicas, dentro de esta isla, los bandidos, prefieren entrenar en el desierto, al este de la ciudad.
+head = 72
+heading = 3
+body = 321
+ai_type = 1
+
+[NPC287]
+name = Ladron tutor I
+npc_type = 0
+description = Los ladrones se destacan en el arte de ocultarse y el combate a distancia, por lo tanto, las criaturas mas adecuadas para esta clase, son aquellas que no posean gran poder de evasion.
+head = 75
+heading = 3
+body = 337
+ai_type = 1
+
+[NPC288]
+name = Ladron tutor II
+npc_type = 0
+description = Debido a sus caracteristicas, dentro de esta isla, los ladrones, prefieren entrenar en el bosque, al oeste de la ciudad
+head = 37
+heading = 3
+body = 337
+ai_type = 1
+
+[NPC289]
+name = Mago tutor I
+npc_type = 0
+description = Los magos se especializan en ataques magicos, por lo tanto, las criaturas mas adecuadas para esta clase, son aquellas que no posean defensa magica.
+head = 407
+heading = 3
+body = 159
+ai_type = 1
+
+[NPC290]
+name = Mago tutor II
+npc_type = 0
+description = Debido a sus caracteristicas, dentro de esta isla, los magos, prefieren entrenar en el bosque, al norte de la ciudad
+head = 109
+heading = 3
+body = 353
+ai_type = 1
+
+[NPC291]
+name = Bardo Tutor I
+npc_type = 0
+description = Los bardos se especializan en conjurar hechizos y evadir golpes, por lo tanto, las criaturas mas adecuadas para esta clase, son aquellas que no posean defensa magica.
+head = 220
+heading = 3
+body = 130
+ai_type = 1
+
+[NPC292]
+name = Bardo Tutor II
+npc_type = 0
+description = Debido a sus caracteristicas, dentro de esta isla, los bardos, prefieren entrenar en el bosque, al norte de la ciudad
+head = 179
+heading = 3
+body = 319
+ai_type = 1
+
+[NPC293]
+name = Clerigo Tutor I
+npc_type = 0
+description = Los clerigos combinan la magia con el combate cuerpo a cuerpo, por lo tanto, las criaturas mas adecuadas para ellos, son las que no posean defensa magica o posean bajo ataque y evasion.
+head = 22
+heading = 3
+body = 314
+ai_type = 1
+
+[NPC294]
+name = Clerigo Tutor II
+npc_type = 0
+description = Por sus caracteristicas, dentro de esta isla, los clerigos, pueden entrenar tanto en el desierto (cuerpo a cuerpo) como en el bosque (magia), al este o norte de la ciudad.
+head = 112
+heading = 3
+body = 314
+ai_type = 1
+
+[NPC295]
+name = Druida Tutor I
+npc_type = 0
+description = Los druidas se especializan en ataques magicos, por lo tanto, las criaturas mas adecuadas para esta clase, son las que no posean defensa magica. Tambien pueden entrenar con mascotas al domar
+head = 284
+heading = 3
+body = 56
+ai_type = 1
+
+[NPC296]
+name = Druida Tutor II
+npc_type = 0
+description = Debido a sus caracteristicas, dentro de esta isla, los druidas, prefieren entrenar en el bosque, al norte de la ciudad
+head = 115
+heading = 3
+body = 56
+ai_type = 1
+
+[NPC297]
+name = Paladon Tutor I
+npc_type = 0
+description = Los paladines combinan el golpe cuerpo a cuerpo con la magia, por lo tanto, las criaturas mas adecuadas para esta clase, son aquellas que no posean un gran poder de evasion ni de ataque.
+head = 30
+heading = 3
+body = 45
+ai_type = 1
+
+[NPC298]
+name = Paladin Tutor II
+npc_type = 0
+description = Debido a sus caracteristicas, dentro de esta isla los paladines prefieren entrenar en el desierto al este de la ciudad.
+head = 382
+heading = 3
+body = 54
+ai_type = 1
+
+[NPC299]
+name = Asesino Tutor I
+npc_type = 0
+description = Los asesinos combinan el golpe cuerpo a cuerpo con la magia, por lo tanto, las criaturas mas adecuadas para esta clase, son aquellas que no posean un gran poder de evasion ni de ataque.
+head = 288
+heading = 3
+body = 48
+ai_type = 1
+
+[NPC300]
+name = Asesino Tutor II
+npc_type = 0
+description = Debido a sus caracteristicas, dentro de esta isla los asesinos prefieren entrenar en el desierto al este de la ciudad.
+head = 309
+heading = 3
+body = 539
+ai_type = 1
+
+[NPC301]
+name = Herrero Tutor
+npc_type = 0
+description = Se considera Herrero al trabajador que tenga 100 skills en la habilidad Herreria. Los mismos se encargan de construir armas y armaduras para los aventureros de estas tierras.
+head = 7
+heading = 3
+body = 93
+ai_type = 1
+
+[NPC302]
+name = Minero Tutor
+npc_type = 0
+description = Se considera Minero al trabajador que tenga 100 skills en la habilidad Mineria. Los mismos se encargan de extraer minerales y transformarlos en lingotes para el uso de los herreros.
+head = 109
+heading = 3
+body = 100
+ai_type = 1
+
+[NPC303]
+name = Carpintero Tutor
+npc_type = 0
+description = Se considera Carpintero al trabajador que tenga 100 skills en la habilidad Carpinteria. Los mismos se encargan de construir todo tipo de objectetos que requieran madera.
+head = 308
+heading = 3
+body = 373
+ai_type = 1
+
+[NPC304]
+name = Leñador Tutor
+npc_type = 0
+description = Se considera Leñador al trabajador que tenga 100 skills en la habilidad Tala. Los mismos se encargan de extraer leña comun y leña elfica para el uso de los carpinteros.
+head = 216
+heading = 3
+body = 382
+ai_type = 1
+
+[NPC305]
+name = Pescador Tutor
+npc_type = 0
+description = Se considera Pescador al trabajador que tenga 100 skills en la habilidad Pesca. Los mismos se encargan de extraer peces de los rios y mares para el venderselos al mejor postor.
+head = 410
+heading = 3
+body = 301
+ai_type = 1
+
+[NPC306]
+name = Trabajador Tutor I
+npc_type = 0
+description = Los trabajadores pueden combatir tanto cuerpo a cuerpo como a distancia, por lo tanto, las criaturas mas adecuadas para ellos, son aquellas que no posean gran poder de evasion ni de ataque.
+head = 172
+heading = 3
+body = 348
+ai_type = 1
+
+[NPC307]
+name = Trabajador Tutor II
+npc_type = 0
+description = Por sus caracteristicas, dentro de esta isla, los trabajadores, pueden entrenar tanto en el desierto (cuerpo a cuerpo) como en el bosque (a distancia), al este u oeste de la ciudad.
+head = 372
+heading = 3
+body = 376
+ai_type = 1
+
+[NPC308]
+name = Ente Supremo
+npc_type = 0
+head = 0
+heading = 3
+body = 535
+ai_type = 3
+attackable = 1
+hostile = 1
+unparalyzable = 1
+experience = 50000
+min_hp = 50000
+max_hp = 50000
+max_hit = 300
+min_hit = 250
+defense = 75
+magic_defense = 100
+attack = 300
+evasion = 500
+spell_count = 2
+spell1 = 31
+spell2 = 25
+AtacaDoble = 1
+object_count = 5
+drop1 = 400-1
+drop2 = 400-1
+drop3 = 400-1
+drop4 = 400-1
+drop5 = 400-1
+
+#################### Pretorianos ####################
+
+[NPC309]
+name = Rey Pretoriano
+npc_type = 10
+head = 14
+heading = 3
+body = 63
+ai_type = 24
+attackable = 1
+hostile = 1
+unparalyzable = 1
+respawnable = 0
+experience = 35000
+gold = 30000
+min_hp = 12000
+max_hp = 12000
+max_hit = 50
+min_hit = 30
+defense = 30
+attack = 1000
+evasion = 270
+spell_count = 5
+spell1 = 3
+spell2 = 10
+spell3 = 30
+spell4 = 31
+spell5 = 1
+object_count = 2
+object1 = 646-1
+object2 = 403-1
+
+[NPC310]
+name = Rey Pretoriano
+npc_type = 10
+head = 14
+heading = 3
+body = 180
+ai_type = 24
+attackable = 1
+hostile = 1
+unparalyzable = 1
+respawnable = 0
+experience = 35000
+gold = 30000
+min_hp = 12000
+max_hp = 12000
+max_hit = 50
+min_hit = 30
+defense = 30
+attack = 1000
+evasion = 270
+spell_count = 5
+spell1 = 3
+spell2 = 10
+spell3 = 30
+spell4 = 31
+spell5 = 1
+object_count = 2
+object1 = 907-1
+object2 = 403-1
+
+[NPC311]
+name = Clerigo Pretoriano
+npc_type = 10
+head = 74
+heading = 3
+body = 130
+ai_type = 20
+attackable = 1
+hostile = 1
+respawnable = 0
+experience = 10000
+min_hp = 8000
+max_hp = 8000
+max_hit = 140
+min_hit = 70
+defense = 10
+attack = 100
+evasion = 120
+spell_count = 5
+spell1 = 9
+spell2 = 10
+spell3 = 39
+spell4 = 5
+spell5 = 36
+object_count = 6
+object1 = 12-5000
+object2 = 519-1
+object3 = 37-300
+object4 = 38-300
+object5 = 361-1
+object6 = 697-1
+
+[NPC312]
+name = Clerigo Pretoriano
+npc_type = 10
+head = 74
+heading = 3
+body = 136
+ai_type = 20
+attackable = 1
+hostile = 1
+respawnable = 0
+experience = 10000
+min_hp = 8000
+max_hp = 8000
+max_hit = 140
+min_hit = 70
+defense = 10
+attack = 100
+evasion = 120
+spell_count = 5
+spell1 = 9
+spell2 = 10
+spell3 = 39
+spell4 = 5
+spell5 = 36
+object_count = 6
+object1 = 12-5000
+object2 = 525-1
+object3 = 37-300
+object4 = 38-300
+object5 = 361-1
+object6 = 697-1
+
+[NPC313]
+name = Bardo Pretoriano
+npc_type = 10
+head = 74
+heading = 3
+body = 130
+ai_type = 20
+attackable = 1
+hostile = 1
+respawnable = 0
+experience = 10000
+min_hp = 8000
+max_hp = 8000
+max_hit = 140
+min_hit = 70
+defense = 10
+attack = 100
+evasion = 120
+spell_count = 5
+spell1 = 9
+spell2 = 10
+spell3 = 39
+spell4 = 5
+spell5 = 36
+object_count = 6
+object1 = 12-5000
+object2 = 519-1
+object3 = 37-300
+object4 = 38-300
+object5 = 132-1
+object6 = 1049-1
+
+[NPC314]
+name = Bardo Pretoriano
+npc_type = 10
+head = 74
+heading = 3
+body = 136
+ai_type = 20
+attackable = 1
+hostile = 1
+respawnable = 0
+experience = 10000
+min_hp = 8000
+max_hp = 8000
+max_hit = 140
+min_hit = 70
+defense = 10
+attack = 100
+evasion = 120
+spell_count = 5
+spell1 = 9
+spell2 = 10
+spell3 = 39
+spell4 = 5
+spell5 = 36
+object_count = 6
+object1 = 12-5000
+object2 = 525-1
+object3 = 37-300
+object4 = 38-300
+object5 = 132-1
+object6 = 1049-1
+
+[NPC315]
+name = Mago Pretoriano
+npc_type = 10
+head = 104
+heading = 3
+body = 49
+ai_type = 22
+attackable = 1
+hostile = 1
+respawnable = 0
+experience = 10000
+min_hp = 5000
+max_hp = 5000
+max_hit = 60
+min_hit = 30
+defense = 10
+attack = 100
+evasion = 80
+spell_count = 2
+spell1 = 25
+spell2 = 38
+object_count = 5
+object1 = 12-10000
+object2 = 238-1
+object3 = 37-400
+object4 = 660-1
+object5 = 662-1
+
+[NPC316]
+name = Mago Pretoriano
+npc_type = 10
+head = 104
+heading = 3
+body = 159
+ai_type = 22
+attackable = 1
+hostile = 1
+respawnable = 0
+experience = 10000
+min_hp = 5000
+max_hp = 5000
+max_hit = 60
+min_hit = 30
+defense = 10
+attack = 100
+evasion = 80
+spell_count = 2
+spell1 = 25
+spell2 = 38
+object_count = 5
+object1 = 12-10000
+object2 = 670-1
+object3 = 37-400
+object4 = 660-1
+object5 = 662-1
+
+[NPC317]
+name = Druida Pretoriano
+npc_type = 10
+head = 104
+heading = 3
+body = 56
+ai_type = 22
+attackable = 1
+hostile = 1
+respawnable = 0
+experience = 10000
+min_hp = 5000
+max_hp = 5000
+max_hit = 60
+min_hit = 30
+defense = 10
+attack = 100
+evasion = 80
+spell_count = 2
+spell1 = 25
+spell2 = 38
+object_count = 5
+object1 = 12-10000
+object2 = 986-1
+object3 = 37-400
+object4 = 1050-1
+object5 = 1004-1
+
+[NPC318]
+name = Druida Pretoriano
+npc_type = 10
+head = 104
+heading = 3
+body = 135
+ai_type = 22
+attackable = 1
+hostile = 1
+respawnable = 0
+experience = 10000
+min_hp = 5000
+max_hp = 5000
+max_hit = 60
+min_hit = 30
+defense = 10
+attack = 100
+evasion = 80
+spell_count = 2
+spell1 = 25
+spell2 = 38
+object_count = 5
+object1 = 12-10000
+object2 = 524-1
+object3 = 37-400
+object4 = 1050-1
+object5 = 1004-1
+
+[NPC319]
+name = Cazador Pretoriano
+npc_type = 10
+head = 301
+heading = 3
+body = 58
+ai_type = 23
+attackable = 1
+hostile = 1
+respawnable = 0
+experience = 5000
+min_hp = 10000
+max_hp = 10000
+max_hit = 150
+min_hit = 100
+defense = 10
+attack = 350
+evasion = 220
+spell_count = 1
+spell1 = 37
+object_count = 8
+object1 = 12-5000
+object2 = 665-1
+object3 = 553-125
+object4 = 360-1
+object5 = 370-1
+object6 = 128-1
+object7 = 36-20
+object8 = 39-20
+
+[NPC320]
+name = Cazador Pretoriano
+npc_type = 10
+head = 301
+heading = 3
+body = 155
+ai_type = 23
+attackable = 1
+hostile = 1
+respawnable = 0
+experience = 5000
+min_hp = 10000
+max_hp = 10000
+max_hit = 150
+min_hit = 100
+defense = 10
+attack = 350
+evasion = 220
+spell_count = 1
+spell1 = 37
+object_count = 8
+object1 = 12-5000
+object2 = 665-1
+object3 = 553-125
+object4 = 648-1
+object5 = 370-1
+object6 = 128-1
+object7 = 36-20
+object8 = 39-20
+
+[NPC321]
+name = Pirata Pretoriano
+npc_type = 10
+head = 301
+heading = 3
+body = 130
+ai_type = 23
+attackable = 1
+hostile = 1
+respawnable = 0
+experience = 5000
+min_hp = 10000
+max_hp = 10000
+max_hit = 150
+min_hit = 100
+defense = 10
+attack = 350
+evasion = 220
+spell_count = 1
+spell1 = 37
+object_count = 6
+object1 = 12-8000
+object2 = 1009-125
+object3 = 519-1
+object4 = 1010-1
+object5 = 36-20
+object6 = 39-20
+
+[NPC322]
+name = Pirata Pretoriano
+npc_type = 10
+head = 301
+heading = 3
+body = 136
+ai_type = 23
+attackable = 1
+hostile = 1
+respawnable = 0
+experience = 5000
+min_hp = 10000
+max_hp = 10000
+max_hit = 150
+min_hit = 100
+defense = 10
+attack = 350
+evasion = 220
+spell_count = 1
+spell1 = 37
+object_count = 6
+object1 = 12-8000
+object2 = 1009-125
+object3 = 525-1
+object4 = 1010-1
+object5 = 36-20
+object6 = 39-20
+
+[NPC323]
+name = Guerrero Pretoriano
+npc_type = 10
+head = 7
+heading = 3
+body = 45
+ai_type = 21
+attackable = 1
+hostile = 1
+respawnable = 0
+experience = 5000
+min_hp = 15000
+max_hp = 15000
+max_hit = 200
+min_hit = 180
+defense = 20
+attack = 600
+evasion = 250
+object_count = 8
+object1 = 12-5000
+object2 = 129-1
+object3 = 195-1
+object4 = 131-1
+object5 = 128-1
+object6 = 36-30
+object7 = 39-30
+object8 = 38-300
+
+[NPC324]
+name = Guerrero Pretoriano
+npc_type = 10
+head = 7
+heading = 3
+body = 54
+ai_type = 21
+attackable = 1
+hostile = 1
+respawnable = 0
+experience = 5000
+min_hp = 15000
+max_hp = 15000
+max_hit = 200
+min_hit = 180
+defense = 20
+attack = 600
+evasion = 250
+object_count = 8
+object1 = 12-5000
+object2 = 129-1
+object3 = 243-1
+object4 = 131-1
+object5 = 128-1
+object6 = 36-30
+object7 = 39-30
+object8 = 38-300
+
+[NPC325]
+name = Paladin Pretoriano
+npc_type = 10
+head = 7
+heading = 3
+body = 45
+ai_type = 21
+attackable = 1
+hostile = 1
+respawnable = 0
+experience = 5000
+min_hp = 15000
+max_hp = 15000
+max_hit = 200
+min_hit = 180
+defense = 20
+attack = 600
+evasion = 250
+object_count = 7
+object1 = 12-5000
+object2 = 129-1
+object3 = 195-1
+object4 = 131-1
+object5 = 128-1
+object6 = 37-450
+object7 = 38-300
+
+[NPC326]
+name = Paladin Pretoriano
+npc_type = 10
+head = 7
+heading = 3
+body = 54
+ai_type = 21
+attackable = 1
+hostile = 1
+respawnable = 0
+experience = 5000
+min_hp = 15000
+max_hp = 15000
+max_hit = 200
+min_hit = 180
+defense = 20
+attack = 600
+evasion = 250
+object_count = 7
+object1 = 12-5000
+object2 = 129-1
+object3 = 243-1
+object4 = 131-1
+object5 = 128-1
+object6 = 37-450
+object7 = 38-300
+
+[NPC327]
+name = Asesino Pretoriano
+npc_type = 10
+head = 7
+heading = 3
+body = 48
+ai_type = 21
+attackable = 1
+hostile = 1
+respawnable = 0
+experience = 5000
+min_hp = 15000
+max_hp = 15000
+max_hit = 200
+min_hit = 180
+defense = 20
+attack = 600
+evasion = 250
+object_count = 8
+object1 = 12-5000
+object2 = 367-2
+object3 = 356-1
+object4 = 131-1
+object5 = 404-1
+object6 = 697-1
+object7 = 37-450
+object8 = 38-300
+
+[NPC328]
+name = Asesino Pretoriano
+npc_type = 10
+head = 7
+heading = 3
+body = 539
+ai_type = 21
+attackable = 1
+hostile = 1
+respawnable = 0
+experience = 5000
+min_hp = 15000
+max_hp = 15000
+max_hit = 200
+min_hit = 180
+defense = 20
+attack = 600
+evasion = 250
+object_count = 8
+object1 = 12-5000
+object2 = 367-2
+object3 = 854-1
+object4 = 131-1
+object5 = 404-1
+object6 = 697-1
+object7 = 37-450
+object8 = 38-300
+
+[NPC329]
+name = Bandido Pretoriano
+npc_type = 10
+head = 7
+heading = 3
+body = 45
+ai_type = 21
+attackable = 1
+hostile = 1
+respawnable = 0
+experience = 5000
+min_hp = 15000
+max_hp = 15000
+max_hit = 200
+min_hit = 180
+defense = 20
+attack = 600
+evasion = 250
+object_count = 8
+object1 = 12-5000
+object2 = 123-2
+object3 = 195-1
+object4 = 131-1
+object5 = 128-1
+object6 = 873-1
+object7 = 37-450
+object8 = 38-300
+
+[NPC330]
+name = Bandido Pretoriano
+npc_type = 10
+head = 7
+heading = 3
+body = 54
+ai_type = 21
+attackable = 1
+hostile = 1
+respawnable = 0
+experience = 5000
+min_hp = 15000
+max_hp = 15000
+max_hit = 200
+min_hit = 180
+defense = 20
+attack = 600
+evasion = 250
+object_count = 8
+object1 = 12-5000
+object2 = 123-2
+object3 = 243-1
+object4 = 131-1
+object5 = 128-1
+object6 = 873-1
+object7 = 37-450
+object8 = 38-300
+
+[NPC331]
+name = Ladron Pretoriano
+npc_type = 10
+head = 7
+heading = 3
+body = 47
+ai_type = 21
+attackable = 1
+hostile = 1
+unparalyzable = 1
+respawnable = 0
+experience = 5000
+min_hp = 3000
+max_hp = 3000
+max_hit = 50
+min_hit = 65
+defense = 10
+attack = 150
+evasion = 300
+spell_count = 2
+spell1 = 47
+spell2 = 39
+object_count = 3
+object1 = 12-10000
+object2 = 873-1
+object3 = 132-1
+
+[NPC332]
+name = Ladron Pretoriano
+npc_type = 10
+head = 7
+heading = 3
+body = 374
+ai_type = 21
+attackable = 1
+hostile = 1
+unparalyzable = 1
+respawnable = 0
+experience = 5000
+min_hp = 3000
+max_hp = 3000
+max_hit = 50
+min_hit = 65
+defense = 10
+attack = 150
+evasion = 300
+spell_count = 2
+spell1 = 47
+spell2 = 39
+object_count = 3
+object1 = 12-10000
+object2 = 873-1
+object3 = 132-1
