@@ -99,31 +99,7 @@ func (p *WalkPacket) Handle(buffer *network.DataBuffer, connection protocol.Conn
 
 		if oldAX != newAX || oldAY != newAY {
 			connection.Send(&outgoing.AreaChangedPacket{Position: char.Position})
-			
-			// Sync objects in new range
-			gameMap := p.MapService.GetMap(char.Position.Map)
-			if gameMap != nil {
-				for y := 0; y < 100; y++ {
-					for x := 0; x < 100; x++ {
-						tile := gameMap.GetTile(x, y)
-						if tile.Object != nil {
-							objPos := model.Position{X: byte(x), Y: byte(y), Map: char.Position.Map}
-							if p.AreaService.InRange(char.Position, objPos) {
-								connection.Send(&outgoing.ObjectCreatePacket{
-									X:            byte(x),
-									Y:            byte(y),
-									GraphicIndex: int16(tile.Object.Object.GraphicIndex),
-								})
-							}
-						}
-						if tile.NPC != nil {
-							if p.AreaService.InRange(char.Position, tile.NPC.Position) {
-								connection.Send(&outgoing.NpcCreatePacket{Npc: tile.NPC})
-							}
-						}
-					}
-				}
-			}
+			p.AreaService.SendAreaState(char)
 		}
 
 		p.AreaService.NotifyMovement(char, oldPos)

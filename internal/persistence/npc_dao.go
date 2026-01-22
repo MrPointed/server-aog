@@ -24,15 +24,15 @@ func (d *NpcDAO) Load() (map[int]*model.NPC, error) {
 
 	npcs := make(map[int]*model.NPC)
 
-		for section, props := range data {
-			if !strings.HasPrefix(section, "NPC") || section == "NPC_COUNT" {
-				continue
-			}
-	
-			id, err := strconv.Atoi(strings.TrimSpace(section[3:]))
-			if err != nil {
-				continue
-			}
+	for section, props := range data {
+		if !strings.HasPrefix(section, "NPC") || section == "NPC_COUNT" {
+			continue
+		}
+
+		id, err := strconv.Atoi(strings.TrimSpace(section[3:]))
+		if err != nil {
+			continue
+		}
 		desc := props["DESCRIPTION"]
 		if desc == "" {
 			desc = props["DESC"]
@@ -56,7 +56,7 @@ func (d *NpcDAO) Load() (map[int]*model.NPC, error) {
 			MinHit:      toInt(props["MIN_HIT"]),
 			MaxHit:      toInt(props["MAX_HIT"]),
 			Hostile:     props["HOSTILE"] == "1",
-			Movement:    props["MOVEMENT"] == "1",
+			Movement:    toInt(props["MOVEMENT"]),
 		}
 
 		// HP can be MinHP/MaxHP or just HP

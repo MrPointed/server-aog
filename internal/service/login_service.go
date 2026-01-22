@@ -161,42 +161,14 @@ func (s *LoginService) finalizeLogin(conn protocol.Connection, acc *model.Accoun
 
 		// Notify nearby players about me
 		s.messageService.SendToAreaButUser(&outgoing.CharacterCreatePacket{Character: char}, char.Position, char)
-
-		// Notify me about nearby players
-		for _, other := range gameMap.Characters {
-			if other != char && s.messageService.AreaService.InRange(char.Position, other.Position) {
-				conn.Send(&outgoing.CharacterCreatePacket{Character: other})
-			}
-		}
 	}
 
 	conn.Send(&outgoing.CharacterCreatePacket{Character: char})
 	conn.Send(&outgoing.UserCharIndexInServerPacket{UserIndex: char.CharIndex})
 	conn.Send(&outgoing.AreaChangedPacket{Position: char.Position})
 
-	// Notify me about objects on the ground
-	if gameMap != nil {
-		for y := 0; y < model.MapHeight; y++ {
-			for x := 0; x < model.MapWidth; x++ {
-				tile := gameMap.GetTile(x, y)
-				if tile.Object != nil {
-					objPos := model.Position{X: byte(x), Y: byte(y), Map: char.Position.Map}
-					if s.messageService.AreaService.InRange(char.Position, objPos) {
-						conn.Send(&outgoing.ObjectCreatePacket{
-							X:            byte(x),
-							Y:            byte(y),
-							GraphicIndex: int16(tile.Object.Object.GraphicIndex),
-						})
-					}
-				}
-				if tile.NPC != nil {
-					if s.messageService.AreaService.InRange(char.Position, tile.NPC.Position) {
-						conn.Send(&outgoing.NpcCreatePacket{Npc: tile.NPC})
-					}
-				}
-			}
-		}
-	}
+	// Sync area state (Objects, NPCs, Characters, and dynamic blocking)
+	s.messageService.AreaService.SendAreaState(char)
 
 	// Send Inventory
 	invCount := 0

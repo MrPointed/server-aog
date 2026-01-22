@@ -48,7 +48,7 @@ func NewServer(addr string) *Server {
 	bodyService := service.NewCharacterBodyService()
 	userService := service.NewUserService(bodyService)
 
-	mapDAO := persistence.NewMapDAO("../../resources/maps", 10) // Loading 10 maps for now
+	mapDAO := persistence.NewMapDAO("../../resources/maps", 150)
 	mapService := service.NewMapService(mapDAO, objectService, npcService)
 	mapService.LoadMaps()
 

@@ -48,7 +48,7 @@ func (s *AIService) aiLoop() {
 func (s *AIService) processNpcs() {
 	npcs := s.npcService.GetWorldNpcs()
 	for _, npc := range npcs {
-		if !npc.NPC.Movement {
+		if npc.NPC.Movement == 1 {
 			continue
 		}
 
@@ -59,13 +59,17 @@ func (s *AIService) processNpcs() {
 
 		// Random direction
 		heading := model.Heading(rand.Intn(4))
-		
+
 		newPos := npc.Position
 		switch heading {
-		case model.North: newPos.Y--
-		case model.South: newPos.Y++
-		case model.East:  newPos.X++
-		case model.West:  newPos.X--
+		case model.North:
+			newPos.Y--
+		case model.South:
+			newPos.Y++
+		case model.East:
+			newPos.X++
+		case model.West:
+			newPos.X--
 		}
 
 		// Boundary checks

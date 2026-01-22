@@ -177,6 +177,24 @@ func (s *AreaService) SendAreaState(char *model.Character) {
 						Y:            byte(y),
 						GraphicIndex: int16(tile.Object.Object.GraphicIndex),
 					})
+
+					// If it's a door, sync the blocking status as it might have changed from the static map file
+					if tile.Object.Object.Type == model.OTDoor {
+						conn.Send(&outgoing.BlockPositionPacket{
+							X:       byte(x),
+							Y:       byte(y),
+							Blocked: tile.Blocked,
+						})
+						// Also sync the left tile which is part of the same door
+						if x > 0 {
+							leftTile := gameMap.GetTile(x-1, y)
+							conn.Send(&outgoing.BlockPositionPacket{
+								X:       byte(x - 1),
+								Y:       byte(y),
+								Blocked: leftTile.Blocked,
+							})
+						}
+					}
 				}
 			}
 			

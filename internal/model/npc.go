@@ -3,16 +3,16 @@ package model
 type NPCType int
 
 const (
-	NTCommon NPCType = iota // 0
-	NTHealer                // 1
-	NTGuard                 // 2
-	NTTrainer               // 3
-	NTBanker                // 4
-	NTNoble                 // 5
-	NTDragon                // 6
-	NTGambler               // 7 (Timberos)
-	NTGuardCaos             // 8
-	NTHealerNewbie          // 9
+	NTCommon       NPCType = iota // 0
+	NTHealer                      // 1
+	NTGuard                       // 2
+	NTTrainer                     // 3
+	NTBanker                      // 4
+	NTNoble                       // 5
+	NTDragon                      // 6
+	NTGambler                     // 7 (Timberos)
+	NTGuardCaos                   // 8
+	NTHealerNewbie                // 9
 )
 
 type NPC struct {
@@ -20,23 +20,23 @@ type NPC struct {
 	Name        string
 	Description string
 	Type        NPCType
-	
+
 	Head    int
 	Body    int
 	Heading Heading
-	
+
 	Level int
 	Exp   int
 	Hp    int
 	MaxHp int
-	
+
 	MinHit int
 	MaxHit int
-	
+
 	Hostile bool
-	
+
 	// Spawning
-	Movement bool
+	Movement int
 
 	Drops []NPCDrop
 }
