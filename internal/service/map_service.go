@@ -48,6 +48,15 @@ func (s *MapService) LoadMaps() {
 						Amount: tile.ObjectAmount,
 					}
 					objectsFound++
+
+					// Ensure closed doors block the tile
+					if obj.Type == model.OTDoor && obj.OpenIndex != 0 {
+						tile.Blocked = true
+						if x > 0 {
+							leftTile := m.GetTile(x-1, y)
+							leftTile.Blocked = true
+						}
+					}
 				} else {
 					fmt.Printf("Map %d: Could not resolve object ID %d at tile %d\n", m.Id, tile.ObjectID, i)
 				}
@@ -167,7 +176,13 @@ func (s *MapService) MoveCharacterTo(char *model.Character, heading model.Headin
 	gameMap := s.GetMap(newPos.Map)
 	if gameMap != nil {
 		tile := gameMap.GetTile(int(newPos.X), int(newPos.Y))
-		if tile.Blocked || tile.Character != nil {
+		
+		// Map static blocking
+		if tile.Blocked {
+			return char.Position, false
+		}
+
+		if tile.Character != nil {
 			return char.Position, false
 		}
 	}

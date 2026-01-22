@@ -2,11 +2,22 @@ package incoming
 
 import (
 	"fmt"
+	"math"
+
+	"github.com/ao-go-server/internal/model"
 	"github.com/ao-go-server/internal/network"
 	"github.com/ao-go-server/internal/protocol"
+	"github.com/ao-go-server/internal/protocol/outgoing"
+	"github.com/ao-go-server/internal/service"
 )
 
-type DoubleClickPacket struct{}
+type DoubleClickPacket struct {
+	MapService    *service.MapService
+	NpcService    *service.NpcService
+	UserService   *service.UserService
+	ObjectService *service.ObjectService
+	AreaService   *service.AreaService
+}
 
 func (p *DoubleClickPacket) Handle(buffer *network.DataBuffer, connection protocol.Connection) (bool, error) {
 	if buffer.ReadableBytes() < 2 {
@@ -15,18 +26,225 @@ func (p *DoubleClickPacket) Handle(buffer *network.DataBuffer, connection protoc
 
 	rawX, _ := buffer.Get()
 	rawY, _ := buffer.Get()
-
+	
 	x := rawX - 1
 	y := rawY - 1
 
-	char := connection.GetUser()
-	name := "Unknown"
-	if char != nil {
-		name = char.Name
+	user := connection.GetUser()
+	if user != nil {
+		fmt.Printf("DoubleClick from %s at %d,%d (Raw: %d,%d)\n", user.Name, x, y, rawX, rawY)
+	}
+	if user == nil {
+		return true, nil
 	}
 
-	fmt.Printf("DOUBLE_CLICK from [%s] at X:%d Y:%d\n", name, x, y)
+	// Vision Range Check
+	const RANGO_VISION_X = 8
+	const RANGO_VISION_Y = 6
+
+	if math.Abs(float64(user.Position.X)-float64(x)) > RANGO_VISION_X ||
+		math.Abs(float64(user.Position.Y)-float64(y)) > RANGO_VISION_Y {
+		return true, nil
+	}
+
+	mapID := user.Position.Map
+	gameMap := p.MapService.GetMap(mapID)
+	if gameMap == nil {
+		return true, nil
+	}
+
+	// Helper distance function
+	getDist := func(p1 model.Position, tx, ty int) int {
+		return int(math.Abs(float64(p1.X)-float64(tx)) + math.Abs(float64(p1.Y)-float64(ty)))
+	}
+
+	tile := gameMap.GetTile(int(x), int(y))
+
+	// 1. Check NPCs
+	if tile.NPC != nil {
+		npc := tile.NPC
+		user.TargetNPC = npc.Index
+		user.TargetUser = 0
+		user.TargetNpcType = npc.NPC.Type
+
+		dist := getDist(user.Position, int(x), int(y))
+
+		switch npc.NPC.Type {
+		case model.NTMerchant:
+			if user.Dead {
+				connection.Send(&outgoing.ConsoleMessagePacket{Message: "¡Estás muerto!", Font: outgoing.INFO})
+				return true, nil
+			}
+			if dist > 3 {
+				connection.Send(&outgoing.ConsoleMessagePacket{Message: "Estás demasiado lejos del vendedor.", Font: outgoing.INFO})
+				return true, nil
+			}
+			// TODO: IniciarComercioNPC(user)
+			connection.Send(&outgoing.ConsoleMessagePacket{Message: "Comercio no implementado aún.", Font: outgoing.INFO})
+
+		case model.NTBanker:
+			if user.Dead {
+				connection.Send(&outgoing.ConsoleMessagePacket{Message: "¡Estás muerto!", Font: outgoing.INFO})
+				return true, nil
+			}
+			if dist > 3 {
+				connection.Send(&outgoing.ConsoleMessagePacket{Message: "Estás demasiado lejos del banquero.", Font: outgoing.INFO})
+				return true, nil
+			}
+			// TODO: IniciarDeposito(user)
+			connection.Send(&outgoing.ConsoleMessagePacket{Message: "Banca no implementada aún.", Font: outgoing.INFO})
+
+		case model.NTHealer:
+			if dist > 10 {
+				connection.Send(&outgoing.ConsoleMessagePacket{Message: "El sacerdote no puede curarte debido a que estás demasiado lejos.", Font: outgoing.INFO})
+				return true, nil
+			}
+			
+			if user.Dead {
+				// Resurrect
+				user.Dead = false
+				user.Hp = 1
+				// TODO: Restore body/head graphics
+				connection.Send(&outgoing.UpdateUserStatsPacket{
+					Hp:        user.Hp,
+					MaxHp:     user.MaxHp,
+					Mana:      user.Mana,
+					MaxMana:   user.MaxMana,
+					Stamina:   user.Stamina,
+					MaxStamina: user.MaxStamina,
+					Exp:       user.Exp,
+				})
+				p.AreaService.BroadcastToArea(user.Position, &outgoing.CharacterChangePacket{Character: user})
+				connection.Send(&outgoing.ConsoleMessagePacket{Message: "Has resucitado.", Font: outgoing.INFO})
+			}
+
+			if user.Hp < user.MaxHp {
+				user.Hp = user.MaxHp
+				connection.Send(&outgoing.UpdateUserStatsPacket{
+					Hp:        user.Hp,
+					MaxHp:     user.MaxHp,
+					Mana:      user.Mana,
+					MaxMana:   user.MaxMana,
+					Stamina:   user.Stamina,
+					MaxStamina: user.MaxStamina,
+					Exp:       user.Exp,
+				})
+				connection.Send(&outgoing.ConsoleMessagePacket{Message: "Tus heridas han sido sanadas.", Font: outgoing.INFO})
+			}
+		}
+		return true, nil
+	}
+
+	// 2. Check Objects (Doors, Signs, etc.)
+	var targetObj *model.WorldObject
+	tx, ty := int(x), int(y)
+
+	findObject := func() {
+		if obj := gameMap.GetTile(tx, ty).Object; obj != nil {
+			targetObj = obj
+			return
+		}
+		// Check adjacent for Doors (as per VB6 logic)
+		offsets := []struct{ dx, dy int }{{1, 0}, {1, 1}, {0, 1}}
+		for _, off := range offsets {
+			nx, ny := int(x)+off.dx, int(y)+off.dy
+			if nx >= 0 && nx < model.MapWidth && ny >= 0 && ny < model.MapHeight {
+				obj := gameMap.GetTile(nx, ny).Object
+				if obj != nil && obj.Object.Type == model.OTDoor {
+					targetObj = obj
+					tx, ty = nx, ny
+					return
+				}
+			}
+		}
+	}
+
+	findObject()
+
+	if targetObj != nil {
+		user.TargetObj = targetObj.Object.ID
+		
+		dist := getDist(user.Position, tx, ty)
+		if dist > 2 {
+			connection.Send(&outgoing.ConsoleMessagePacket{Message: "Estás demasiado lejos.", Font: outgoing.INFO})
+			return true, nil
+		}
+
+		switch targetObj.Object.Type {
+		case model.OTDoor:
+			tile := gameMap.GetTile(tx, ty)
+			// Toggle Door
+			newObjID := 0
+			shouldBlock := false
+
+			// Determine action based on Blocked state + Index availability
+			// Prefer Closing if not blocked and has ClosedIndex
+			// Prefer Opening if blocked and has OpenIndex
+
+			if !tile.Blocked && targetObj.Object.ClosedIndex != 0 {
+				// Close
+				newObjID = targetObj.Object.ClosedIndex
+				shouldBlock = true
+			} else if tile.Blocked && targetObj.Object.OpenIndex != 0 {
+				// Open
+				newObjID = targetObj.Object.OpenIndex
+				shouldBlock = false
+			} else {
+				// Fallback if blocked status is desynced with object type
+				if targetObj.Object.OpenIndex != 0 {
+					newObjID = targetObj.Object.OpenIndex
+					shouldBlock = false
+				} else if targetObj.Object.ClosedIndex != 0 {
+					newObjID = targetObj.Object.ClosedIndex
+					shouldBlock = true
+				}
+			}
+
+			if newObjID != 0 {
+				newDef := p.ObjectService.GetObject(newObjID)
+				if newDef != nil {
+					targetObj.Object = newDef
+					tile.Blocked = shouldBlock
+
+					// Update left tile as well (Doors are 2-wide usually)
+					if tx > 0 {
+						leftTile := gameMap.GetTile(tx-1, ty)
+						leftTile.Blocked = shouldBlock
+						p.AreaService.BroadcastToArea(model.Position{X: byte(tx - 1), Y: byte(ty), Map: mapID}, &outgoing.BlockPositionPacket{
+							X:       byte(tx - 1),
+							Y:       byte(ty),
+							Blocked: shouldBlock,
+						})
+					}
+
+					// Broadcast visual change to clients in area
+					p.AreaService.BroadcastToArea(model.Position{X: byte(tx), Y: byte(ty), Map: mapID}, &outgoing.ObjectCreatePacket{
+						X:            byte(tx),
+						Y:            byte(ty),
+						GraphicIndex: int16(newDef.GraphicIndex),
+					})
+
+					// Update blocking status on clients
+					p.AreaService.BroadcastToArea(model.Position{X: byte(tx), Y: byte(ty), Map: mapID}, &outgoing.BlockPositionPacket{
+						X:       byte(tx),
+						Y:       byte(ty),
+						Blocked: shouldBlock,
+					})
+
+					// Play Sound (SND_PUERTA = 10 approx)
+					p.AreaService.BroadcastToArea(model.Position{X: byte(tx), Y: byte(ty), Map: mapID}, &outgoing.PlayWavePacket{
+						Wave: 10,
+						X:    byte(tx),
+						Y:    byte(ty),
+					})
+				}
+			}
+
+		case model.OTSign:
+			// TODO: Send WriteShowSignal(user, targetObj.Object.ID)
+			connection.Send(&outgoing.ConsoleMessagePacket{Message: "Lees el cartel...", Font: outgoing.INFO})
+		}
+	}
 
 	return true, nil
 }
-

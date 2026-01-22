@@ -46,6 +46,7 @@ const (
 	CP_CreateNewGuild
 	CP_SpellInfo
 	CP_EquipItem
+	CP_ChangeHeading
 	CP_Resurrect ClientPackets = 80
 )
 
@@ -238,6 +239,10 @@ func GetOutgoingPacketID(packet OutgoingPacket) (ServerPackets, error) {
 		return SP_ChangeInventorySlot, nil
 	case *outgoing.ChangeSpellSlotPacket:
 		return SP_ChangeSpellSlot, nil
+	case *outgoing.PlayWavePacket:
+		return SP_PlayWave, nil
+	case *outgoing.BlockPositionPacket:
+		return SP_BlockPosition, nil
 	}
 	return 0, fmt.Errorf("unknown outgoing packet type")
 }

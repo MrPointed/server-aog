@@ -73,6 +73,10 @@ func (d *ObjectDAO) Load() (map[int]*model.Object, error) {
 			}
 		}
 
+		// Doors
+		obj.OpenIndex = toInt(props["OPEN_INDEX"])
+		obj.ClosedIndex = toInt(props["CLOSED_INDEX"])
+
 		// Forbidden Archetypes (simplified parsing for now)
 		for i := 1; i <= 10; i++ {
 			archKey := fmt.Sprintf("FORBIDDEN_ARCHETYPE%d", i)

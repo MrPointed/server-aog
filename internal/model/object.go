@@ -56,6 +56,10 @@ type Object struct {
 	
 	// Map interaction
 	Pickupable bool
+
+	// Doors
+	OpenIndex   int
+	ClosedIndex int
 }
 
 type WorldObject struct {
