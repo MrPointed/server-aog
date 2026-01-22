@@ -129,7 +129,7 @@ func (d *MapDAO) loadMap(id int) (*model.Map, error) {
 				binary.Read(infFile, binary.LittleEndian, &toMap)
 				binary.Read(infFile, binary.LittleEndian, &toX)
 				binary.Read(infFile, binary.LittleEndian, &toY)
-				tileExit = &model.Position{X: byte(toX), Y: byte(toY), Map: int(toMap)}
+				tileExit = &model.Position{X: byte(toX - 1), Y: byte(toY - 1), Map: int(toMap)}
 			}
 
 			var npcIdx int16
