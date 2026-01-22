@@ -24,21 +24,30 @@ func (d *NpcDAO) Load() (map[int]*model.NPC, error) {
 
 	npcs := make(map[int]*model.NPC)
 
-	for section, props := range data {
-		if !strings.HasPrefix(section, "NPC") || section == "NPC_COUNT" {
-			continue
+		for section, props := range data {
+			if !strings.HasPrefix(section, "NPC") || section == "NPC_COUNT" {
+				continue
+			}
+	
+			id, err := strconv.Atoi(strings.TrimSpace(section[3:]))
+			if err != nil {
+				continue
+			}
+		desc := props["DESCRIPTION"]
+		if desc == "" {
+			desc = props["DESC"]
 		}
 
-		id, err := strconv.Atoi(section[3:])
-		if err != nil {
-			continue
+		npcTypeStr := props["NPC_TYPE"]
+		if npcTypeStr == "" {
+			npcTypeStr = props["NPCTYPE"]
 		}
 
 		npc := &model.NPC{
 			ID:          id,
 			Name:        props["NAME"],
-			Description: props["DESCRIPTION"],
-			Type:        model.NPCType(toInt(props["NPC_TYPE"])),
+			Description: desc,
+			Type:        model.NPCType(toInt(npcTypeStr)),
 			Head:        toInt(props["HEAD"]),
 			Body:        toInt(props["BODY"]),
 			Heading:     model.Heading(toInt(props["HEADING"]) - 1),
