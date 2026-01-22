@@ -41,12 +41,14 @@ type Character struct {
 	Thirstiness int
 
 	Attributes map[Attribute]byte
+	Skills     map[Skill]int
 
 	Position Position
 	Heading  Heading
 
-	Body int
-	Head int
+	Body         int
+	Head         int
+	OriginalHead int
 
 	Weapon int16
 	Shield int16
@@ -55,6 +57,7 @@ type Character struct {
 	CharIndex int16
 
 	Inventory Inventory
+	Spells    []int
 
 	Poisoned    bool
 	Paralyzed   bool
@@ -64,6 +67,18 @@ type Character struct {
 	Sailing     bool
 	Dead        bool
 	Hidden      bool
+
+	// Targets
+	TargetMap     int
+	TargetX       int
+	TargetY       int
+	TargetObj     int
+	TargetObjMap  int
+	TargetObjX    int
+	TargetObjY    int
+	TargetUser    int16
+	TargetNPC     int16
+	TargetNpcType NPCType
 }
 
 type InventorySlot struct {
@@ -119,5 +134,6 @@ func NewCharacter(name string, race Race, gender Gender, archetype UserArchetype
 		Archetype: archetype,
 		Level:     1,
 		Attributes: make(map[Attribute]byte),
+		Skills:     make(map[Skill]int),
 	}
 }

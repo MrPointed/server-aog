@@ -90,7 +90,7 @@ func NewServer(addr string) *Server {
 	m.RegisterHandler(protocol.CP_Drop, &incoming.DropPacket{MapService: mapService, MessageService: messageService, ObjectService: objectService})
 	m.RegisterHandler(protocol.CP_CastSpell, &incoming.CastSpellPacket{MapService: mapService, SpellService: spellService})
 	m.RegisterHandler(protocol.CP_Resurrect, &incoming.ResurrectPacket{MapService: mapService, AreaService: areaService, MessageService: messageService, BodyService: bodyService})
-	m.RegisterHandler(protocol.CP_LeftClick, &incoming.LeftClickPacket{})
+	m.RegisterHandler(protocol.CP_LeftClick, &incoming.LeftClickPacket{MapService: mapService, NpcService: npcService, UserService: userService, ObjectService: objectService})
 	m.RegisterHandler(protocol.CP_Double_Click, &incoming.DoubleClickPacket{})
 	m.RegisterHandler(protocol.CP_WorkLeftClick, &incoming.WorkLeftClickPacket{})
 

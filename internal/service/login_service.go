@@ -17,72 +17,80 @@ type LoginService struct {
 		userService  *UserService
 		mapService   *MapService
 			bodyService  *CharacterBodyService
-			indexManager *CharacterIndexManager
-			messageService *MessageService
-			objectService  *ObjectService
-			executor     *actions.ActionExecutor[*MapService]
-		}
-		
-		func NewLoginService(accDAO persistence.AccountDAO, charDAO persistence.UserCharacterDAO, 
-			cfg *config.Config, userService *UserService, mapService *MapService, 
-			bodyService *CharacterBodyService, indexManager *CharacterIndexManager, 
-			messageService *MessageService, objectService *ObjectService, executor *actions.ActionExecutor[*MapService]) *LoginService {
-			return &LoginService{
-				accDAO:       accDAO,
-				charDAO:      charDAO,
-				config:       cfg,
-				userService:  userService,
-				mapService:   mapService,
-				bodyService:  bodyService,
-				indexManager: indexManager,
-				messageService: messageService,
-				objectService:  objectService,
-				executor:     executor,
-			}
-		}
-func (s *LoginService) ConnectNewCharacter(conn protocol.Connection, nick, password, mail string, 
-	raceId, genderId, archetypeId, headId, cityId byte, clientHash, version string) error {
-	fmt.Printf("Connecting new character: %s\n", nick)
-	
-	if s.config.Version != version {
-		return fmt.Errorf("versión obsoleta")
-	}
-
-	if !s.config.CharacterCreationEnabled {
-		return fmt.Errorf("la creación de personajes está deshabilitada")
-	}
-
-	// Check if name taken
-	if s.charDAO.Exists(nick) {
-		return fmt.Errorf("el nombre ya está en uso")
-	}
-
-	race := model.Race(raceId)
-	gender := model.Gender(genderId)
-
-	if !s.bodyService.IsValidHead(int(headId), race, gender) {
-		return fmt.Errorf("cabeza inválida")
-	}
-
-	body := s.bodyService.GetBody(race, gender)
-
-	// Get attributes from dice roll
-	attrs := make(map[model.Attribute]byte)
-	attrs[model.Strength] = conn.GetAttribute(int(model.Strength))
-	attrs[model.Dexterity] = conn.GetAttribute(int(model.Dexterity))
-	attrs[model.Intelligence] = conn.GetAttribute(int(model.Intelligence))
-	attrs[model.Charisma] = conn.GetAttribute(int(model.Charisma))
-	attrs[model.Constitution] = conn.GetAttribute(int(model.Constitution))
-
-	if attrs[model.Strength] == 0 {
-		return fmt.Errorf("debe tirar los dados antes de crear un personaje")
-	}
-
-	city := model.City{Map: 1, X: 50, Y: 50} // Default city placeholder
-
-	acc, char, err := s.charDAO.CreateAccountAndCharacter(nick, password, mail, 
-		race, gender, model.UserArchetype(archetypeId), 
-		int(headId), city, attrs)
+				indexManager *CharacterIndexManager
+				messageService *MessageService
+					objectService  *ObjectService
+					cityService    *CityService
+					spellService   *SpellService
+					executor     *actions.ActionExecutor[*MapService]
+				}
+				
+				func NewLoginService(accDAO persistence.AccountDAO, charDAO persistence.UserCharacterDAO, 
+					cfg *config.Config, userService *UserService, mapService *MapService, 
+					bodyService *CharacterBodyService, indexManager *CharacterIndexManager, 
+					messageService *MessageService, objectService *ObjectService, cityService *CityService, 
+					spellService *SpellService, executor *actions.ActionExecutor[*MapService]) *LoginService {
+					return &LoginService{
+						accDAO:       accDAO,
+						charDAO:      charDAO,
+						config:       cfg,
+						userService:  userService,
+						mapService:   mapService,
+						bodyService:  bodyService,
+						indexManager: indexManager,
+						messageService: messageService,
+						objectService:  objectService,
+						cityService:    cityService,
+						spellService:   spellService,
+						executor:     executor,
+					}
+				}			
+			func (s *LoginService) ConnectNewCharacter(conn protocol.Connection, nick, password, mail string, 
+				raceId, genderId, archetypeId, headId, cityId byte, clientHash, version string) error {
+				fmt.Printf("Connecting new character: %s\n", nick)
+				
+				if s.config.Version != version {
+					return fmt.Errorf("versión obsoleta")
+				}
+			
+				if !s.config.CharacterCreationEnabled {
+					return fmt.Errorf("la creación de personajes está deshabilitada")
+				}
+			
+				// Check if name taken
+				if s.charDAO.Exists(nick) {
+					return fmt.Errorf("el nombre ya está en uso")
+				}
+			
+				race := model.Race(raceId)
+				gender := model.Gender(genderId)
+			
+				if !s.bodyService.IsValidHead(int(headId), race, gender) {
+					return fmt.Errorf("cabeza inválida")
+				}
+			
+				body := s.bodyService.GetBody(race, gender)
+			
+				// Get attributes from dice roll
+				attrs := make(map[model.Attribute]byte)
+				attrs[model.Strength] = conn.GetAttribute(int(model.Strength))
+				attrs[model.Dexterity] = conn.GetAttribute(int(model.Dexterity))
+				attrs[model.Intelligence] = conn.GetAttribute(int(model.Intelligence))
+				attrs[model.Charisma] = conn.GetAttribute(int(model.Charisma))
+				attrs[model.Constitution] = conn.GetAttribute(int(model.Constitution))
+			
+				if attrs[model.Strength] == 0 {
+					return fmt.Errorf("debe tirar los dados antes de crear un personaje")
+				}
+			
+				city, ok := s.cityService.GetCity(int(cityId))
+				if !ok {
+					city = model.City{Map: 1, X: 50, Y: 50} // Default city placeholder
+				}
+			
+				acc, char, err := s.charDAO.CreateAccountAndCharacter(nick, password, mail, 
+					race, gender, model.UserArchetype(archetypeId), 
+					int(headId), city, attrs)
 	
 	if err != nil {
 		return err
@@ -171,6 +179,11 @@ func (s *LoginService) finalizeLogin(conn protocol.Connection, acc *model.Accoun
 						})
 					}
 				}
+				if tile.NPC != nil {
+					if s.messageService.AreaService.InRange(char.Position, tile.NPC.Position) {
+						conn.Send(&outgoing.NpcCreatePacket{Npc: tile.NPC})
+					}
+				}
 			}
 		}
 	}
@@ -193,6 +206,18 @@ func (s *LoginService) finalizeLogin(conn protocol.Connection, acc *model.Accoun
 		}
 	}
 	fmt.Printf("Sent %d inventory items to %s\n", invCount, char.Name)
+
+	// Send Spells
+	for i, spellID := range char.Spells {
+		spell := s.spellService.GetSpell(spellID)
+		if spell != nil {
+			conn.Send(&outgoing.ChangeSpellSlotPacket{
+				Slot:      byte(i + 1),
+				SpellID:   int16(spellID),
+				SpellName: spell.Name,
+			})
+		}
+	}
 
 	// Send initial state
 	conn.Send(outgoing.NewUpdateUserStatsPacket(char))

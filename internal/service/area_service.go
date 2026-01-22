@@ -73,6 +73,38 @@ func (s *AreaService) BroadcastToArea(pos model.Position, packet protocol.Outgoi
 	}
 }
 
+func (s *AreaService) NotifyNpcMovement(npc *model.WorldNPC, oldPos model.Position) {
+	gameMap := s.mapService.GetMap(npc.Position.Map)
+	if gameMap == nil {
+		return
+	}
+
+	for _, other := range gameMap.Characters {
+		connOther := s.userService.GetConnection(other)
+		if connOther == nil {
+			continue
+		}
+
+		wasInRange := s.InRange(oldPos, other.Position)
+		isInRange := s.InRange(npc.Position, other.Position)
+
+		if wasInRange && isInRange {
+			// Just move
+			connOther.Send(&outgoing.CharacterMovePacket{
+				CharIndex: npc.Index,
+				X:         npc.Position.X,
+				Y:         npc.Position.Y,
+			})
+		} else if wasInRange && !isInRange {
+			// NPC disappeared for this player
+			connOther.Send(&outgoing.CharacterRemovePacket{CharIndex: npc.Index})
+		} else if !wasInRange && isInRange {
+			// NPC appeared for this player
+			connOther.Send(&outgoing.NpcCreatePacket{Npc: npc})
+		}
+	}
+}
+
 func (s *AreaService) NotifyMovement(char *model.Character, oldPos model.Position) {
 	gameMap := s.mapService.GetMap(char.Position.Map)
 	if gameMap == nil {

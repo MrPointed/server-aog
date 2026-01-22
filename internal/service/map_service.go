@@ -9,13 +9,15 @@ import (
 type MapService struct {
 	mapDAO        *persistence.MapDAO
 	objectService *ObjectService
+	npcService    *NpcService
 	maps          map[int]*model.Map
 }
 
-func NewMapService(mapDAO *persistence.MapDAO, objectService *ObjectService) *MapService {
+func NewMapService(mapDAO *persistence.MapDAO, objectService *ObjectService, npcService *NpcService) *MapService {
 	return &MapService{
 		mapDAO:        mapDAO,
 		objectService: objectService,
+		npcService:    npcService,
 		maps:          make(map[int]*model.Map),
 	}
 }
@@ -31,9 +33,13 @@ func (s *MapService) LoadMaps() {
 		m.Characters = make(map[int16]*model.Character)
 		
 		objectsFound := 0
-		// Resolve objects from map file
+		npcsFound := 0
+		// Resolve objects and NPCs from map file
 		for i := range m.Tiles {
 			tile := &m.Tiles[i]
+			x := i % model.MapWidth
+			y := i / model.MapWidth
+			
 			if tile.ObjectID > 0 {
 				obj := s.objectService.GetObject(tile.ObjectID)
 				if obj != nil {
@@ -46,11 +52,22 @@ func (s *MapService) LoadMaps() {
 					fmt.Printf("Map %d: Could not resolve object ID %d at tile %d\n", m.Id, tile.ObjectID, i)
 				}
 			}
+
+			if tile.NPCID > 0 {
+				pos := model.Position{X: byte(x), Y: byte(y), Map: m.Id}
+				worldNpc := s.npcService.SpawnNpc(tile.NPCID, pos)
+				if worldNpc != nil {
+					tile.NPC = worldNpc
+					npcsFound++
+				} else {
+					fmt.Printf("Map %d: Could not resolve NPC ID %d at tile %d\n", m.Id, tile.NPCID, i)
+				}
+			}
 		}
 		
 		s.maps[m.Id] = m
-		if objectsFound > 0 {
-			fmt.Printf("Map %d: Resolved %d default objects on ground.\n", m.Id, objectsFound)
+		if objectsFound > 0 || npcsFound > 0 {
+			fmt.Printf("Map %d: Resolved %d objects and %d NPCs on ground.\n", m.Id, objectsFound, npcsFound)
 		}
 	}
 	fmt.Printf("Loaded %d maps\n", len(s.maps))
@@ -108,6 +125,24 @@ func (s *MapService) RemoveObject(pos model.Position) {
 		return
 	}
 	m.GetTile(int(pos.X), int(pos.Y)).Object = nil
+}
+
+func (s *MapService) GetNPCAt(pos model.Position) *model.WorldNPC {
+	m := s.GetMap(pos.Map)
+	if m == nil {
+		return nil
+	}
+	return m.GetTile(int(pos.X), int(pos.Y)).NPC
+}
+
+func (s *MapService) RemoveNPC(npc *model.WorldNPC) {
+	m := s.GetMap(npc.Position.Map)
+	if m != nil {
+		tile := m.GetTile(int(npc.Position.X), int(npc.Position.Y))
+		if tile.NPC == npc {
+			tile.NPC = nil
+		}
+	}
 }
 
 func (s *MapService) MoveCharacterTo(char *model.Character, heading model.Heading) (model.Position, bool) {

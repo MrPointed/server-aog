@@ -43,3 +43,29 @@ const (
 	Worker
 	Pirate
 )
+
+type Skill int
+
+const (
+	Luck Skill = iota + 1
+	Magic
+	Steal
+	CombatTactics
+	HandToHandCombat
+	Meditate
+	Stab
+	Hiding
+	Survive
+	Lumber
+	Trade
+	Defense
+	Fishing
+	Mining
+	Woodwork
+	Ironwork
+	Leadership
+	Tame
+	Projectiles
+	Wrestling
+	Sailing
+)

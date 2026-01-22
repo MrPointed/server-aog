@@ -132,8 +132,8 @@ func (d *MapDAO) loadMap(id int) (*model.Map, error) {
 				tileExit = &model.Position{X: byte(toX), Y: byte(toY), Map: int(toMap)}
 			}
 
+			var npcIdx int16
 			if (infFlag & BitflagNpc) == BitflagNpc {
-				var npcIdx int16
 				binary.Read(infFile, binary.LittleEndian, &npcIdx)
 			}
 
@@ -151,6 +151,7 @@ func (d *MapDAO) loadMap(id int) (*model.Map, error) {
 				TileExit:     tileExit,
 				ObjectID:     int(objIdx),
 				ObjectAmount: int(objAmount),
+				NPCID:        int(npcIdx),
 			}
 		}
 	}

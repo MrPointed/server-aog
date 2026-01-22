@@ -1,0 +1,86 @@
+package service
+
+import (
+	"time"
+
+	"github.com/ao-go-server/internal/model"
+	"github.com/ao-go-server/internal/protocol/outgoing"
+	"github.com/ao-go-server/internal/utils"
+)
+
+type TimedEventsService struct {
+	userService    *UserService
+	messageService *MessageService
+	stopChan       chan struct{}
+}
+
+func NewTimedEventsService(userService *UserService, messageService *MessageService) *TimedEventsService {
+	return &TimedEventsService{
+		userService:    userService,
+		messageService: messageService,
+		stopChan:       make(chan struct{}),
+	}
+}
+
+func (s *TimedEventsService) Start() {
+	go s.regenLoop()
+}
+
+func (s *TimedEventsService) Stop() {
+	close(s.stopChan)
+}
+
+func (s *TimedEventsService) regenLoop() {
+	ticker := time.NewTicker(2 * time.Second)
+	defer ticker.Stop()
+
+	for {
+		select {
+		case <-ticker.C:
+			s.processRegen()
+		case <-s.stopChan:
+			return
+		}
+	}
+}
+
+func (s *TimedEventsService) processRegen() {
+	chars := s.userService.GetLoggedCharacters()
+	for _, char := range chars {
+		if char.Dead {
+			continue
+		}
+
+		changed := false
+
+		// HP Regen (base on Constitution)
+		if char.Hp < char.MaxHp {
+			regen := int(char.Attributes[model.Constitution] / 5)
+			if regen < 1 { regen = 1 }
+			char.Hp = utils.Min(char.MaxHp, char.Hp+regen)
+			changed = true
+		}
+
+		// Mana Regen (base on Intelligence)
+		if char.Mana < char.MaxMana {
+			regen := int(char.Attributes[model.Intelligence] / 3)
+			if regen < 1 { regen = 1 }
+			char.Mana = utils.Min(char.MaxMana, char.Mana+regen)
+			changed = true
+		}
+
+		// Stamina Regen
+		if char.Stamina < char.MaxStamina {
+			regen := 5
+			char.Stamina = utils.Min(char.MaxStamina, char.Stamina+regen)
+			changed = true
+		}
+
+		if changed {
+			conn := s.userService.GetConnection(char)
+			if conn != nil {
+				conn.Send(outgoing.NewUpdateUserStatsPacket(char))
+			}
+		}
+	}
+}

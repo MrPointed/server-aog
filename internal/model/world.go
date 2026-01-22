@@ -47,10 +47,12 @@ type Tile struct {
 	TileExit  *Position
 	Character *Character
 	Object    *WorldObject
+	NPC       *WorldNPC
 
 	// Fields for initial loading from map files
 	ObjectID     int
 	ObjectAmount int
+	NPCID        int
 }
 
 const (

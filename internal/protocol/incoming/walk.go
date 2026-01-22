@@ -76,6 +76,11 @@ func (p *WalkPacket) Handle(buffer *network.DataBuffer, connection protocol.Conn
 								})
 							}
 						}
+						if tile.NPC != nil {
+							if p.AreaService.InRange(char.Position, tile.NPC.Position) {
+								connection.Send(&outgoing.NpcCreatePacket{Npc: tile.NPC})
+							}
+						}
 					}
 				}
 			}

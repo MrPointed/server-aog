@@ -46,6 +46,7 @@ const (
 	CP_CreateNewGuild
 	CP_SpellInfo
 	CP_EquipItem
+	CP_Resurrect ClientPackets = 80
 )
 
 type ClientPacketsManager struct {
@@ -209,11 +210,15 @@ func GetOutgoingPacketID(packet OutgoingPacket) (ServerPackets, error) {
 		return SP_UpdateStrengthAndDexterity, nil
 	case *outgoing.ChangeMapPacket:
 		return SP_ChangeMap, nil
+	case *outgoing.ChatOverHeadPacket:
+		return SP_ChatOverHead, nil
 	case *outgoing.PosUpdatePacket:
 		return SP_PositionUpdate, nil
 	case *outgoing.UserCharIndexInServerPacket:
 		return SP_UserCharacterIndexInServer, nil
 	case *outgoing.CharacterCreatePacket:
+		return SP_CharacterCreate, nil
+	case *outgoing.NpcCreatePacket:
 		return SP_CharacterCreate, nil
 	case *outgoing.CharacterRemovePacket:
 		return SP_CharacterRemove, nil
@@ -227,8 +232,12 @@ func GetOutgoingPacketID(packet OutgoingPacket) (ServerPackets, error) {
 		return SP_ObjectDelete, nil
 	case *outgoing.AreaChangedPacket:
 		return SP_AreaChanged, nil
+	case *outgoing.CreateFxPacket:
+		return SP_CreateFx, nil
 	case *outgoing.ChangeInventorySlotPacket:
 		return SP_ChangeInventorySlot, nil
+	case *outgoing.ChangeSpellSlotPacket:
+		return SP_ChangeSpellSlot, nil
 	}
 	return 0, fmt.Errorf("unknown outgoing packet type")
 }

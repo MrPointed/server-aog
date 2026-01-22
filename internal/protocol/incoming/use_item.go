@@ -7,6 +7,7 @@ import (
 	"github.com/ao-go-server/internal/protocol/outgoing"
 	"github.com/ao-go-server/internal/service"
 	"github.com/ao-go-server/internal/model"
+	"github.com/ao-go-server/internal/utils"
 )
 
 type UseItemPacket struct {
@@ -39,7 +40,7 @@ func (p *UseItemPacket) Handle(buffer *network.DataBuffer, connection protocol.C
 
 	switch obj.Type {
 	case model.OTFood:
-		char.Hunger = min(100, char.Hunger + obj.HungerPoints)
+		char.Hunger = utils.Min(100, char.Hunger + obj.HungerPoints)
 		p.MessageService.SendToArea(outgoing.NewUpdateUserStatsPacket(char), char.Position)
 		connection.Send(&outgoing.ConsoleMessagePacket{
 			Message: fmt.Sprintf("Has comido %s.", obj.Name),
@@ -59,7 +60,7 @@ func (p *UseItemPacket) Handle(buffer *network.DataBuffer, connection protocol.C
 		})
 
 	case model.OTDrink:
-		char.Thirstiness = min(100, char.Thirstiness + obj.ThirstPoints)
+		char.Thirstiness = utils.Min(100, char.Thirstiness + obj.ThirstPoints)
 		p.MessageService.SendToArea(outgoing.NewUpdateUserStatsPacket(char), char.Position)
 		connection.Send(&outgoing.ConsoleMessagePacket{
 			Message: fmt.Sprintf("Has bebido %s.", obj.Name),
@@ -91,9 +92,4 @@ func (p *UseItemPacket) Handle(buffer *network.DataBuffer, connection protocol.C
 	}
 
 	return true, nil
-}
-
-func min(a, b int) int {
-	if a < b { return a }
-	return b
 }

@@ -36,17 +36,23 @@ func (d *FileDAO) Load(nick string) (*model.Character, error) {
 	char := &model.Character{
 		Name: nick,
 		Attributes: make(map[model.Attribute]byte),
+		Skills:     make(map[model.Skill]int),
 	}
 
 	init := data["INIT"]
 	stats := data["STATS"]
 	attrs := data["ATRIBUTOS"]
 	flags := data["FLAGS"]
+	skills := data["SKILLS"]
 
 	char.Race = model.Race(toInt(init["RAZA"]))
 	char.Gender = model.Gender(toInt(init["GENERO"]))
 	char.Archetype = model.UserArchetype(toInt(init["CLASE"]))
 	char.Head = toInt(init["HEAD"])
+	char.OriginalHead = toInt(init["ORIGINALHEAD"])
+	if char.OriginalHead == 0 {
+		char.OriginalHead = char.Head
+	}
 	char.Body = toInt(init["BODY"])
 	char.Heading = model.Heading(toInt(init["HEADING"]) - 1)
 	if char.Heading < 0 {
@@ -88,6 +94,14 @@ func (d *FileDAO) Load(nick string) (*model.Character, error) {
 	char.Invisible = toInt(flags["ESCONDIDO"]) == 1
 	char.Paralyzed = toInt(flags["PARALIZADO"]) == 1
 
+	// Skills
+	if skills != nil {
+		for i := 1; i <= 21; i++ {
+			key := fmt.Sprintf("SK%d", i)
+			char.Skills[model.Skill(i)] = toInt(skills[key])
+		}
+	}
+
 	// Inventory
 	inventory := data["INVENTORY"]
 	if inventory != nil {
@@ -100,6 +114,17 @@ func (d *FileDAO) Load(nick string) (*model.Character, error) {
 					char.Inventory.Slots[i].ObjectID = toInt(parts[0])
 					char.Inventory.Slots[i].Amount = toInt(parts[1])
 				}
+			}
+		}
+	}
+
+	// Spells
+	spellsData := data["HECHIZOS"]
+	if spellsData != nil {
+		for i := 1; i <= 35; i++ {
+			key := fmt.Sprintf("H%d", i)
+			if val, ok := spellsData[key]; ok && val != "0" {
+				char.Spells = append(char.Spells, toInt(val))
 			}
 		}
 	}
@@ -168,6 +193,7 @@ func (d *FileDAO) SaveCharacter(char *model.Character) error {
 	init["RAZA"] = strconv.Itoa(int(char.Race))
 	init["CLASE"] = strconv.Itoa(int(char.Archetype))
 	init["HEAD"] = strconv.Itoa(char.Head)
+	init["ORIGINALHEAD"] = strconv.Itoa(char.OriginalHead)
 	init["BODY"] = strconv.Itoa(char.Body)
 	init["MAP"] = strconv.Itoa(char.Position.Map)
 	init["POSITION"] = fmt.Sprintf("%d-%d-%d", char.Position.Map, char.Position.X, char.Position.Y)
@@ -199,8 +225,16 @@ func (d *FileDAO) SaveCharacter(char *model.Character) error {
 	stats["MAXSTA"] = strconv.Itoa(char.MaxStamina)
 	stats["MINHAM"] = strconv.Itoa(char.Hunger)
 	stats["MAXHAM"] = strconv.Itoa(100)
-	stats["MINAGU"] = strconv.Itoa(char.Thirstiness)
-	stats["MAXAGU"] = strconv.Itoa(100)
+	stats["MinAGU"] = strconv.Itoa(char.Thirstiness)
+	stats["MaxAGU"] = strconv.Itoa(100)
+
+	// Skills
+	if data["SKILLS"] == nil { data["SKILLS"] = make(map[string]string) }
+	sk := data["SKILLS"]
+	for i := 1; i <= 21; i++ {
+		key := fmt.Sprintf("SK%d", i)
+		sk[key] = strconv.Itoa(char.Skills[model.Skill(i)])
+	}
 
 	// Inventory
 	if data["INVENTORY"] == nil { data["INVENTORY"] = make(map[string]string) }
@@ -217,6 +251,18 @@ func (d *FileDAO) SaveCharacter(char *model.Character) error {
 		}
 	}
 	inv["CANTIDADITEMS"] = strconv.Itoa(count)
+
+	// Spells
+	if data["HECHIZOS"] == nil { data["HECHIZOS"] = make(map[string]string) }
+	h := data["HECHIZOS"]
+	for i := 0; i < 35; i++ {
+		key := fmt.Sprintf("H%d", i+1)
+		if i < len(char.Spells) {
+			h[key] = strconv.Itoa(char.Spells[i])
+		} else {
+			h[key] = "0"
+		}
+	}
 
 	return d.writeINI(d.getFilePath(char.Name), data)
 }
@@ -272,7 +318,7 @@ func (d *FileDAO) writeINI(path string, data map[string]map[string]string) error
 
 	writer := bufio.NewWriter(file)
 	// We want some order if possible, but for simplicity let's just range
-	sections := []string{"INIT", "CONTACTO", "FLAGS", "ATRIBUTOS", "STATS", "SKILLS", "REP", "Inventory"}
+	sections := []string{"INIT", "CONTACTO", "FLAGS", "ATRIBUTOS", "STATS", "SKILLS", "REP", "INVENTORY", "HECHIZOS"}
 	for _, sec := range sections {
 		if inner, ok := data[sec]; ok {
 			fmt.Fprintf(writer, "[%s]\n", sec)
