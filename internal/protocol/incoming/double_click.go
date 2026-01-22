@@ -69,6 +69,26 @@ func (p *DoubleClickPacket) Handle(buffer *network.DataBuffer, connection protoc
 
 		dist := getDist(user.Position, int(x), int(y))
 
+		// Show NPC description if available
+		if npc.NPC.Description != "" {
+			fmt.Printf("NPC DoubleClick: Sending description for NPC %d: %s\n", npc.NPC.ID, npc.NPC.Description)
+			connection.Send(&outgoing.ConsoleMessagePacket{
+				Message: fmt.Sprintf("%s: %s", npc.NPC.Name, npc.NPC.Description),
+				Font:    outgoing.INFO,
+			})
+
+			// Show as overhead text
+			p.AreaService.BroadcastToArea(npc.Position, &outgoing.ChatOverHeadPacket{
+				Message:   npc.NPC.Description,
+				CharIndex: npc.Index,
+				R:         255,
+				G:         255,
+				B:         255,
+			})
+		} else {
+			fmt.Printf("NPC DoubleClick: NPC %d has no description\n", npc.NPC.ID)
+		}
+
 		switch npc.NPC.Type {
 		case model.NTMerchant:
 			if user.Dead {

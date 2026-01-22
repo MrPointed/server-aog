@@ -82,11 +82,24 @@ func (s *SpellService) CastSpell(caster *model.Character, spellID int, target an
 		conn.Send(outgoing.NewUpdateUserStatsPacket(caster))
 	}
 
-	// Broadcast magic words
-	s.messageService.SendToArea(&outgoing.ConsoleMessagePacket{
-		Message: fmt.Sprintf("%s: %s", caster.Name, spell.MagicWords),
-		Font:    outgoing.TALK,
+	// Broadcast magic words as overhead text
+	s.messageService.SendToArea(&outgoing.ChatOverHeadPacket{
+		Message:   spell.MagicWords,
+		CharIndex: caster.CharIndex,
+		R:         65,
+		G:         190,
+		B:         156,
 	}, caster.Position)
+
+	// Keep a console message for the caster specifically? 
+	// Standard AO usually just does overhead for everyone.
+	// But let's add a console msg for the caster for better feedback as previously requested.
+	if conn != nil {
+		conn.Send(&outgoing.ConsoleMessagePacket{
+			Message: fmt.Sprintf("Lanzas: %s", spell.MagicWords),
+			Font:    outgoing.TALK,
+		})
+	}
 
 	// Resolve effect on target
 	switch t := target.(type) {

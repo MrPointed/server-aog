@@ -16,6 +16,7 @@ type LeftClickPacket struct {
 	NpcService    *service.NpcService
 	UserService   *service.UserService
 	ObjectService *service.ObjectService
+	AreaService   *service.AreaService
 }
 
 func (p *LeftClickPacket) Handle(buffer *network.DataBuffer, connection protocol.Connection) (bool, error) {
@@ -136,6 +137,7 @@ func (p *LeftClickPacket) Handle(buffer *network.DataBuffer, connection protocol
 			// Handle NPC
 			worldNpc := p.NpcService.GetWorldNpcs()[targetCharIndex]
 			if worldNpc != nil {
+				fmt.Printf("NPC LeftClick: User %s clicked NPC %d (%s)\n", user.Name, worldNpc.NPC.ID, worldNpc.NPC.Name)
 				user.TargetNPC = targetCharIndex
 				user.TargetNpcType = worldNpc.NPC.Type
 				user.TargetUser = 0
@@ -154,6 +156,24 @@ func (p *LeftClickPacket) Handle(buffer *network.DataBuffer, connection protocol
 					Message: msg,
 					Font:    outgoing.INFO,
 				})
+
+				// Show NPC description if available
+				if worldNpc.NPC.Description != "" {
+					fmt.Printf("NPC LeftClick: Sending description: %s\n", worldNpc.NPC.Description)
+					connection.Send(&outgoing.ConsoleMessagePacket{
+						Message: fmt.Sprintf("%s: %s", worldNpc.NPC.Name, worldNpc.NPC.Description),
+						Font:    outgoing.INFO,
+					})
+
+					// Show as overhead text
+					p.AreaService.BroadcastToArea(worldNpc.Position, &outgoing.ChatOverHeadPacket{
+						Message:   worldNpc.NPC.Description,
+						CharIndex: worldNpc.Index,
+						R:         255,
+						G:         255,
+						B:         255,
+					})
+				}
 			}
 		} else {
 			// Handle User
