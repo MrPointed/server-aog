@@ -45,17 +45,12 @@ func NewServer(addr string) *Server {
 		fmt.Printf("Critical error loading cities: %v\n", err)
 	}
 
-	spellDAO := persistence.NewSpellDAO("../../resources/data/hechizos.dat")
-	spellService := service.NewSpellService(spellDAO)
-	if err := spellService.LoadSpells(); err != nil {
-		fmt.Printf("Critical error loading spells: %v\n", err)
-	}
+	userService := service.NewUserService()
 
 	mapDAO := persistence.NewMapDAO("../../resources/maps", 10) // Loading 10 maps for now
 	mapService := service.NewMapService(mapDAO, objectService, npcService)
 	mapService.LoadMaps()
 
-	userService := service.NewUserService()
 	bodyService := service.NewCharacterBodyService()
 
 	executor := actions.NewActionExecutor[*service.MapService](mapService)
@@ -67,6 +62,15 @@ func NewServer(addr string) *Server {
 	timedEventsService := service.NewTimedEventsService(userService, messageService)
 	timedEventsService.Start()
 
+	aiService := service.NewAIService(npcService, mapService, areaService)
+	aiService.Start()
+
+	spellDAO := persistence.NewSpellDAO("../../resources/data/hechizos.dat")
+	spellService := service.NewSpellService(spellDAO, userService, messageService, objectService)
+	if err := spellService.LoadSpells(); err != nil {
+		fmt.Printf("Critical error loading spells: %v\n", err)
+	}
+
 	fileDAO := persistence.NewFileDAO("../../resources/charfiles")
 	loginService := service.NewLoginService(fileDAO, fileDAO, cfg, userService, mapService, bodyService, indexManager, messageService, objectService, cityService, spellService, executor)
 
@@ -76,14 +80,19 @@ func NewServer(addr string) *Server {
 	m.RegisterHandler(protocol.CP_LoginNewCharacter, &incoming.LoginNewCharacterPacket{LoginService: loginService})
 	m.RegisterHandler(protocol.CP_ThrowDice, &incoming.ThrowDicesPacket{})
 	m.RegisterHandler(protocol.CP_Walk, &incoming.WalkPacket{MapService: mapService, AreaService: areaService, MessageService: messageService})
-	m.RegisterHandler(protocol.CP_Talk, &incoming.TalkPacket{})
-	m.RegisterHandler(protocol.CP_Yell, &incoming.YellPacket{})
-	m.RegisterHandler(protocol.CP_Whisper, &incoming.WhisperPacket{})
+	m.RegisterHandler(protocol.CP_Talk, &incoming.TalkPacket{MessageService: messageService})
+	m.RegisterHandler(protocol.CP_Yell, &incoming.YellPacket{MessageService: messageService})
+	m.RegisterHandler(protocol.CP_Whisper, &incoming.WhisperPacket{UserService: userService})
 	m.RegisterHandler(protocol.CP_UseItem, &incoming.UseItemPacket{ObjectService: objectService, MessageService: messageService})
 	m.RegisterHandler(protocol.CP_EquipItem, &incoming.EquipItemPacket{ObjectService: objectService, MessageService: messageService, BodyService: bodyService})
 	m.RegisterHandler(protocol.CP_PickUp, &incoming.PickUpPacket{MapService: mapService, MessageService: messageService})
 	m.RegisterHandler(protocol.CP_Attack, &incoming.AttackPacket{MapService: mapService, CombatService: combatService})
 	m.RegisterHandler(protocol.CP_Drop, &incoming.DropPacket{MapService: mapService, MessageService: messageService, ObjectService: objectService})
+	m.RegisterHandler(protocol.CP_CastSpell, &incoming.CastSpellPacket{MapService: mapService, SpellService: spellService})
+	m.RegisterHandler(protocol.CP_Resurrect, &incoming.ResurrectPacket{MapService: mapService, AreaService: areaService, MessageService: messageService, BodyService: bodyService})
+	m.RegisterHandler(protocol.CP_LeftClick, &incoming.LeftClickPacket{})
+	m.RegisterHandler(protocol.CP_Double_Click, &incoming.DoubleClickPacket{})
+	m.RegisterHandler(protocol.CP_WorkLeftClick, &incoming.WorkLeftClickPacket{})
 
 	return &Server{
 		addr:           addr,
