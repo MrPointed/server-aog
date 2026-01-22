@@ -51,9 +51,18 @@ func (d *SpellDAO) Load() (map[int]*model.Spell, error) {
 			TargetType:      model.SpellTarget(toInt(props["TARGET"])),
 			MinHP:           toInt(props["MINHP"]),
 			MaxHP:           toInt(props["MAXHP"]),
+			SubeHP:          toInt(props["SUBEHP"]),
 			Invisibility:    props["INVISIBILIDAD"] == "1",
 			Paralyzes:       props["PARALIZA"] == "1",
 			Immobilizes:     props["INMOVILIZA"] == "1",
+			Poison:          props["ENVENENA"] == "1",
+			CurePoison:      props["CURAVENENO"] == "1",
+			Revive:          props["REVIVIR"] == "1",
+			Blind:           props["CEGUERA"] == "1",
+			Dumb:            props["ESTUPIDEZ"] == "1",
+			SummonNPC:       toInt(props["NUMNPC"]),
+			SummonAmount:    toInt(props["CANT"]),
+			NeedStaff:       toInt(props["NEEDSTAFF"]),
 		}
 
 		spells[id] = spell

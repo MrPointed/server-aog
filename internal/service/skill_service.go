@@ -29,17 +29,23 @@ func NewSkillService(mapService *MapService, objectService *ObjectService, messa
 }
 
 func (s *SkillService) HandleUseSkillClick(user *model.Character, skill model.Skill, x, y byte) {
+	fmt.Printf("HandleUseSkillClick: Entered for User %s, Skill %d at %d,%d\n", user.Name, skill, x, y)
 	// Basic validation
 	if user.Dead {
+		fmt.Println("HandleUseSkillClick: User is dead")
 		return
 	}
 	
 	// Range check (using Manhattan distance as per VB6)
 	dist := int(user.Position.X) - int(x)
-	if dist < 0 { dist = -dist }
+	if dist < 0 {
+		dist = -dist
+	}
 	dy := int(user.Position.Y) - int(y)
-	if dy < 0 { dy = -dy }
-	if dist + dy > 2 { // RANGO_VISION_X check? VB6 uses simple distance check for some skills, vision for others.
+	if dy < 0 {
+		dy = -dy
+	}
+	if dist+dy > 2 { // RANGO_VISION_X check? VB6 uses simple distance check for some skills, vision for others.
 		// VB6: If Not InRangoVision -> WritePosUpdate.
 		// Here we assume vision check passed or irrelevant for now.
 	}
@@ -47,7 +53,7 @@ func (s *SkillService) HandleUseSkillClick(user *model.Character, skill model.Sk
 	switch skill {
 	case model.Magic:
 		s.handleMagic(user, x, y)
-	
+
 	case model.Fishing:
 		s.handleFishing(user, x, y)
 
@@ -64,55 +70,79 @@ func (s *SkillService) HandleUseSkillClick(user *model.Character, skill model.Sk
 		s.handleTaming(user, x, y)
 
 	default:
+		fmt.Printf("HandleUseSkillClick: Default case hit for skill %d\n", skill)
 		s.messageService.SendConsoleMessage(user, fmt.Sprintf("Skill %d no implementada en click.", skill), outgoing.INFO)
 	}
 }
 
 func (s *SkillService) handleMagic(user *model.Character, x, y byte) {
+
+	fmt.Printf("handleMagic: User %s casting spell %d at %d,%d\n", user.Name, user.SelectedSpell, x, y)
+
 	if user.SelectedSpell == 0 {
+
 		s.messageService.SendConsoleMessage(user, "Primero selecciona un hechizo.", outgoing.INFO)
+
 		return
+
 	}
+
+
 
 	// Resolve target
+
 	targetPos := model.Position{X: x, Y: y, Map: user.Position.Map}
+
 	
+
 	gameMap := s.mapService.GetMap(targetPos.Map)
+
 	if gameMap == nil {
+
+		fmt.Println("handleMagic: Map not found")
+
 		return
+
 	}
+
+
 
 	tile := gameMap.GetTile(int(targetPos.X), int(targetPos.Y))
+
 	var target any
+
 	if tile.Character != nil {
+
+		fmt.Printf("handleMagic: Found Character target %s\n", tile.Character.Name)
+
 		target = tile.Character
+
 	} else if tile.NPC != nil {
+
+		fmt.Printf("handleMagic: Found NPC target %s\n", tile.NPC.NPC.Name)
+
 		target = tile.NPC
+
 	} else {
-		// Target is the tile/ground/self?
-		// If clicking on self, tile.Character should be self.
-		// If clicking on ground, maybe area spell?
-		// For now, if no target found, do nothing or Self?
-		// CastSpell expects a target.
-		// If tile.Character is nil, maybe user clicked empty tile.
-		// Standard AO CastSpell usually requires a valid target (User or NPC) unless it's a specific spell type.
-		// Let's pass nil target and let SpellService handle it (or self?).
-		// Actually SpellService.CastSpell expects 'target any'.
-		// If I pass nil, it might crash or fail.
-		// Let's try casting on Self if coordinates match User?
-		// But tile.Character handles that.
-		
-		// If nothing there, maybe cancel?
-		s.messageService.SendConsoleMessage(user, "No hay objetivo.", outgoing.INFO)
-		return
+
+		// No entity found, treat as terrain target
+
+		fmt.Println("handleMagic: No entity found, using position as target")
+
+		target = targetPos
+
 	}
 
+
+
 	s.spellService.CastSpell(user, user.SelectedSpell, target)
+
 	// Reset selected spell? Standard AO usually keeps it selected until changed or cast?
+
 	// Usually keeps it.
+
 	user.SelectedSpell = 0 // Some versions reset. Let's reset to force re-select/re-cast flow? 
-	// Actually, standard behavior: Click "Lanzar" -> Cursor -> Click -> Cast -> Cursor gone. Spell still selected in list?
-	// Yes, but 'flags.Hechizo' is usually reset.
+
 }
 
 func (s *SkillService) handleFishing(user *model.Character, x, y byte) {
@@ -147,15 +177,15 @@ func (s *SkillService) handleTaming(user *model.Character, x, y byte) {
 	// 1. Check Target NPC
 	// 2. Check if Tameable
 	// 3. Tame
-	
+
 	// Logic from VB6:
 	// Call LookatTile -> get tN (Target NPC index)
 	// If tN > 0 -> Check Domable -> Check Distance -> DoDomar
-	
+
 	// We need to find NPC at x,y
 	targetPos := model.Position{X: x, Y: y, Map: user.Position.Map}
 	npc := s.mapService.GetNPCAt(targetPos)
-	
+
 	if npc == nil {
 		s.messageService.SendConsoleMessage(user, "No hay ninguna criatura allí.", outgoing.INFO)
 		return
@@ -170,10 +200,10 @@ func (s *SkillService) handleTaming(user *model.Character, x, y byte) {
 
 	// TODO: Check if NPC is tameable (Need 'Domable' field in NPC model)
 	// TODO: Check if NPC is attacked by user
-	
+
 	// Success check based on Skill + Charisma + Level vs NPC difficulty
 	success := rand.Float32() > 0.5 // Placeholder
-	
+
 	if success {
 		s.messageService.SendConsoleMessage(user, "¡Has domado la criatura!", outgoing.INFO)
 		// TODO: Convert NPC to Pet

@@ -35,13 +35,27 @@ type Spell struct {
 	MinSkill       int
 	ManaRequired   int
 	StaminaRequired int
-	TargetType     SpellTarget
-	
-	// Stats
-	MinHP int
-	MaxHP int
-	
-	Invisibility bool
-	Paralyzes    bool
-	Immobilizes  bool
-}
+		TargetType     SpellTarget
+		
+		// Stats
+		MinHP int
+		MaxHP int
+		SubeHP int // 1: Heal, 2: Damage
+		
+		// Effects
+		Invisibility   bool
+		Paralyzes      bool
+		Immobilizes    bool
+		Poison         bool
+		CurePoison     bool
+		Revive         bool
+		Blind          bool
+		Dumb           bool // Estupidez
+		
+		// Summoning
+		SummonNPC      int
+		SummonAmount   int
+		
+		// Requirements
+		NeedStaff      int
+	}

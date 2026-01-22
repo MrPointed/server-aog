@@ -2,6 +2,7 @@ package service
 
 import (
 	"fmt"
+
 	"github.com/ao-go-server/internal/model"
 	"github.com/ao-go-server/internal/persistence"
 )
@@ -31,7 +32,7 @@ func (s *MapService) LoadMaps() {
 	}
 	for _, m := range maps {
 		m.Characters = make(map[int16]*model.Character)
-		
+
 		objectsFound := 0
 		npcsFound := 0
 		// Resolve objects and NPCs from map file
@@ -39,7 +40,7 @@ func (s *MapService) LoadMaps() {
 			tile := &m.Tiles[i]
 			x := i % model.MapWidth
 			y := i / model.MapWidth
-			
+
 			if tile.ObjectID > 0 {
 				obj := s.objectService.GetObject(tile.ObjectID)
 				if obj != nil {
@@ -73,7 +74,7 @@ func (s *MapService) LoadMaps() {
 				}
 			}
 		}
-		
+
 		s.maps[m.Id] = m
 		if objectsFound > 0 || npcsFound > 0 {
 			fmt.Printf("Map %d: Resolved %d objects and %d NPCs on ground.\n", m.Id, objectsFound, npcsFound)
@@ -168,7 +169,7 @@ func (s *MapService) MoveCharacterTo(char *model.Character, heading model.Headin
 	}
 
 	// Boundary checks (simplified)
-	if newPos.X < 0 || newPos.X >= 100 || newPos.Y < 0 || newPos.Y >= 100 {
+	if newPos.X <= 0 || newPos.X >= 100 || newPos.Y <= 0 || newPos.Y >= 100 {
 		return char.Position, false
 	}
 
@@ -176,7 +177,7 @@ func (s *MapService) MoveCharacterTo(char *model.Character, heading model.Headin
 	gameMap := s.GetMap(newPos.Map)
 	if gameMap != nil {
 		tile := gameMap.GetTile(int(newPos.X), int(newPos.Y))
-		
+
 		// Map static blocking
 		if tile.Blocked {
 			return char.Position, false

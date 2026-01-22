@@ -243,7 +243,7 @@ func GetOutgoingPacketID(packet OutgoingPacket) (ServerPackets, error) {
 		return SP_PlayWave, nil
 	case *outgoing.BlockPositionPacket:
 		return SP_BlockPosition, nil
-	case *outgoing.WorkRequestTargetPacket:
+	case *outgoing.SkillRequestTargetPacket:
 		return SP_WorkRequestTarget, nil
 	}
 	return 0, fmt.Errorf("unknown outgoing packet type")
