@@ -3,8 +3,8 @@ package incoming
 import (
 	"github.com/ao-go-server/internal/network"
 	"github.com/ao-go-server/internal/protocol"
+	"github.com/ao-go-server/internal/protocol/outgoing"
 	"github.com/ao-go-server/internal/service"
-	"github.com/ao-go-server/internal/model"
 )
 
 type CastSpellPacket struct {
@@ -31,35 +31,13 @@ func (p *CastSpellPacket) Handle(buffer *network.DataBuffer, connection protocol
 
 	spellID := char.Spells[slot]
 
-	// Find target in front
-	targetPos := char.Position
-	switch char.Heading {
-	case model.North:
-		targetPos.Y--
-	case model.South:
-		targetPos.Y++
-	case model.East:
-		targetPos.X++
-	case model.West:
-		targetPos.X--
-	}
-
-	gameMap := p.MapService.GetMap(targetPos.Map)
-	if gameMap == nil {
-		return true, nil
-	}
-
-	tile := gameMap.GetTile(int(targetPos.X), int(targetPos.Y))
-	var target any
-	if tile.Character != nil {
-		target = tile.Character
-	} else if tile.NPC != nil {
-		target = tile.NPC
-	} else {
-		target = char // Self cast if no target in front
-	}
-
-	p.SpellService.CastSpell(char, spellID, target)
+	// Update selected spell
+	char.SelectedSpell = spellID
+	
+	connection.Send(&outgoing.ConsoleMessagePacket{
+		Message: "Hechizo seleccionado.",
+		Font:    outgoing.INFO,
+	})
 
 	return true, nil
 }

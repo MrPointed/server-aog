@@ -56,6 +56,7 @@ type Object struct {
 	
 	// Map interaction
 	Pickupable bool
+	Ranged     bool
 
 	// Doors
 	OpenIndex   int

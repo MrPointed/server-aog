@@ -71,6 +71,8 @@ func NewServer(addr string) *Server {
 		fmt.Printf("Critical error loading spells: %v\n", err)
 	}
 
+	skillService := service.NewSkillService(mapService, objectService, messageService, userService, npcService, spellService)
+
 	fileDAO := persistence.NewFileDAO("../../resources/charfiles")
 	loginService := service.NewLoginService(fileDAO, fileDAO, cfg, userService, mapService, bodyService, indexManager, messageService, objectService, cityService, spellService, executor)
 
@@ -93,7 +95,8 @@ func NewServer(addr string) *Server {
 	m.RegisterHandler(protocol.CP_EquipItem, &incoming.EquipItemPacket{ObjectService: objectService, MessageService: messageService, BodyService: bodyService})
 	m.RegisterHandler(protocol.CP_ChangeHeading, &incoming.ChangeHeadingPacket{AreaService: areaService})
 	m.RegisterHandler(protocol.CP_Double_Click, &incoming.DoubleClickPacket{MapService: mapService, NpcService: npcService, UserService: userService, ObjectService: objectService, AreaService: areaService})
-	m.RegisterHandler(protocol.CP_WorkLeftClick, &incoming.WorkLeftClickPacket{})
+	m.RegisterHandler(protocol.CP_UseSkill, &incoming.UseSkillPacket{})
+	m.RegisterHandler(protocol.CP_UseSkillClick, &incoming.UseSkillClickPacket{SkillService: skillService})
 	m.RegisterHandler(protocol.CP_Resurrect, &incoming.ResurrectPacket{MapService: mapService, AreaService: areaService, MessageService: messageService, BodyService: bodyService})
 
 	return &Server{

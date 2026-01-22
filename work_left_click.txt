@@ -1,0 +1,624 @@
+
+Private Sub HandleWork(ByVal Userindex As Integer)
+
+    '***************************************************
+    'Author: Juan Martin Sotuyo Dodero (Maraxus)
+    'Last Modification: 13/01/2010 (ZaMa)
+    '13/01/2010: ZaMa - El pirata se puede ocultar en barca
+    '***************************************************
+    If UserList(Userindex).incomingData.Length < 2 Then
+        Err.Raise UserList(Userindex).incomingData.NotEnoughDataErrCode
+        Exit Sub
+
+    End If
+    On Error GoTo errhandler
+    With UserList(Userindex)
+        'Remove packet ID
+        Call .incomingData.ReadByte
+        
+        Dim Skill As eSkill
+        
+1        Skill = .incomingData.ReadByte()
+        
+2        If UserList(Userindex).flags.Muerto = 1 Then Exit Sub
+        
+        'If exiting, cancel
+3        Call CancelExit(Userindex)
+        
+        Select Case Skill
+        
+            Case Robar, Magia, Domar
+4                Call WriteMultiMessage(Userindex, eMessages.WorkRequestTarget, Skill)
+                
+            Case Ocultarse
+                
+                ' Verifico si se peude ocultar en este mapa
+5                If (MapInfo(.Pos.Map).OcultarSinEfecto = 1) Or (MapInfo(.Pos.Map).InviSinEfecto = 1) Then
+6                    Call WriteConsoleMsg(Userindex, "Ocultarse no funciona aqui!", FontTypeNames.FONTTYPE_INFO)
+                    Exit Sub
+
+                End If
+                
+                If .flags.EnConsulta Then
+                    Call WriteConsoleMsg(Userindex, "No puedes ocultarte si estas en consulta.", FontTypeNames.FONTTYPE_INFO)
+                    Exit Sub
+
+                End If
+            
+                If .flags.Navegando = 1 Then
+                    If .Clase <> eClass.Pirat Then
+
+                        '[CDT 17-02-2004]
+                        If Not .flags.UltimoMensaje = 3 Then
+                            Call WriteConsoleMsg(Userindex, "No puedes ocultarte si estas navegando.", FontTypeNames.FONTTYPE_INFO)
+                            .flags.UltimoMensaje = 3
+
+                        End If
+
+                        '[/CDT]
+                        Exit Sub
+
+                    End If
+
+                End If
+                
+                If .flags.Oculto = 1 Then
+
+                    '[CDT 17-02-2004]
+                    If Not .flags.UltimoMensaje = 2 Then
+                        Call WriteConsoleMsg(Userindex, "Ya estas oculto.", FontTypeNames.FONTTYPE_INFO)
+                        .flags.UltimoMensaje = 2
+
+                    End If
+
+                    '[/CDT]
+                    Exit Sub
+
+                End If
+                
+7                Call DoOcultarse(Userindex)
+                
+        End Select
+        
+    End With
+    Exit Sub
+errhandler:
+    Call LogError("Error en HandleWork en " & Erl & " - Skill: " & Skill & ". Err: " & Err.Number & " " & Err.description)
+End Sub
+
+
+
+Private Sub HandleWorkLeftClick(ByVal Userindex As Integer)
+
+    '***************************************************
+    'Author: Juan Martin Sotuyo Dodero (Maraxus)
+    'Last Modification: 14/01/2010 (ZaMa)
+    '16/11/2009: ZaMa - Agregada la posibilidad de extraer madera elfica.
+    '12/01/2010: ZaMa - Ahora se admiten armas arrojadizas (proyectiles sin municiones).
+    '14/01/2010: ZaMa - Ya no se pierden municiones al atacar npcs con dueno.
+    '***************************************************
+    If UserList(Userindex).incomingData.Length < 4 Then
+        Err.Raise UserList(Userindex).incomingData.NotEnoughDataErrCode
+        Exit Sub
+
+    End If
+    
+    With UserList(Userindex)
+        'Remove packet ID
+        Call .incomingData.ReadByte
+        
+        Dim X           As Byte
+
+        Dim Y           As Byte
+
+        Dim Skill       As eSkill
+
+        Dim DummyInt    As Integer
+
+        Dim tU          As Integer   'Target user
+
+        Dim tN          As Integer   'Target NPC
+        
+        Dim WeaponIndex As Integer
+        
+        X = .incomingData.ReadByte()
+        Y = .incomingData.ReadByte()
+        
+        Skill = .incomingData.ReadByte()
+        
+        If .flags.Muerto = 1 Or .flags.Descansar Or .flags.Meditando Or Not InMapBounds(.Pos.Map, X, Y) Then Exit Sub
+
+        If Not InRangoVision(Userindex, X, Y) Then
+            Call WritePosUpdate(Userindex)
+            Exit Sub
+
+        End If
+        
+        'If exiting, cancel
+        Call CancelExit(Userindex)
+        
+        Select Case Skill
+
+            Case eSkill.Proyectiles
+                
+                'Check attack interval
+                If Not IntervaloPermiteAtacar(Userindex, False) Then Exit Sub
+
+                'Check Magic interval
+                If Not IntervaloPermiteLanzarSpell(Userindex, False) Then Exit Sub
+
+                'Check bow's interval
+                If Not IntervaloPermiteUsarArcos(Userindex) Then Exit Sub
+                
+                Call LanzarProyectil(Userindex, X, Y)
+                            
+            Case eSkill.Magia
+
+                'Check the map allows spells to be casted.
+                If MapInfo(.Pos.Map).MagiaSinEfecto > 0 Then
+                    Call WriteConsoleMsg(Userindex, "Una fuerza oscura te impide canalizar tu energia.", FontTypeNames.FONTTYPE_FIGHT)
+                    Exit Sub
+                End If
+                
+                'Target whatever is in that tile
+                Call LookatTile(Userindex, .Pos.Map, X, Y)
+                
+                'If it's outside range log it and exit
+                If Abs(.Pos.X - X) > RANGO_VISION_X Or Abs(.Pos.Y - Y) > RANGO_VISION_Y Then
+                    Call LogCheating("Ataque fuera de rango de " & .Name & "(" & .Pos.Map & "/" & .Pos.X & "/" & .Pos.Y & ") ip: " & .IP & " a la posicion (" & .Pos.Map & "/" & X & "/" & Y & ")")
+                    Exit Sub
+                End If
+                
+                'Check bow's interval
+                If Not IntervaloPermiteUsarArcos(Userindex, False) Then Exit Sub
+                
+                'Check Spell-Hit interval
+                If Not IntervaloPermiteGolpeMagia(Userindex) Then
+
+                    'Check Magic interval
+                    If Not IntervaloPermiteLanzarSpell(Userindex) Then
+                        Exit Sub
+                    End If
+
+                End If
+                
+                'Check intervals and cast
+                If .flags.Hechizo > 0 Then
+                    Call LanzarHechizo(.flags.Hechizo, Userindex)
+                    .flags.Hechizo = 0
+                Else
+                    Call WriteConsoleMsg(Userindex, "Primero selecciona el hechizo que quieres lanzar!", FontTypeNames.FONTTYPE_INFO)
+
+                End If
+            
+            Case eSkill.pesca
+                WeaponIndex = .Invent.WeaponEqpObjIndex
+
+                If WeaponIndex = 0 Then Exit Sub
+                
+                'Check interval
+                If Not IntervaloPermiteTrabajar(Userindex) Then Exit Sub
+                
+                'Basado en la idea de Barrin
+                'Comentario por Barrin: jah, "basado", caradura ! ^^
+                If MapData(.Pos.Map, .Pos.X, .Pos.Y).trigger = eTrigger.BAJOTECHO Or MapData(.Pos.Map, .Pos.X, .Pos.Y).trigger = eTrigger.CASA Then
+                    Call WriteConsoleMsg(Userindex, "No puedes pescar desde donde te encuentras.", FontTypeNames.FONTTYPE_INFO)
+                    Exit Sub
+
+                End If
+                
+                If HayAgua(.Pos.Map, X, Y) Then
+
+                    Select Case WeaponIndex
+
+                        Case CANA_PESCA, CANA_PESCA_NEWBIE
+                            Call DoPescar(Userindex)
+                        
+                        Case RED_PESCA
+                            
+                            DummyInt = MapData(.Pos.Map, X, Y).ObjInfo.ObjIndex
+                
+                            If DummyInt = 0 Then
+                                Call WriteConsoleMsg(Userindex, "No hay un yacimiento de peces donde pescar.", FontTypeNames.FONTTYPE_INFO)
+                                Exit Sub
+
+                            End If
+                            
+                            If Abs(.Pos.X - X) + Abs(.Pos.Y - Y) > 2 Then
+                                Call WriteConsoleMsg(Userindex, "Estas demasiado lejos para pescar.", FontTypeNames.FONTTYPE_INFO)
+                                Exit Sub
+
+                            End If
+                            
+                            If .Pos.X = X And .Pos.Y = Y Then
+                                Call WriteConsoleMsg(Userindex, "No puedes pescar desde alli.", FontTypeNames.FONTTYPE_INFO)
+                                Exit Sub
+
+                            End If
+                            
+                            'Hay un arbol normal donde clickeo?
+                            If ObjData(DummyInt).OBJType = eOBJType.otYacimientoPez Then
+                                Call DoPescarRed(Userindex)
+                            Else
+                                Call WriteConsoleMsg(Userindex, "No hay un yacimiento de peces donde pescar.", FontTypeNames.FONTTYPE_INFO)
+                                Exit Sub
+
+                            End If
+                              
+                        Case Else
+
+                            Exit Sub    'Invalid item!
+
+                    End Select
+                    
+                    'Play sound!
+                    Call SendData(SendTarget.ToPCArea, Userindex, PrepareMessagePlayWave(SND_PESCAR, .Pos.X, .Pos.Y))
+                Else
+                    Call WriteConsoleMsg(Userindex, "No hay agua donde pescar. Busca un lago, rio o mar.", FontTypeNames.FONTTYPE_INFO)
+
+                End If
+            
+            Case eSkill.Robar
+
+                'Does the map allow us to steal here?
+                If MapInfo(.Pos.Map).Pk Then
+                    
+                    'Check interval
+                    If Not IntervaloPermiteTrabajar(Userindex) Then Exit Sub
+                    
+                    'Target whatever is in that tile
+                    Call LookatTile(Userindex, UserList(Userindex).Pos.Map, X, Y)
+                    
+                    tU = .flags.TargetUser
+                    
+                    If tU > 0 And tU <> Userindex Then
+
+                        'Can't steal administrative players
+                        If UserList(tU).flags.Privilegios And PlayerType.User Then
+                            If UserList(tU).flags.Muerto = 0 Then
+                                If Abs(.Pos.X - X) + Abs(.Pos.Y - Y) > 2 Then
+                                    Call WriteConsoleMsg(Userindex, "Estas demasiado lejos.", FontTypeNames.FONTTYPE_INFO)
+                                    Exit Sub
+
+                                End If
+                                 
+                                '17/09/02
+                                'Check the trigger
+                                If MapData(UserList(tU).Pos.Map, X, Y).trigger = eTrigger.ZONASEGURA Then
+                                    Call WriteConsoleMsg(Userindex, "No puedes robar aqui.", FontTypeNames.FONTTYPE_WARNING)
+                                    Exit Sub
+
+                                End If
+                                 
+                                If MapData(.Pos.Map, .Pos.X, .Pos.Y).trigger = eTrigger.ZONASEGURA Then
+                                    Call WriteConsoleMsg(Userindex, "No puedes robar aqui.", FontTypeNames.FONTTYPE_WARNING)
+                                    Exit Sub
+
+                                End If
+                                 
+                                Call DoRobar(Userindex, tU)
+
+                            End If
+
+                        End If
+
+                    Else
+                        Call WriteConsoleMsg(Userindex, "No hay a quien robarle!", FontTypeNames.FONTTYPE_INFO)
+
+                    End If
+
+                Else
+                    Call WriteConsoleMsg(Userindex, "No puedes robar en zonas seguras!", FontTypeNames.FONTTYPE_INFO)
+
+                End If
+            
+            Case eSkill.Talar
+
+                'Check interval
+                If Not IntervaloPermiteTrabajar(Userindex) Then Exit Sub
+                
+                WeaponIndex = .Invent.WeaponEqpObjIndex
+                
+                If WeaponIndex = 0 Then
+                    Call WriteConsoleMsg(Userindex, "Deberias equiparte el hacha.", FontTypeNames.FONTTYPE_INFO)
+                    Exit Sub
+
+                End If
+                
+                If WeaponIndex <> HACHA_LENADOR And WeaponIndex <> HACHA_LENA_ELFICA And WeaponIndex <> HACHA_LENADOR_NEWBIE Then
+                    ' Podemos llegar aca si el user equipo el anillo dsp de la U y antes del click
+                    Exit Sub
+
+                End If
+                
+                DummyInt = MapData(.Pos.Map, X, Y).ObjInfo.ObjIndex
+                
+                If DummyInt > 0 Then
+                    If Abs(.Pos.X - X) + Abs(.Pos.Y - Y) > 2 Then
+                        Call WriteConsoleMsg(Userindex, "Estas demasiado lejos.", FontTypeNames.FONTTYPE_INFO)
+                        Exit Sub
+
+                    End If
+                    
+                    'Barrin 29/9/03
+                    If .Pos.X = X And .Pos.Y = Y Then
+                        Call WriteConsoleMsg(Userindex, "No puedes talar desde alli.", FontTypeNames.FONTTYPE_INFO)
+                        Exit Sub
+
+                    End If
+                    
+                    'Hay un arbol normal donde clickeo?
+                    If ObjData(DummyInt).OBJType = eOBJType.otArboles Then
+                        If WeaponIndex = HACHA_LENADOR Or WeaponIndex = HACHA_LENADOR_NEWBIE Then
+                            Call SendData(SendTarget.ToPCArea, Userindex, PrepareMessagePlayWave(SND_TALAR, .Pos.X, .Pos.Y))
+                            Call DoTalar(Userindex)
+                        Else
+                            Call WriteConsoleMsg(Userindex, "No puedes extraer lena de este arbol con este hacha.", FontTypeNames.FONTTYPE_INFO)
+
+                        End If
+                        
+                        ' Arbol Elfico?
+                    ElseIf ObjData(DummyInt).OBJType = eOBJType.otArbolElfico Then
+                    
+                        If WeaponIndex = HACHA_LENA_ELFICA Then
+                            Call SendData(SendTarget.ToPCArea, Userindex, PrepareMessagePlayWave(SND_TALAR, .Pos.X, .Pos.Y))
+                            Call DoTalar(Userindex, True)
+                        Else
+                            Call WriteConsoleMsg(Userindex, "El hacha utilizado no es suficientemente poderosa.", FontTypeNames.FONTTYPE_INFO)
+
+                        End If
+
+                    End If
+
+                Else
+                    Call WriteConsoleMsg(Userindex, "No hay ningUn arbol ahi.", FontTypeNames.FONTTYPE_INFO)
+
+                End If
+            
+            Case eSkill.Mineria
+
+                If Not IntervaloPermiteTrabajar(Userindex) Then Exit Sub
+                                
+                WeaponIndex = .Invent.WeaponEqpObjIndex
+                                
+                If WeaponIndex = 0 Then Exit Sub
+                
+                If WeaponIndex <> PIQUETE_MINERO And WeaponIndex <> PIQUETE_MINERO_NEWBIE Then
+                    ' Podemos llegar aca si el user equipo el anillo dsp de la U y antes del click
+                    Exit Sub
+
+                End If
+                
+                'Target whatever is in the tile
+                Call LookatTile(Userindex, .Pos.Map, X, Y)
+                
+                DummyInt = MapData(.Pos.Map, X, Y).ObjInfo.ObjIndex
+                
+                If DummyInt > 0 Then
+
+                    'Check distance
+                    If Abs(.Pos.X - X) + Abs(.Pos.Y - Y) > 2 Then
+                        Call WriteConsoleMsg(Userindex, "Estas demasiado lejos.", FontTypeNames.FONTTYPE_INFO)
+                        Exit Sub
+
+                    End If
+                    
+                    'Hay un yacimiento donde clickeo?
+                    If ObjData(DummyInt).OBJType = eOBJType.otYacimiento Then
+                        Call DoMineria(Userindex)
+                    Else
+                        Call WriteConsoleMsg(Userindex, "Ahi no hay ningUn yacimiento.", FontTypeNames.FONTTYPE_INFO)
+
+                    End If
+
+                    'Fix Sonido by Fakkerz 24/05/2020
+                    Call SendData(SendTarget.ToPCArea, Userindex, PrepareMessagePlayWave(SND_MINERO, .Pos.X, .Pos.Y))
+
+                Else
+                    Call WriteConsoleMsg(Userindex, "Ahi no hay ningUn yacimiento.", FontTypeNames.FONTTYPE_INFO)
+
+                End If
+            
+            Case eSkill.Domar
+                'Modificado 25/11/02
+                'Optimizado y solucionado el bug de la doma de
+                'criaturas hostiles.
+                
+                'Target whatever is that tile
+                Call LookatTile(Userindex, .Pos.Map, X, Y)
+                tN = .flags.TargetNPC
+                
+                If tN > 0 Then
+                    If Npclist(tN).flags.Domable > 0 Then
+                        If Abs(.Pos.X - X) + Abs(.Pos.Y - Y) > 2 Then
+                            Call WriteConsoleMsg(Userindex, "Estas demasiado lejos.", FontTypeNames.FONTTYPE_INFO)
+                            Exit Sub
+
+                        End If
+                        
+                        If LenB(Npclist(tN).flags.AttackedBy) <> 0 Then
+                            Call WriteConsoleMsg(Userindex, "No puedes domar una criatura que esta luchando con un jugador.", FontTypeNames.FONTTYPE_INFO)
+                            Exit Sub
+
+                        End If
+                        
+                        Call DoDomar(Userindex, tN)
+                    Else
+                        Call WriteConsoleMsg(Userindex, "No puedes domar a esa criatura.", FontTypeNames.FONTTYPE_INFO)
+
+                    End If
+
+                Else
+                    Call WriteConsoleMsg(Userindex, "No hay ninguna criatura alli!", FontTypeNames.FONTTYPE_INFO)
+
+                End If
+            
+            Case FundirMetal    'UGLY!!! This is a constant, not a skill!!
+
+                'Check interval
+                If Not IntervaloPermiteTrabajar(Userindex) Then Exit Sub
+                
+                'Check there is a proper item there
+                If .flags.TargetObj > 0 Then
+                    If ObjData(.flags.TargetObj).OBJType = eOBJType.otFragua Then
+
+                        'Validate other items
+                        If .flags.TargetObjInvSlot < 1 Or .flags.TargetObjInvSlot > .CurrentInventorySlots Then
+                            Exit Sub
+
+                        End If
+                        
+                        ''chequeamos que no se zarpe duplicando oro
+                        If .Invent.Object(.flags.TargetObjInvSlot).ObjIndex <> .flags.TargetObjInvIndex Then
+                            If .Invent.Object(.flags.TargetObjInvSlot).ObjIndex = 0 Or .Invent.Object(.flags.TargetObjInvSlot).Amount = 0 Then
+                                Call WriteConsoleMsg(Userindex, "No tienes mas minerales.", FontTypeNames.FONTTYPE_INFO)
+                                Exit Sub
+
+                            End If
+                            
+                            ''FUISTE
+                            Call WriteErrorMsg(Userindex, "Has sido expulsado por el sistema anti cheats.")
+                            Call CloseSocket(Userindex)
+                            Exit Sub
+
+                        End If
+
+                        If ObjData(.flags.TargetObjInvIndex).OBJType = eOBJType.otMinerales Then
+                            Call FundirMineral(Userindex)
+                        ElseIf ObjData(.flags.TargetObjInvIndex).OBJType = eOBJType.otWeapon Then
+                            Call FundirArmas(Userindex)
+
+                        End If
+
+                    Else
+                        Call WriteConsoleMsg(Userindex, "Ahi no hay ninguna fragua.", FontTypeNames.FONTTYPE_INFO)
+
+                    End If
+
+                Else
+                    Call WriteConsoleMsg(Userindex, "Ahi no hay ninguna fragua.", FontTypeNames.FONTTYPE_INFO)
+
+                End If
+            
+            Case eSkill.Herreria
+                'Target wehatever is in that tile
+                Call LookatTile(Userindex, .Pos.Map, X, Y)
+                
+                If .flags.TargetObj > 0 Then
+                    If ObjData(.flags.TargetObj).OBJType = eOBJType.otYunque Then
+                        Call EnivarArmasConstruibles(Userindex)
+                        Call EnivarArmadurasConstruibles(Userindex)
+                    Else
+                        Call WriteConsoleMsg(Userindex, "Ahi no hay ningUn yunque.", FontTypeNames.FONTTYPE_INFO)
+
+                    End If
+
+                Else
+                    Call WriteConsoleMsg(Userindex, "Ahi no hay ningUn yunque.", FontTypeNames.FONTTYPE_INFO)
+
+                End If
+
+        End Select
+
+    End With
+
+End Sub
+
+Public Sub WriteMultiMessage(ByVal Userindex As Integer, _
+                             ByVal MessageIndex As Integer, _
+                             Optional ByVal Arg1 As Long, _
+                             Optional ByVal Arg2 As Long, _
+                             Optional ByVal Arg3 As Long, _
+                             Optional ByVal StringArg1 As String)
+    '***************************************************
+    'Author: Unknown
+    'Last Modification: -
+    '
+    '***************************************************
+
+    On Error GoTo errHandler
+
+    With UserList(Userindex).outgoingData
+        Call .WriteByte(ServerPacketID.MultiMessage)
+        Call .WriteByte(MessageIndex)
+        
+        Select Case MessageIndex
+
+            Case eMessages.NPCSwing, eMessages.NPCKillUser, eMessages.BlockedWithShieldUser, eMessages.BlockedWithShieldother, eMessages.UserSwing, eMessages.SafeModeOn, eMessages.SafeModeOff, eMessages.ResuscitationSafeOff, eMessages.ResuscitationSafeOn, eMessages.NobilityLost, eMessages.CantUseWhileMeditating, eMessages.CancelHome, eMessages.FinishHome
+            
+            Case eMessages.NPCHitUser
+                Call .WriteByte(Arg1) 'Target
+                Call .WriteInteger(Arg2) 'damage
+                
+            Case eMessages.UserHitNPC
+                Call .WriteLong(Arg1) 'damage
+                
+            Case eMessages.UserAttackedSwing
+                Call .WriteInteger(UserList(Arg1).Char.CharIndex)
+                
+            Case eMessages.UserHittedByUser
+                Call .WriteInteger(Arg1) 'AttackerIndex
+                Call .WriteByte(Arg2) 'Target
+                Call .WriteInteger(Arg3) 'damage
+                
+            Case eMessages.UserHittedUser
+                Call .WriteInteger(Arg1) 'AttackerIndex
+                Call .WriteByte(Arg2) 'Target
+                Call .WriteInteger(Arg3) 'damage
+                
+            Case eMessages.WorkRequestTarget
+                Call .WriteByte(Arg1) 'skill
+            
+            Case eMessages.HaveKilledUser '"Has matado a " & UserList(VictimIndex).name & "!" "Has ganado " & DaExp & " puntos de experiencia."
+                Call .WriteInteger(UserList(Arg1).Char.CharIndex) 'VictimIndex
+                Call .WriteLong(Arg2) 'Expe
+            
+            Case eMessages.UserKill '"" & .name & " te ha matado!"
+                Call .WriteInteger(UserList(Arg1).Char.CharIndex) 'AttackerIndex
+
+            Case eMessages.EarnExp
+                Call .WriteLong(Arg1)
+                
+            Case eMessages.Home
+                Call .WriteByte(CByte(Arg1))
+                Call .WriteInteger(CInt(Arg2))
+                'El cliente no conoce nada sobre nombre de mapas y hogares, por lo tanto _
+                 hasta que no se pasen los dats e .INFs al cliente, esto queda asi.
+                Call .WriteASCIIString(StringArg1) 'Call .WriteByte(CByte(Arg2))
+                
+            Case eMessages.UserMuerto
+            
+            Case eMessages.NpcInmune
+            
+            Case eMessages.Hechizo_HechiceroMSG_NOMBRE
+                Call .WriteByte(CByte(Arg1)) 'SpellIndex
+                Call .WriteASCIIString(StringArg1) 'Persona
+             
+            Case eMessages.Hechizo_HechiceroMSG_ALGUIEN
+                Call .WriteByte(CByte(Arg1)) 'SpellIndex
+             
+            Case eMessages.Hechizo_HechiceroMSG_CRIATURA
+                Call .WriteByte(CByte(Arg1)) 'SpellIndex
+             
+            Case eMessages.Hechizo_PropioMSG
+                Call .WriteByte(CByte(Arg1)) 'SpellIndex
+         
+            Case eMessages.Hechizo_TargetMSG
+                Call .WriteByte(CByte(Arg1)) 'SpellIndex
+                Call .WriteASCIIString(StringArg1) 'Persona
+
+        End Select
+
+    End With
+
+    Exit Sub ''
+
+errHandler:
+
+    If Err.Number = UserList(Userindex).outgoingData.NotEnoughSpaceErrCode Then
+        Call FlushBuffer(Userindex)
+        Resume
+
+    End If
+
+End Sub

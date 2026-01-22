@@ -3,6 +3,7 @@ package service
 import (
 	"github.com/ao-go-server/internal/model"
 	"github.com/ao-go-server/internal/protocol"
+	"github.com/ao-go-server/internal/protocol/outgoing"
 )
 
 type MessageService struct {
@@ -16,6 +17,16 @@ func NewMessageService(userService *UserService, areaService *AreaService, mapSe
 		userService: userService,
 		AreaService: areaService,
 		MapService:  mapService,
+	}
+}
+
+func (s *MessageService) SendConsoleMessage(user *model.Character, message string, font outgoing.Font) {
+	conn := s.userService.GetConnection(user)
+	if conn != nil {
+		conn.Send(&outgoing.ConsoleMessagePacket{
+			Message: message,
+			Font:    font,
+		})
 	}
 }
 

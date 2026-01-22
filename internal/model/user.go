@@ -58,6 +58,7 @@ type Character struct {
 
 	Inventory Inventory
 	Spells    []int
+	SelectedSpell int
 
 	Poisoned    bool
 	Paralyzed   bool

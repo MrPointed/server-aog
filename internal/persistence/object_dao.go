@@ -73,6 +73,10 @@ func (d *ObjectDAO) Load() (map[int]*model.Object, error) {
 			}
 		}
 
+		if p, ok := props["PROYECTIL"]; ok {
+			obj.Ranged = p == "1"
+		}
+
 		// Doors
 		obj.OpenIndex = toInt(props["OPEN_INDEX"])
 		obj.ClosedIndex = toInt(props["CLOSED_INDEX"])

@@ -47,8 +47,7 @@ const (
 type Skill int
 
 const (
-	Luck Skill = iota + 1
-	Magic
+	Magic Skill = iota + 1
 	Steal
 	CombatTactics
 	HandToHandCombat

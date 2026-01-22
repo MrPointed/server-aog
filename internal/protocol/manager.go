@@ -37,12 +37,12 @@ const (
 	CP_CastSpell
 	CP_LeftClick
 	CP_Double_Click
-	CP_Work
+	CP_UseSkill
 	CP_UseSpellMacro
 	CP_UseItem
 	CP_CraftBlacksmith
 	CP_CraftCarpenter
-	CP_WorkLeftClick
+	CP_UseSkillClick
 	CP_CreateNewGuild
 	CP_SpellInfo
 	CP_EquipItem
@@ -243,6 +243,8 @@ func GetOutgoingPacketID(packet OutgoingPacket) (ServerPackets, error) {
 		return SP_PlayWave, nil
 	case *outgoing.BlockPositionPacket:
 		return SP_BlockPosition, nil
+	case *outgoing.WorkRequestTargetPacket:
+		return SP_WorkRequestTarget, nil
 	}
 	return 0, fmt.Errorf("unknown outgoing packet type")
 }
