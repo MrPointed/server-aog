@@ -3,16 +3,16 @@ package model
 type NPCType int
 
 const (
-	NTNone NPCType = iota
-	NTTrainer
-	NTBanker
-	NTMerchant
-	NTHealer
-	NTGuard
-	NTGuardLegion
-	NTGuardImperial
-	NTHostile
-	NTFriendly
+	NTCommon NPCType = iota // 0
+	NTHealer                // 1
+	NTGuard                 // 2
+	NTTrainer               // 3
+	NTBanker                // 4
+	NTNoble                 // 5
+	NTDragon                // 6
+	NTGambler               // 7 (Timberos)
+	NTGuardCaos             // 8
+	NTHealerNewbie          // 9
 )
 
 type NPC struct {

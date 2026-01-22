@@ -27,6 +27,11 @@ func (p *EquipItemPacket) Handle(buffer *network.DataBuffer, connection protocol
 		return true, nil
 	}
 
+	if char.Dead {
+		connection.Send(&outgoing.ConsoleMessagePacket{Message: "¡Estás muerto!", Font: outgoing.INFO})
+		return true, nil
+	}
+
 	itemSlot := char.Inventory.GetSlot(slot)
 	if itemSlot == nil || itemSlot.ObjectID == 0 {
 		return true, nil

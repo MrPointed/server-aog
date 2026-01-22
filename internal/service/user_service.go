@@ -11,13 +11,15 @@ type UserService struct {
 	charToConn         map[*model.Character]protocol.Connection
 	loggedCharsByIndex map[int16]*model.Character
 	mu                 sync.RWMutex
+	BodyService        *CharacterBodyService
 }
 
-func NewUserService() *UserService {
+func NewUserService(bodyService *CharacterBodyService) *UserService {
 	return &UserService{
 		loggedUsers:        make(map[protocol.Connection]bool),
 		charToConn:         make(map[*model.Character]protocol.Connection),
 		loggedCharsByIndex: make(map[int16]*model.Character),
+		BodyService:        bodyService,
 	}
 }
 

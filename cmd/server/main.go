@@ -45,13 +45,12 @@ func NewServer(addr string) *Server {
 		fmt.Printf("Critical error loading cities: %v\n", err)
 	}
 
-	userService := service.NewUserService()
+	bodyService := service.NewCharacterBodyService()
+	userService := service.NewUserService(bodyService)
 
-	mapDAO := persistence.NewMapDAO("../../resources/maps", 150) // Loading 150 maps for now
+	mapDAO := persistence.NewMapDAO("../../resources/maps", 10) // Loading 10 maps for now
 	mapService := service.NewMapService(mapDAO, objectService, npcService)
 	mapService.LoadMaps()
-
-	bodyService := service.NewCharacterBodyService()
 
 	executor := actions.NewActionExecutor[*service.MapService](mapService)
 	executor.Start()

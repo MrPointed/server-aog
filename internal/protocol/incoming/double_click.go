@@ -90,7 +90,8 @@ func (p *DoubleClickPacket) Handle(buffer *network.DataBuffer, connection protoc
 		}
 
 		switch npc.NPC.Type {
-		case model.NTMerchant:
+		case model.NTCommon:
+			// TODO: Check if it actually trades (props["Comercia"] == "1")
 			if user.Dead {
 				connection.Send(&outgoing.ConsoleMessagePacket{Message: "¡Estás muerto!", Font: outgoing.INFO})
 				return true, nil
@@ -114,7 +115,7 @@ func (p *DoubleClickPacket) Handle(buffer *network.DataBuffer, connection protoc
 			// TODO: IniciarDeposito(user)
 			connection.Send(&outgoing.ConsoleMessagePacket{Message: "Banca no implementada aún.", Font: outgoing.INFO})
 
-		case model.NTHealer:
+		case model.NTHealer, model.NTHealerNewbie:
 			if dist > 10 {
 				connection.Send(&outgoing.ConsoleMessagePacket{Message: "El sacerdote no puede curarte debido a que estás demasiado lejos.", Font: outgoing.INFO})
 				return true, nil
@@ -124,7 +125,11 @@ func (p *DoubleClickPacket) Handle(buffer *network.DataBuffer, connection protoc
 				// Resurrect
 				user.Dead = false
 				user.Hp = 1
-				// TODO: Restore body/head graphics
+				
+				// Restore body/head graphics
+				user.Body = p.UserService.BodyService.GetBody(user.Race, user.Gender)
+				user.Head = user.OriginalHead
+				
 				connection.Send(&outgoing.UpdateUserStatsPacket{
 					Hp:        user.Hp,
 					MaxHp:     user.MaxHp,
@@ -134,7 +139,10 @@ func (p *DoubleClickPacket) Handle(buffer *network.DataBuffer, connection protoc
 					MaxStamina: user.MaxStamina,
 					Exp:       user.Exp,
 				})
+				
+				// Notify the area about the character change (resurrected appearance)
 				p.AreaService.BroadcastToArea(user.Position, &outgoing.CharacterChangePacket{Character: user})
+				
 				connection.Send(&outgoing.ConsoleMessagePacket{Message: "Has resucitado.", Font: outgoing.INFO})
 			}
 

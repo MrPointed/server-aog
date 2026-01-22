@@ -96,7 +96,12 @@ type LoginService struct {
 		return err
 	}
 
-	char.Body = body
+	if char.Dead {
+		char.Body = 8
+		char.Head = 500
+	} else {
+		char.Body = body
+	}
 
 	s.finalizeLogin(conn, acc, char)
 	return nil
@@ -120,6 +125,11 @@ func (s *LoginService) ConnectExistingCharacter(conn protocol.Connection, nick, 
 	char, err := s.charDAO.Load(nick)
 	if err != nil {
 		return err
+	}
+
+	if char.Dead {
+		char.Body = 8
+		char.Head = 500
 	}
 
 	if char.Body == 0 {

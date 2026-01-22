@@ -67,7 +67,7 @@ func (p *LeftClickPacket) Handle(buffer *network.DataBuffer, connection protocol
 	user.TargetObj = 0
 	user.TargetNPC = 0
 	user.TargetUser = 0
-	user.TargetNpcType = model.NTNone
+	user.TargetNpcType = model.NTCommon
 
 	// Check Objects
 	var targetObj *model.WorldObject
