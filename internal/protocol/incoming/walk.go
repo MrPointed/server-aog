@@ -53,6 +53,46 @@ func (p *WalkPacket) Handle(buffer *network.DataBuffer, connection protocol.Conn
 		// Update tile in MapService atomicity
 		p.MapService.PutCharacterAtPos(char, newPos)
 
+		// Check for Map Change (Tile Exit)
+		gameMap := p.MapService.GetMap(newPos.Map)
+		if gameMap != nil {
+			tile := gameMap.GetTile(int(newPos.X), int(newPos.Y))
+			if tile.TileExit != nil {
+				targetMap := tile.TileExit.Map
+				targetX := tile.TileExit.X
+				targetY := tile.TileExit.Y
+
+				// 1. Remove from current map
+				p.MapService.RemoveCharacter(char)
+				p.AreaService.BroadcastToArea(oldPos, &outgoing.CharacterRemovePacket{CharIndex: char.CharIndex})
+
+				// 2. Set new position
+				char.Position = model.Position{X: targetX, Y: targetY, Map: targetMap}
+
+				// 3. Add to new map
+				p.MapService.PutCharacterAtPos(char, char.Position)
+
+				// 4. Send ChangeMap to client
+				connection.Send(&outgoing.ChangeMapPacket{MapId: targetMap, Version: 0})
+
+				// 5. Force Client Position Update
+				connection.Send(&outgoing.PosUpdatePacket{
+					X: char.Position.X,
+					Y: char.Position.Y,
+				})
+
+				// 6. Send PlayMidi (TODO: Fetch correct MIDI)
+				connection.Send(&outgoing.PlayWavePacket{Wave: 0}) // Placeholder
+
+				// 7. Update Area
+				connection.Send(&outgoing.AreaChangedPacket{Position: char.Position})
+				p.AreaService.SendAreaState(char)
+				p.AreaService.BroadcastToArea(char.Position, &outgoing.CharacterCreatePacket{Character: char})
+
+				return true, nil
+			}
+		}
+
 		// Check area change
 		oldAX, oldAY := p.AreaService.GetArea(oldPos.X, oldPos.Y)
 		newAX, newAY := p.AreaService.GetArea(char.Position.X, char.Position.Y)

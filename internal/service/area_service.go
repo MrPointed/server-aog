@@ -152,3 +152,49 @@ func (s *AreaService) NotifyMovement(char *model.Character, oldPos model.Positio
 		}
 	}
 }
+
+func (s *AreaService) SendAreaState(char *model.Character) {
+	conn := s.userService.GetConnection(char)
+	if conn == nil {
+		return
+	}
+
+	gameMap := s.mapService.GetMap(char.Position.Map)
+	if gameMap == nil {
+		return
+	}
+
+	for y := 0; y < 100; y++ {
+		for x := 0; x < 100; x++ {
+			tile := gameMap.GetTile(x, y)
+			
+			// Objects
+			if tile.Object != nil {
+				objPos := model.Position{X: byte(x), Y: byte(y), Map: char.Position.Map}
+				if s.InRange(char.Position, objPos) {
+					conn.Send(&outgoing.ObjectCreatePacket{
+						X:            byte(x),
+						Y:            byte(y),
+						GraphicIndex: int16(tile.Object.Object.GraphicIndex),
+					})
+				}
+			}
+			
+			// NPCs
+			if tile.NPC != nil {
+				if s.InRange(char.Position, tile.NPC.Position) {
+					conn.Send(&outgoing.NpcCreatePacket{Npc: tile.NPC})
+				}
+			}
+		}
+	}
+
+	// Characters
+	for _, other := range gameMap.Characters {
+		if other != char {
+			if s.InRange(char.Position, other.Position) {
+				conn.Send(&outgoing.CharacterCreatePacket{Character: other})
+			}
+		}
+	}
+}
