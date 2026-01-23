@@ -225,6 +225,7 @@ func (s *LoginService) OnUserDisconnect(conn protocol.Connection) {
 		s.messageService.SendToAreaButUser(&outgoing.CharacterRemovePacket{CharIndex: char.CharIndex}, char.Position, char)
 
 		s.userService.LogOut(conn)
+		s.indexManager.FreeIndex(char.CharIndex)
 		// Remove from map
 		s.executor.Dispatch(func(m *MapService) {
 			m.RemoveCharacter(char)
