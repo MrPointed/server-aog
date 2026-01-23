@@ -107,6 +107,10 @@ func NewServer(addr string) *Server {
 	m.RegisterHandler(protocol.CP_UseSkillClick, &incoming.UseSkillClickPacket{SkillService: skillService})
 	m.RegisterHandler(protocol.CP_Resurrect, &incoming.ResurrectPacket{MapService: mapService, AreaService: areaService, MessageService: messageService, BodyService: bodyService})
 
+	m.RegisterHandler(protocol.CP_CommerceEnd, &incoming.CommerceEndPacket{})
+	m.RegisterHandler(protocol.CP_CommerceBuy, &incoming.CommerceBuyPacket{NpcService: npcService, ObjectService: objectService, MessageService: messageService})
+	m.RegisterHandler(protocol.CP_CommerceSell, &incoming.CommerceSellPacket{NpcService: npcService, ObjectService: objectService, MessageService: messageService})
+
 	return &Server{
 		addr:           addr,
 		packetsManager: m,

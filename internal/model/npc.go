@@ -40,6 +40,10 @@ type NPC struct {
 
 	Hostile bool
 
+	// Trading
+	CanTrade  bool
+	Inventory []InventorySlot
+
 	// Spawning
 	Movement int
 

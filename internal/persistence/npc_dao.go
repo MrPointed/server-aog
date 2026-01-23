@@ -68,7 +68,24 @@ func (d *NpcDAO) Load() (map[int]*model.NPC, error) {
 			Defense:      toInt(props["DEF"]),
 			MagicDefense: toInt(props["DEFENSAMAGICA"]),
 			Hostile:     props["HOSTILE"] == "1",
+			CanTrade:    props["COMERCIA"] == "1",
 			Movement:    toInt(props["MOVEMENT"]),
+		}
+
+		if npc.CanTrade {
+			nroItems := toInt(props["NROITEMS"])
+			for i := 1; i <= nroItems; i++ {
+				itemKey := fmt.Sprintf("OBJ%d", i)
+				if val, ok := props[itemKey]; ok {
+					parts := strings.Split(val, "-")
+					if len(parts) == 2 {
+						npc.Inventory = append(npc.Inventory, model.InventorySlot{
+							ObjectID: toInt(parts[0]),
+							Amount:   toInt(parts[1]),
+						})
+					}
+				}
+			}
 		}
 
 		// HP can be MinHP/MaxHP or just HP

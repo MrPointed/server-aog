@@ -60,6 +60,10 @@ func (s *NpcService) GetWorldNpcs() map[int16]*model.WorldNPC {
 	return s.worldNpcs
 }
 
+func (s *NpcService) GetWorldNpcByIndex(index int16) *model.WorldNPC {
+	return s.worldNpcs[index]
+}
+
 func (s *NpcService) MoveNpc(npc *model.WorldNPC, newPos model.Position, heading model.Heading, mapService *MapService, areaService *AreaService) {
 	oldPos := npc.Position
 	

@@ -91,17 +91,33 @@ func (p *DoubleClickPacket) Handle(buffer *network.DataBuffer, connection protoc
 
 		switch npc.NPC.Type {
 		case model.NTCommon:
-			// TODO: Check if it actually trades (props["Comercia"] == "1")
-			if user.Dead {
-				connection.Send(&outgoing.ConsoleMessagePacket{Message: "¡Estás muerto!", Font: outgoing.INFO})
+			if npc.NPC.CanTrade {
+				if user.Dead {
+					connection.Send(&outgoing.ConsoleMessagePacket{Message: "¡Estás muerto!", Font: outgoing.INFO})
+					return true, nil
+				}
+				if dist > 3 {
+					connection.Send(&outgoing.ConsoleMessagePacket{Message: "Estás demasiado lejos del vendedor.", Font: outgoing.INFO})
+					return true, nil
+				}
+
+				user.TradingNPCIndex = npc.Index
+				connection.Send(&outgoing.CommerceInitPacket{})
+				
+				// Send NPC Inventory
+				for i, slot := range npc.NPC.Inventory {
+					obj := p.ObjectService.GetObject(slot.ObjectID)
+					if obj != nil {
+						connection.Send(&outgoing.ChangeNpcInventorySlotPacket{
+							Slot:   byte(i + 1),
+							Object: obj,
+							Amount: slot.Amount,
+						})
+					}
+				}
 				return true, nil
 			}
-			if dist > 3 {
-				connection.Send(&outgoing.ConsoleMessagePacket{Message: "Estás demasiado lejos del vendedor.", Font: outgoing.INFO})
-				return true, nil
-			}
-			// TODO: IniciarComercioNPC(user)
-			connection.Send(&outgoing.ConsoleMessagePacket{Message: "Comercio no implementado aún.", Font: outgoing.INFO})
+			connection.Send(&outgoing.ConsoleMessagePacket{Message: "Este personaje no tiene nada para venderte.", Font: outgoing.INFO})
 
 		case model.NTBanker:
 			if user.Dead {

@@ -47,6 +47,10 @@ const (
 	CP_SpellInfo
 	CP_EquipItem
 	CP_ChangeHeading
+	
+	CP_CommerceBuy ClientPackets = 40
+	CP_CommerceSell ClientPackets = 42
+
 	CP_Resurrect ClientPackets = 80
 )
 
@@ -245,6 +249,10 @@ func GetOutgoingPacketID(packet OutgoingPacket) (ServerPackets, error) {
 		return SP_BlockPosition, nil
 	case *outgoing.SkillRequestTargetPacket:
 		return SP_WorkRequestTarget, nil
+	case *outgoing.CommerceInitPacket:
+		return SP_CommerceInit, nil
+	case *outgoing.ChangeNpcInventorySlotPacket:
+		return SP_ChangeNpcInventorySlot, nil
 	}
 	return 0, fmt.Errorf("unknown outgoing packet type")
 }

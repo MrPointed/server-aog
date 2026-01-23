@@ -64,6 +64,8 @@ type Character struct {
 
 	CharIndex int16
 
+	TradingNPCIndex int16
+
 	Inventory Inventory
 	Spells    []int
 	SelectedSpell int
