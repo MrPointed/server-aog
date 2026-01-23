@@ -209,6 +209,8 @@ func GetOutgoingPacketID(packet OutgoingPacket) (ServerPackets, error) {
 		return SP_RollDice, nil
 	case *outgoing.UpdateUserStatsPacket:
 		return SP_UpdateUserStats, nil
+	case *outgoing.UpdateGoldPacket:
+		return SP_UpdateGold, nil
 	case *outgoing.UpdateHungerAndThirstPacket:
 		return SP_UpdateHungerAndThirst, nil
 	case *outgoing.UpdateStrengthAndDexterityPacket:
@@ -251,6 +253,8 @@ func GetOutgoingPacketID(packet OutgoingPacket) (ServerPackets, error) {
 		return SP_WorkRequestTarget, nil
 	case *outgoing.CommerceInitPacket:
 		return SP_CommerceInit, nil
+	case *outgoing.CommerceEndPacket:
+		return SP_CommerceEnd, nil
 	case *outgoing.ChangeNpcInventorySlotPacket:
 		return SP_ChangeNpcInventorySlot, nil
 	}

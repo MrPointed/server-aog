@@ -47,7 +47,7 @@ func (p *UseItemPacket) Handle(buffer *network.DataBuffer, connection protocol.C
 	switch obj.Type {
 	case model.OTFood:
 		char.Hunger = utils.Min(100, char.Hunger + obj.HungerPoints)
-		p.MessageService.SendToArea(outgoing.NewUpdateUserStatsPacket(char), char.Position)
+		connection.Send(outgoing.NewUpdateUserStatsPacket(char))
 		connection.Send(&outgoing.ConsoleMessagePacket{
 			Message: fmt.Sprintf("Has comido %s.", obj.Name),
 			Font:    outgoing.INFO,
@@ -68,7 +68,7 @@ func (p *UseItemPacket) Handle(buffer *network.DataBuffer, connection protocol.C
 
 	case model.OTDrink:
 		char.Thirstiness = utils.Min(100, char.Thirstiness + obj.ThirstPoints)
-		p.MessageService.SendToArea(outgoing.NewUpdateUserStatsPacket(char), char.Position)
+		connection.Send(outgoing.NewUpdateUserStatsPacket(char))
 		connection.Send(&outgoing.ConsoleMessagePacket{
 			Message: fmt.Sprintf("Has bebido %s.", obj.Name),
 			Font:    outgoing.INFO,
@@ -124,7 +124,7 @@ func (p *UseItemPacket) Handle(buffer *network.DataBuffer, connection protocol.C
 			itemSlot.ObjectID = 0
 		}
 		// Sync
-		p.MessageService.SendToArea(outgoing.NewUpdateUserStatsPacket(char), char.Position)
+		connection.Send(outgoing.NewUpdateUserStatsPacket(char))
 		connection.Send(&outgoing.ChangeInventorySlotPacket{
 			Slot:     slotIdx,
 			Object:   p.ObjectService.GetObject(itemSlot.ObjectID),
@@ -143,7 +143,7 @@ func (p *UseItemPacket) Handle(buffer *network.DataBuffer, connection protocol.C
 		itemSlot.Amount = 0
 		itemSlot.ObjectID = 0
 		// Sync
-		p.MessageService.SendToArea(outgoing.NewUpdateUserStatsPacket(char), char.Position)
+		connection.Send(&outgoing.UpdateGoldPacket{Gold: char.Gold})
 		connection.Send(&outgoing.ChangeInventorySlotPacket{
 			Slot:     slotIdx,
 			Object:   nil,

@@ -67,7 +67,7 @@ func (p *CommerceBuyPacket) Handle(buffer *network.DataBuffer, connection protoc
 		})
 		
 		// Update user stats (gold)
-		connection.Send(outgoing.NewUpdateUserStatsPacket(user))
+		connection.Send(&outgoing.UpdateGoldPacket{Gold: user.Gold})
 		
 		// Sync inventory
 		for i := 0; i < model.InventorySlots; i++ {
@@ -143,7 +143,7 @@ func (p *CommerceSellPacket) Handle(buffer *network.DataBuffer, connection proto
 	})
 
 	// Update user stats (gold)
-	connection.Send(outgoing.NewUpdateUserStatsPacket(user))
+	connection.Send(&outgoing.UpdateGoldPacket{Gold: user.Gold})
 	
 	// Sync inventory slot
 	var updatedObj *model.Object
@@ -167,6 +167,7 @@ func (p *CommerceEndPacket) Handle(buffer *network.DataBuffer, connection protoc
 	user := connection.GetUser()
 	if user != nil {
 		user.TradingNPCIndex = 0
+		connection.Send(&outgoing.CommerceEndPacket{})
 	}
 	return true, nil
 }
