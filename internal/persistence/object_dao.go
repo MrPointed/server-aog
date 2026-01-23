@@ -58,6 +58,12 @@ func (d *ObjectDAO) Load() (map[int]*model.Object, error) {
 		obj.HungerPoints = toInt(props["HUNGER_POINTS"])
 		obj.ThirstPoints = toInt(props["THIRST_POINTS"])
 
+		// Potions
+		obj.PotionType = toInt(props["POTION_TYPE"])
+		obj.MaxModifier = toInt(props["MAX_MODIFIER"])
+		obj.MinModifier = toInt(props["MIN_MODIFIER"])
+		obj.Duration = toInt(props["EFFECT_DURATION"])
+
 		// Graphics
 		obj.EquippedWeaponGraphic = toInt(props["EQUIPPED_WEAPON_GRAPHIC"])
 		obj.EquippedBodyGraphic = toInt(props["EQUIPPED_BODY_GRAPHIC"])

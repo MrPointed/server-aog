@@ -45,6 +45,7 @@ type Character struct {
 	MaxStamina  int
 	Hunger      int
 	Thirstiness int
+	Gold        int
 
 	SkillPoints int
 	Attributes  map[Attribute]byte

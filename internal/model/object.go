@@ -46,6 +46,12 @@ type Object struct {
 	HungerPoints int
 	ThirstPoints int
 	
+	// Potions
+	PotionType  int
+	MaxModifier int
+	MinModifier int
+	Duration    int
+	
 	// Requirements / Restrictions
 	ForbiddenArchetypes []UserArchetype
 	

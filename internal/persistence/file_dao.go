@@ -89,6 +89,7 @@ func (d *FileDAO) Load(nick string) (*model.Character, error) {
 	char.MaxStamina = toInt(stats["MAXSTA"])
 	char.Hunger = toInt(stats["MINHAM"])
 	char.Thirstiness = toInt(stats["MINAGU"])
+	char.Gold = toInt(stats["ORO"])
 	char.SkillPoints = toInt(stats["SKILLPTS"])
 
 	char.Attributes[model.Strength] = byte(toInt(attrs["AT1"]))
@@ -239,6 +240,7 @@ func (d *FileDAO) SaveCharacter(char *model.Character) error {
 	stats["MAXHAM"] = strconv.Itoa(100)
 	stats["MinAGU"] = strconv.Itoa(char.Thirstiness)
 	stats["MaxAGU"] = strconv.Itoa(100)
+	stats["ORO"] = strconv.Itoa(char.Gold)
 
 	// Skills
 	if data["SKILLS"] == nil { data["SKILLS"] = make(map[string]string) }

@@ -86,10 +86,69 @@ func (p *UseItemPacket) Handle(buffer *network.DataBuffer, connection protocol.C
 		p.IntervalService.UpdateLastItem(char)
 
 	case model.OTPotion:
-		// TODO: Implement potion effects (HP, Mana, etc)
+		switch obj.PotionType {
+		case 1: // Agility
+			connection.Send(&outgoing.ConsoleMessagePacket{
+				Message: "Poción de agilidad no implementada aún.",
+				Font:    outgoing.INFO,
+			})
+		case 2: // Strength
+			connection.Send(&outgoing.ConsoleMessagePacket{
+				Message: "Poción de fuerza no implementada aún.",
+				Font:    outgoing.INFO,
+			})
+		case 3: // HP
+			modifier := utils.RandomNumber(obj.MinModifier, obj.MaxModifier)
+			char.Hp = utils.Min(char.MaxHp, char.Hp + modifier)
+			connection.Send(&outgoing.ConsoleMessagePacket{
+				Message: fmt.Sprintf("Has recuperado %d puntos de vida.", modifier),
+				Font:    outgoing.INFO,
+			})
+		case 4: // Mana
+			modifier := utils.RandomNumber(obj.MinModifier, obj.MaxModifier)
+			char.Mana = utils.Min(char.MaxMana, char.Mana + modifier)
+			connection.Send(&outgoing.ConsoleMessagePacket{
+				Message: fmt.Sprintf("Has recuperado %d puntos de mana.", modifier),
+				Font:    outgoing.INFO,
+			})
+		case 5: // Poison
+			char.Poisoned = false
+			connection.Send(&outgoing.ConsoleMessagePacket{
+				Message: "Te has curado del envenenamiento.",
+				Font:    outgoing.INFO,
+			})
+		}
+		// Consumption logic
+		itemSlot.Amount--
+		if itemSlot.Amount <= 0 {
+			itemSlot.ObjectID = 0
+		}
+		// Sync
+		p.MessageService.SendToArea(outgoing.NewUpdateUserStatsPacket(char), char.Position)
+		connection.Send(&outgoing.ChangeInventorySlotPacket{
+			Slot:     slotIdx,
+			Object:   p.ObjectService.GetObject(itemSlot.ObjectID),
+			Amount:   itemSlot.Amount,
+			Equipped: itemSlot.Equipped,
+		})
+		p.IntervalService.UpdateLastItem(char)
+
+	case model.OTMoney:
+		goldAmount := itemSlot.Amount
+		char.Gold += goldAmount
 		connection.Send(&outgoing.ConsoleMessagePacket{
-			Message: "Las pociones no están implementadas aún.",
+			Message: fmt.Sprintf("Has guardado %d monedas de oro en tu billetera.", goldAmount),
 			Font:    outgoing.INFO,
+		})
+		itemSlot.Amount = 0
+		itemSlot.ObjectID = 0
+		// Sync
+		p.MessageService.SendToArea(outgoing.NewUpdateUserStatsPacket(char), char.Position)
+		connection.Send(&outgoing.ChangeInventorySlotPacket{
+			Slot:     slotIdx,
+			Object:   nil,
+			Amount:   0,
+			Equipped: false,
 		})
 		p.IntervalService.UpdateLastItem(char)
 
