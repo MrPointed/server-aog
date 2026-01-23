@@ -2,6 +2,7 @@ package service
 
 import (
 	"math/rand"
+
 	"github.com/ao-go-server/internal/model"
 	"github.com/ao-go-server/internal/utils"
 )
@@ -21,7 +22,7 @@ func (f *CombatFormulas) GetShieldEvasionPower(char *model.Character) int {
 	if mod == nil {
 		return 0
 	}
-	return int(float32(char.Skills[model.Defense]) * mod.Shield) / 2
+	return int(float32(char.Skills[model.Defense])*mod.Shield) / 2
 }
 
 func (f *CombatFormulas) GetEvasionPower(char *model.Character) int {
@@ -29,11 +30,11 @@ func (f *CombatFormulas) GetEvasionPower(char *model.Character) int {
 	if mod == nil {
 		return 0
 	}
-	
+
 	skillTactics := char.Skills[model.CombatTactics]
 	agility := int(char.Attributes[model.Dexterity])
-	
-	lTemp := float32(skillTactics + skillTactics / 33 * agility) * mod.Evasion
+
+	lTemp := float32(skillTactics+skillTactics/33*agility) * mod.Evasion
 	return int(lTemp + (2.5 * float32(utils.Max(int(char.Level)-12, 0))))
 }
 
@@ -43,15 +44,16 @@ func (f *CombatFormulas) GetAttackPower(char *model.Character, weapon *model.Obj
 		return 0
 	}
 
+	var power int
 	if weapon == nil {
-		return f.calculateAttackPower(char, char.Skills[model.Wrestling], mod.WrestlingAttack)
+		power = f.calculateAttackPower(char, char.Skills[model.Wrestling], mod.WrestlingAttack)
+	} else if weapon.Ranged {
+		power = f.calculateAttackPower(char, char.Skills[model.Projectiles], mod.ProjectileAttack) + weapon.MaxHit
+	} else {
+		power = f.calculateAttackPower(char, char.Skills[model.MeleeCombat], mod.MeleeAttack) + weapon.MaxHit
 	}
 
-	if weapon.Ranged {
-		return f.calculateAttackPower(char, char.Skills[model.Projectiles], mod.ProjectileAttack)
-	}
-
-	return f.calculateAttackPower(char, char.Skills[model.MeleeCombat], mod.MeleeAttack)
+	return power
 }
 
 func (f *CombatFormulas) calculateAttackPower(char *model.Character, skill int, mod float32) int {
@@ -83,33 +85,37 @@ func (f *CombatFormulas) CalculateDamage(attacker *model.Character, weapon *mode
 	}
 
 	var weaponDmg int
+	var maxWeaponDmg int
 	var modClase float32
 
 	if weapon != nil {
 		weaponDmg = utils.RandomNumber(weapon.MinHit, weapon.MaxHit)
+		maxWeaponDmg = weapon.MaxHit
 		if weapon.Ranged {
 			modClase = mod.ProjectileDamage
 		} else {
 			modClase = mod.MeleeDamage
 		}
 	} else {
-		weaponDmg = utils.RandomNumber(4, 9)
+		// Wrestling damage (base 4-9)
+		minWrestling := 4
+		maxWrestling := 9
+
+		// TODO: Add gloves bonus if applicable (currently in ring slot in AO)
+
+		weaponDmg = utils.RandomNumber(minWrestling, maxWrestling)
+		maxWeaponDmg = maxWrestling
 		modClase = mod.WrestlingDamage
 	}
 
-	userDmg := utils.RandomNumber(int(attacker.Attributes[model.Strength])/3, int(attacker.Attributes[model.Strength])/2)
-	
-	// Simplified formula from CalcularDano
-	// CalcularDano = (3 * DanoArma + ((DanoMaxArma / 5) * MaximoInt(0, .Stats.UserAtributos(eAtributos.Fuerza) - 15)) + DanoUsuario) * ModifClase
-	
-	var strengthBonus int
-	if weapon != nil {
-		strengthBonus = (weapon.MaxHit / 5) * utils.Max(0, int(attacker.Attributes[model.Strength])-15)
-	} else {
-		strengthBonus = (9 / 5) * utils.Max(0, int(attacker.Attributes[model.Strength])-15)
-	}
+	userDmg := utils.RandomNumber(attacker.MinHit, attacker.MaxHit)
 
-	totalDmg := float32(3*weaponDmg + strengthBonus + userDmg) * modClase
+	// Official formula: (3 * DanoArma + ((DanoMaxArma / 5) * MaximoInt(0, Fuerza - 15)) + DanoUsuario) * ModifClase
+
+	strength := int(attacker.Attributes[model.Strength])
+	strengthBonus := (maxWeaponDmg / 5) * utils.Max(0, strength-15)
+
+	totalDmg := float32(3*weaponDmg+strengthBonus+userDmg) * modClase
 	return int(totalDmg)
 }
 

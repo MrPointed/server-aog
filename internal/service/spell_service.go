@@ -10,22 +10,24 @@ import (
 )
 
 type SpellService struct {
-	dao            *persistence.SpellDAO
-	userService    *UserService
-	messageService *MessageService
-	objectService  *ObjectService
-	intervals      *IntervalService
-	spells         map[int]*model.Spell
+	dao             *persistence.SpellDAO
+	userService     *UserService
+	messageService  *MessageService
+	objectService   *ObjectService
+	intervals       *IntervalService
+	trainingService *TrainingService
+	spells          map[int]*model.Spell
 }
 
-func NewSpellService(dao *persistence.SpellDAO, userService *UserService, messageService *MessageService, objectService *ObjectService, intervals *IntervalService) *SpellService {
+func NewSpellService(dao *persistence.SpellDAO, userService *UserService, messageService *MessageService, objectService *ObjectService, intervals *IntervalService, trainingService *TrainingService) *SpellService {
 	return &SpellService{
-		dao:            dao,
-		userService:    userService,
-		messageService: messageService,
-		objectService:  objectService,
-		intervals:      intervals,
-		spells:         make(map[int]*model.Spell),
+		dao:             dao,
+		userService:     userService,
+		messageService:  messageService,
+		objectService:   objectService,
+		intervals:       intervals,
+		trainingService: trainingService,
+		spells:          make(map[int]*model.Spell),
 	}
 }
 
@@ -274,6 +276,10 @@ func (s *SpellService) applySpellToNPC(caster *model.Character, target *model.Wo
 	// Damage
 	if spell.SubeHP == 2 {
 		amount := rand.Intn(spell.MaxHP-spell.MinHP+1) + spell.MinHP
+		
+		// Grant experience proportional to damage
+		s.grantExperience(caster, target, amount)
+
 		target.HP -= amount
 		s.messageService.SendConsoleMessage(caster, fmt.Sprintf("Has quitado %d puntos a la criatura.", amount), outgoing.FIGHT)
 		
@@ -291,9 +297,12 @@ func (s *SpellService) applySpellToNPC(caster *model.Character, target *model.Wo
 func (s *SpellService) handleNpcDeath(caster *model.Character, target *model.WorldNPC) {
 	s.messageService.SendToArea(&outgoing.CharacterRemovePacket{CharIndex: target.Index}, target.Position)
 	
-	caster.Exp += target.NPC.Exp
-	s.messageService.SendConsoleMessage(caster, fmt.Sprintf("¡Has matado a la criatura! Ganaste %d exp.", target.NPC.Exp), outgoing.INFO)
-	s.messageService.userService.GetConnection(caster).Send(outgoing.NewUpdateUserStatsPacket(caster))
+	if target.RemainingExp > 0 {
+		caster.Exp += target.RemainingExp
+		s.messageService.SendConsoleMessage(caster, fmt.Sprintf("¡Has matado a la criatura! Ganaste %d exp.", target.RemainingExp), outgoing.INFO)
+		target.RemainingExp = 0
+		s.trainingService.CheckLevel(caster)
+	}
 
 	// Drop items
 	for _, drop := range target.NPC.Drops {
@@ -315,6 +324,30 @@ func (s *SpellService) handleNpcDeath(caster *model.Character, target *model.Wor
 	}
 
 	s.messageService.MapService.RemoveNPC(target)
+}
+
+func (s *SpellService) grantExperience(attacker *model.Character, victim *model.WorldNPC, damage int) {
+	if victim.NPC.MaxHp == 0 || victim.NPC.Exp == 0 || victim.RemainingExp <= 0 {
+		return
+	}
+
+	expToGive := int(float32(damage) * (float32(victim.NPC.Exp) / float32(victim.NPC.MaxHp)))
+	
+	// Ensure at least 1 exp if damage was dealt and there's exp left
+	if expToGive == 0 && damage > 0 && victim.RemainingExp > 0 {
+		expToGive = 1
+	}
+
+	if expToGive > victim.RemainingExp {
+		expToGive = victim.RemainingExp
+	}
+
+	if expToGive > 0 {
+		attacker.Exp += expToGive
+		victim.RemainingExp -= expToGive
+		s.messageService.SendConsoleMessage(attacker, fmt.Sprintf("Has ganado %d puntos de experiencia.", expToGive), outgoing.FIGHT)
+		s.trainingService.CheckLevel(attacker)
+	}
 }
 
 func (s *SpellService) applySpellToPosition(caster *model.Character, pos model.Position, spell *model.Spell) {

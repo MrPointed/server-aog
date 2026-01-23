@@ -75,6 +75,12 @@ func (d *FileDAO) Load(nick string) (*model.Character, error) {
 
 	char.Level = byte(toInt(stats["ELV"]))
 	char.Exp = toInt(stats["EXP"])
+	char.ExpToNext = toInt(stats["ELU"])
+	if char.ExpToNext == 0 {
+		char.ExpToNext = 300 // Default for lvl 1
+	}
+	char.MinHit = toInt(stats["MINHIT"])
+	char.MaxHit = toInt(stats["MAXHIT"])
 	char.Hp = toInt(stats["MINHP"])
 	char.MaxHp = toInt(stats["MAXHP"])
 	char.Mana = toInt(stats["MINMAN"])
@@ -83,6 +89,7 @@ func (d *FileDAO) Load(nick string) (*model.Character, error) {
 	char.MaxStamina = toInt(stats["MAXSTA"])
 	char.Hunger = toInt(stats["MINHAM"])
 	char.Thirstiness = toInt(stats["MINAGU"])
+	char.SkillPoints = toInt(stats["SKILLPTS"])
 
 	char.Attributes[model.Strength] = byte(toInt(attrs["AT1"]))
 	char.Attributes[model.Dexterity] = byte(toInt(attrs["AT2"]))
@@ -110,9 +117,12 @@ func (d *FileDAO) Load(nick string) (*model.Character, error) {
 			val := inventory[key]
 			if val != "" {
 				parts := strings.Split(val, "-")
-				if len(parts) == 2 {
+				if len(parts) >= 2 {
 					char.Inventory.Slots[i].ObjectID = toInt(parts[0])
 					char.Inventory.Slots[i].Amount = toInt(parts[1])
+					if len(parts) >= 3 {
+						char.Inventory.Slots[i].Equipped = toInt(parts[2]) == 1
+					}
 				}
 			}
 		}
@@ -217,6 +227,8 @@ func (d *FileDAO) SaveCharacter(char *model.Character) error {
 	stats := data["STATS"]
 	stats["ELV"] = strconv.Itoa(int(char.Level))
 	stats["EXP"] = strconv.Itoa(char.Exp)
+	stats["MINHIT"] = strconv.Itoa(char.MinHit)
+	stats["MAXHIT"] = strconv.Itoa(char.MaxHit)
 	stats["MINHP"] = strconv.Itoa(char.Hp)
 	stats["MAXHP"] = strconv.Itoa(char.MaxHp)
 	stats["MINMAN"] = strconv.Itoa(char.Mana)
@@ -274,6 +286,8 @@ func (d *FileDAO) CreateAccountAndCharacter(nick, password, mail string, race mo
 	char.Head = head
 	char.Position = model.Position{X: city.X, Y: city.Y, Map: city.Map}
 	char.Attributes = attributes
+	char.MinHit = 1
+	char.MaxHit = 2
 	char.MaxHp = 20
 	char.Hp = 20
 	char.MaxMana = 100

@@ -32,6 +32,10 @@ type Character struct {
 	Archetype   UserArchetype
 	Level       byte
 	Exp         int
+	ExpToNext   int
+
+	MinHit      int
+	MaxHit      int
 
 	Hp          int
 	MaxHp       int
@@ -42,7 +46,8 @@ type Character struct {
 	Hunger      int
 	Thirstiness int
 
-	Attributes map[Attribute]byte
+	SkillPoints int
+	Attributes  map[Attribute]byte
 	Skills     map[Skill]int
 
 	Position Position
@@ -142,6 +147,7 @@ func NewCharacter(name string, race Race, gender Gender, archetype UserArchetype
 		Gender:    gender,
 		Archetype: archetype,
 		Level:     1,
+		ExpToNext: 300,
 		Attributes: make(map[Attribute]byte),
 		Skills:     make(map[Skill]int),
 	}

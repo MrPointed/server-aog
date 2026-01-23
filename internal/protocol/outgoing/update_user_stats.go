@@ -28,7 +28,7 @@ func NewUpdateUserStatsPacket(char *model.Character) *UpdateUserStatsPacket {
 		Stamina:     char.Stamina,
 		Money:       0, // TODO Money in Character
 		Level:       char.Level,
-		ExpToNext:   0, // TODO ExpToNext
+		ExpToNext:   char.ExpToNext,
 		Exp:         char.Exp,
 	}
 }

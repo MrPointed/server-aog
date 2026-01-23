@@ -44,11 +44,12 @@ func (s *NpcService) SpawnNpc(id int, pos model.Position) *model.WorldNPC {
 	}
 
 	worldNpc := &model.WorldNPC{
-		NPC:      def,
-		Position: pos,
-		Heading:  def.Heading,
-		HP:       def.MaxHp,
-		Index:    s.indexManager.AssignIndex(),
+		NPC:          def,
+		Position:     pos,
+		Heading:      def.Heading,
+		HP:           def.MaxHp,
+		RemainingExp: def.Exp,
+		Index:        s.indexManager.AssignIndex(),
 	}
 
 	s.worldNpcs[worldNpc.Index] = worldNpc

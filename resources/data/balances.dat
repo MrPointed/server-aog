@@ -1,29 +1,29 @@
-[MODRAZA]
-HumanoFuerza = +1
-HumanoAgilidad = +1
-HumanoInteligencia = 0
-HumanoCarisma = 0
-HumanoConstitucion = +2
-ElfoFuerza = -1
-ElfoAgilidad = +4
-ElfoInteligencia = +2
-ElfoCarisma = +2
-ElfoConstitucion = +1
-DrowFuerza = +2
-DrowAgilidad = +2
-DrowInteligencia = +2
-DrowCarisma = -3
-DrowConstitucion = 0
-EnanoFuerza = +3
-EnanoAgilidad = -1
-EnanoInteligencia = -6
-EnanoCarisma = -2
-EnanoConstitucion = +3
-GnomoFuerza = -4
-GnomoAgilidad = +3
-GnomoInteligencia = +3
-GnomoCarisma = +1
-GnomoConstitucion = 0
+[MODRACE]
+HumanStrength = +1
+HumanDexterity = +1
+HumanIntelligence = 0
+HumanCharisma = 0
+HumanConstitution = +2
+ElfStrength = -1
+ElfDexterity = +4
+ElfIntelligence = +2
+ElfCharisma = +2
+ElfConstitution = +1
+DrowStrength = +2
+DrowDexterity = +2
+DrowIntelligence = +2
+DrowCharisma = -3
+DrowConstitution = 0
+DwarfStrength = +3
+DwarfDexterity = -1
+DwarfIntelligence = -6
+DwarfCharisma = -2
+DwarfConstitution = +3
+GnomeStrength = -4
+GnomeDexterity = +3
+GnomeIntelligence = +3
+GnomeCharisma = +1
+GnomeConstitution = 0
 
 [MODEVASION]
 Guerrero = 1
@@ -44,7 +44,7 @@ Herrero = 0.8
 Carpintero = 0.8
 Trabajador = 0.8
 
-[MODATAQUEARMAS]
+[MODWEAPONATTACK]
 Guerrero = 1
 Cazador = 0.8
 Paladin = 0.95
@@ -63,7 +63,7 @@ Herrero = 0.6
 Carpintero = 0.6
 Trabajador = 0.8
 
-[MODATAQUEPROYECTILES]
+[MODRANGEDATTACK]
 Guerrero = 0.8
 Cazador = 1
 Paladin = 0.75
@@ -82,7 +82,7 @@ Herrero = 0.65
 Carpintero = 0.7
 Trabajador = 0.7
 
-[MODDAÑOARMAS]
+[MODWEAPONDAMAGE]
 Guerrero = 1.1
 Cazador = 0.9
 Paladin = 0.925
@@ -101,7 +101,7 @@ Herrero = 0.8
 Carpintero = 0.8
 Trabajador = 0.8
 
-[MODDAÑOPROYECTILES]
+[MODRANGEDDAMAGE]
 Guerrero = 0.9
 Cazador = 1.1
 Paladin = 0.8
@@ -120,7 +120,7 @@ Herrero = 0.7
 Carpintero = 0.7
 Trabajador = 0.7
 
-[MODDAÑOWRESTLING]
+[MODWRESTLINGDAMAGE]
 Guerrero = 0.4
 Cazador = 0.4
 Paladin = 0.4
@@ -139,7 +139,7 @@ Herrero = 0.4
 Carpintero = 0.4
 Trabajador = 0.5
 
-[MODESCUDO]
+[MODSHIELD]
 Guerrero = 1
 Cazador = 0.8
 Paladin = 1
@@ -158,7 +158,7 @@ Herrero = 0.7
 Carpintero = 0.7
 Trabajador = 0.7
 
-[MODVIDA]
+[MODHP]
 Guerrero = 10
 Cazador = 9.5
 Paladin = 9.5

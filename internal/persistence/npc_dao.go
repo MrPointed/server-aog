@@ -43,6 +43,14 @@ func (d *NpcDAO) Load() (map[int]*model.NPC, error) {
 			npcTypeStr = props["NPCTYPE"]
 		}
 
+		exp := toInt(props["EXP"])
+		if exp == 0 {
+			exp = toInt(props["GIVEEXP"])
+			if exp == 0 {
+				exp = toInt(props["GIVE_EXP"])
+			}
+		}
+
 		npc := &model.NPC{
 			ID:          id,
 			Name:        props["NAME"],
@@ -52,7 +60,7 @@ func (d *NpcDAO) Load() (map[int]*model.NPC, error) {
 			Body:        toInt(props["BODY"]),
 			Heading:     model.Heading(toInt(props["HEADING"]) - 1),
 			Level:       toInt(props["LEVEL"]),
-			Exp:         toInt(props["EXP"]),
+			Exp:         exp,
 			MinHit:      toInt(props["MIN_HIT"]),
 			MaxHit:      toInt(props["MAX_HIT"]),
 			AttackPower:  toInt(props["PODERATAQUE"]),

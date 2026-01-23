@@ -75,6 +75,8 @@ func (d *ObjectDAO) Load() (map[int]*model.Object, error) {
 
 		if p, ok := props["PROYECTIL"]; ok {
 			obj.Ranged = p == "1"
+		} else if p, ok := props["RANGED_WEAPON"]; ok {
+			obj.Ranged = p == "1"
 		}
 
 		// Doors

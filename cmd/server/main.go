@@ -65,7 +65,8 @@ func NewServer(addr string) *Server {
 
 	areaService := service.NewAreaService(mapService, userService)
 	messageService := service.NewMessageService(userService, areaService, mapService)
-	combatService := service.NewCombatService(messageService, objectService, mapService, combatFormulas, intervalService)
+	trainingService := service.NewTrainingService(messageService, userService, archetypeMods)
+	combatService := service.NewCombatService(messageService, objectService, mapService, combatFormulas, intervalService, trainingService)
 	timedEventsService := service.NewTimedEventsService(userService, messageService)
 	timedEventsService.Start()
 
@@ -73,7 +74,7 @@ func NewServer(addr string) *Server {
 	aiService.Start()
 
 	spellDAO := persistence.NewSpellDAO("../../resources/data/hechizos.dat")
-	spellService := service.NewSpellService(spellDAO, userService, messageService, objectService, intervalService)
+	spellService := service.NewSpellService(spellDAO, userService, messageService, objectService, intervalService, trainingService)
 	if err := spellService.LoadSpells(); err != nil {
 		fmt.Printf("Critical error loading spells: %v\n", err)
 	}

@@ -26,26 +26,25 @@ func (d *BalanceDAO) Load() (map[model.UserArchetype]*model.ArchetypeModifiers, 
 raceModifiers := make(map[model.Race]*model.RaceModifiers)
 
 	// Races
-	if modRaza, ok := data["MODRAZA"]; ok {
-	
-races := []struct {
-		name model.Race
-		prefix string
-	}{
-			{model.Human, "HUMANO"},
-			{model.Elf, "ELFO"},
-			{model.DarkElf, "DROW"},
-			{model.Gnome, "GNOMO"},
-			{model.Dwarf, "ENANO"},
+	if modRace, ok := data["MODRACE"]; ok {
+		races := []struct {
+			name   model.Race
+			prefix string
+		}{
+			{model.Human, "Human"},
+			{model.Elf, "Elf"},
+			{model.DarkElf, "Drow"},
+			{model.Gnome, "Gnome"},
+			{model.Dwarf, "Dwarf"},
 		}
 
 		for _, r := range races {
 			raceModifiers[r.name] = &model.RaceModifiers{
-				Strength:     toInt(modRaza[r.prefix+"FUERZA"]),
-				Dexterity:    toInt(modRaza[r.prefix+"AGILIDAD"]),
-				Intelligence: toInt(modRaza[r.prefix+"INTELIGENCIA"]),
-				Charisma:     toInt(modRaza[r.prefix+"CARISMA"]),
-				Constitution: toInt(modRaza[r.prefix+"CONSTITUCION"]),
+				Strength:     toInt(modRace[r.prefix+"Strength"]),
+				Dexterity:    toInt(modRace[r.prefix+"Dexterity"]),
+				Intelligence: toInt(modRace[r.prefix+"Intelligence"]),
+				Charisma:     toInt(modRace[r.prefix+"Charisma"]),
+				Constitution: toInt(modRace[r.prefix+"Constitution"]),
 			}
 		}
 	}
@@ -87,37 +86,37 @@ races := []struct {
 				mod.Evasion = toFloat32(val)
 			}
 		}
-		if sec, ok := data["MODATAQUEARMAS"]; ok {
+		if sec, ok := data["MODWEAPONATTACK"]; ok {
 			if val, ok := sec[a.name]; ok {
 				mod.MeleeAttack = toFloat32(val)
 			}
 		}
-		if sec, ok := data["MODATAQUEPROYECTILES"]; ok {
+		if sec, ok := data["MODRANGEDATTACK"]; ok {
 			if val, ok := sec[a.name]; ok {
 				mod.ProjectileAttack = toFloat32(val)
 			}
 		}
-		if sec, ok := data["MODDAÑOARMAS"]; ok {
+		if sec, ok := data["MODWEAPONDAMAGE"]; ok {
 			if val, ok := sec[a.name]; ok {
 				mod.MeleeDamage = toFloat32(val)
 			}
 		}
-		if sec, ok := data["MODDAÑOPROYECTILES"]; ok {
+		if sec, ok := data["MODRANGEDDAMAGE"]; ok {
 			if val, ok := sec[a.name]; ok {
 				mod.ProjectileDamage = toFloat32(val)
 			}
 		}
-		if sec, ok := data["MODDAÑOWRESTLING"]; ok {
+		if sec, ok := data["MODWRESTLINGDAMAGE"]; ok {
 			if val, ok := sec[a.name]; ok {
 				mod.WrestlingDamage = toFloat32(val)
 			}
 		}
-		if sec, ok := data["MODESCUDO"]; ok {
+		if sec, ok := data["MODSHIELD"]; ok {
 			if val, ok := sec[a.name]; ok {
 				mod.Shield = toFloat32(val)
 			}
 		}
-		if sec, ok := data["MODVIDA"]; ok {
+		if sec, ok := data["MODHP"]; ok {
 			if val, ok := sec[a.name]; ok {
 				mod.HP = toFloat32(val)
 			}

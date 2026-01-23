@@ -52,9 +52,10 @@ type NPCDrop struct {
 }
 
 type WorldNPC struct {
-	NPC      *NPC
-	Position Position
-	Heading  Heading
-	HP       int
-	Index    int16
+	NPC          *NPC
+	Position     Position
+	Heading      Heading
+	HP           int
+	RemainingExp int
+	Index        int16
 }

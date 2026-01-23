@@ -26,7 +26,7 @@ func (p *DoubleClickPacket) Handle(buffer *network.DataBuffer, connection protoc
 
 	rawX, _ := buffer.Get()
 	rawY, _ := buffer.Get()
-	
+
 	x := rawX - 1
 	y := rawY - 1
 
@@ -120,42 +120,42 @@ func (p *DoubleClickPacket) Handle(buffer *network.DataBuffer, connection protoc
 				connection.Send(&outgoing.ConsoleMessagePacket{Message: "El sacerdote no puede curarte debido a que estás demasiado lejos.", Font: outgoing.INFO})
 				return true, nil
 			}
-			
+
 			if user.Dead {
 				// Resurrect
 				user.Dead = false
 				user.Hp = 1
-				
+
 				// Restore body/head graphics
 				user.Body = p.UserService.BodyService.GetBody(user.Race, user.Gender)
 				user.Head = user.OriginalHead
-				
+
 				connection.Send(&outgoing.UpdateUserStatsPacket{
-					Hp:        user.Hp,
-					MaxHp:     user.MaxHp,
-					Mana:      user.Mana,
-					MaxMana:   user.MaxMana,
-					Stamina:   user.Stamina,
+					Hp:         user.Hp,
+					MaxHp:      user.MaxHp,
+					Mana:       user.Mana,
+					MaxMana:    user.MaxMana,
+					Stamina:    user.Stamina,
 					MaxStamina: user.MaxStamina,
-					Exp:       user.Exp,
+					Exp:        user.Exp,
 				})
-				
+
 				// Notify the area about the character change (resurrected appearance)
 				p.AreaService.BroadcastToArea(user.Position, &outgoing.CharacterChangePacket{Character: user})
-				
+
 				connection.Send(&outgoing.ConsoleMessagePacket{Message: "Has resucitado.", Font: outgoing.INFO})
 			}
 
 			if user.Hp < user.MaxHp {
 				user.Hp = user.MaxHp
 				connection.Send(&outgoing.UpdateUserStatsPacket{
-					Hp:        user.Hp,
-					MaxHp:     user.MaxHp,
-					Mana:      user.Mana,
-					MaxMana:   user.MaxMana,
-					Stamina:   user.Stamina,
+					Hp:         user.Hp,
+					MaxHp:      user.MaxHp,
+					Mana:       user.Mana,
+					MaxMana:    user.MaxMana,
+					Stamina:    user.Stamina,
 					MaxStamina: user.MaxStamina,
-					Exp:       user.Exp,
+					Exp:        user.Exp,
 				})
 				connection.Send(&outgoing.ConsoleMessagePacket{Message: "Tus heridas han sido sanadas.", Font: outgoing.INFO})
 			}
@@ -191,7 +191,7 @@ func (p *DoubleClickPacket) Handle(buffer *network.DataBuffer, connection protoc
 
 	if targetObj != nil {
 		user.TargetObj = targetObj.Object.ID
-		
+
 		dist := getDist(user.Position, tx, ty)
 		if dist > 2 {
 			connection.Send(&outgoing.ConsoleMessagePacket{Message: "Estás demasiado lejos.", Font: outgoing.INFO})
@@ -259,9 +259,9 @@ func (p *DoubleClickPacket) Handle(buffer *network.DataBuffer, connection protoc
 						Blocked: shouldBlock,
 					})
 
-					// Play Sound (SND_PUERTA = 10 approx)
+					// Play Sound
 					p.AreaService.BroadcastToArea(model.Position{X: byte(tx), Y: byte(ty), Map: mapID}, &outgoing.PlayWavePacket{
-						Wave: 10,
+						Wave: 9,
 						X:    byte(tx),
 						Y:    byte(ty),
 					})

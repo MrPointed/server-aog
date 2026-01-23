@@ -1,0 +1,321 @@
+Public Sub CheckUserLevel(ByVal Userindex As Integer, Optional ByVal PrintInConsole As Boolean = True)
+
+    '*************************************************
+    'Author: Unknown
+    'Last modified: 06/09/2019
+    'Chequea que el usuario no halla alcanzado el siguiente nivel,
+    'de lo contrario le da la vida, mana, etc, correspodiente.
+    '07/08/2006 Integer - Modificacion de los valores
+    '01/10/2007 Tavo - Corregido el BUG de STAT_MAXELV
+    '24/01/2007 Pablo (ToxicWaste) - Agrego modificaciones en ELU al subir de nivel.
+    '24/01/2007 Pablo (ToxicWaste) - Agrego modificaciones de la subida de mana de los magos por lvl.
+    '13/03/2007 Pablo (ToxicWaste) - Agrego diferencias entre el 18 y el 19 en Constitucion.
+    '09/01/2008 Pablo (ToxicWaste) - Ahora el incremento de vida por Consitucion se controla desde Balance.dat
+    '12/09/2008 Marco Vanotti (Marco) - Ahora si se llega a nivel 25 y esta en un clan, se lo expulsa para no sumar antifaccion
+    '02/03/2009 ZaMa - Arreglada la validacion de expulsion para miembros de clanes faccionarios que llegan a 25.
+    '11/19/2009 Pato - Modifico la nueva formula de mana ganada para el bandido y se la limito a 499
+    '02/04/2010: ZaMa - Modifico la ganancia de hit por nivel del ladron.
+    '08/04/2011: Amraphen - Arreglada la distribucion de probabilidades para la vida en el caso de promedio entero.
+    '06/09/2019: Jopi - Guardado de usuario al pasar de nivel.
+    '*************************************************
+    Dim Pts              As Integer
+    Dim AumentoHIT       As Integer
+    Dim AumentoMANA      As Integer
+    Dim AumentoSTA       As Integer
+    Dim AumentoHP        As Integer
+    Dim WasNewbie        As Boolean
+    Dim Promedio         As Double
+    Dim aux              As Integer
+    Dim DistVida(1 To 5) As Integer
+    Dim GI               As Integer 'Guild Index
+    
+    On Error GoTo ErrHandler
+    
+    WasNewbie = EsNewbie(Userindex)
+    
+    With UserList(Userindex)
+
+        Do While .Stats.Exp >= .Stats.ELU
+            
+            'Checkea si alcanzo el maximo nivel
+            If .Stats.ELV >= STAT_MAXELV Then
+                .Stats.Exp = 0
+                .Stats.ELU = 0
+                Exit Sub
+
+            End If
+            
+            'Store it!
+            Call Statistics.UserLevelUp(Userindex)
+            
+            If PrintInConsole Then
+                Call SendData(SendTarget.ToPCArea, Userindex, PrepareMessagePlayWave(SND_NIVEL, .Pos.X, .Pos.Y))
+                Call WriteConsoleMsg(Userindex, "Has subido de nivel!", FontTypeNames.FONTTYPE_INFO)
+            End If
+            
+            If .Stats.ELV = 1 Then
+                Pts = 10
+            Else
+                'For multiple levels being rised at once
+                Pts = Pts + 5
+
+            End If
+            
+            .Stats.ELV = .Stats.ELV + 1
+            
+            .Stats.Exp = .Stats.Exp - .Stats.ELU
+            
+            'Nueva subida de exp x lvl. Pablo (ToxicWaste)
+            If .Stats.ELV < 15 Then
+                .Stats.ELU = .Stats.ELU * 1.4
+            ElseIf .Stats.ELV < 21 Then
+                .Stats.ELU = .Stats.ELU * 1.35
+            ElseIf .Stats.ELV < 26 Then
+                .Stats.ELU = .Stats.ELU * 1.3
+            ElseIf .Stats.ELV < 35 Then
+                .Stats.ELU = .Stats.ELU * 1.2
+            ElseIf .Stats.ELV < 40 Then
+                .Stats.ELU = .Stats.ELU * 1.3
+            Else
+                .Stats.ELU = .Stats.ELU * 1.375
+
+            End If
+            
+            'Calculo subida de vida
+            Promedio = ModVida(.Clase) - (21 - .Stats.UserAtributos(eAtributos.Constitucion)) * 0.5
+            aux = RandomNumber(0, 100)
+            
+            If Promedio - Int(Promedio) = 0.5 Then
+                'Es promedio semientero
+                DistVida(1) = DistribucionSemienteraVida(1)
+                DistVida(2) = DistVida(1) + DistribucionSemienteraVida(2)
+                DistVida(3) = DistVida(2) + DistribucionSemienteraVida(3)
+                DistVida(4) = DistVida(3) + DistribucionSemienteraVida(4)
+                
+                If aux <= DistVida(1) Then
+                    AumentoHP = Promedio + 1.5
+                ElseIf aux <= DistVida(2) Then
+                    AumentoHP = Promedio + 0.5
+                ElseIf aux <= DistVida(3) Then
+                    AumentoHP = Promedio - 0.5
+                Else
+                    AumentoHP = Promedio - 1.5
+
+                End If
+
+            Else
+                'Es promedio entero
+                DistVida(1) = DistribucionEnteraVida(1)
+                DistVida(2) = DistVida(1) + DistribucionEnteraVida(2)
+                DistVida(3) = DistVida(2) + DistribucionEnteraVida(3)
+                DistVida(4) = DistVida(3) + DistribucionEnteraVida(4)
+                DistVida(5) = DistVida(4) + DistribucionEnteraVida(5)
+                
+                If aux <= DistVida(1) Then
+                    AumentoHP = Promedio + 2
+                ElseIf aux <= DistVida(2) Then
+                    AumentoHP = Promedio + 1
+                ElseIf aux <= DistVida(3) Then
+                    AumentoHP = Promedio
+                ElseIf aux <= DistVida(4) Then
+                    AumentoHP = Promedio - 1
+                Else
+                    AumentoHP = Promedio - 2
+
+                End If
+                
+            End If
+        
+            Select Case .Clase
+
+                Case eClass.Warrior
+                    AumentoHIT = IIf(.Stats.ELV > 35, 2, 3)
+                    AumentoSTA = AumentoSTDef
+                
+                Case eClass.Hunter
+                    AumentoHIT = IIf(.Stats.ELV > 35, 2, 3)
+                    AumentoSTA = AumentoSTDef
+                
+                Case eClass.Pirat
+                    AumentoHIT = 3
+                    AumentoSTA = AumentoSTDef
+                
+                Case eClass.Paladin
+                    AumentoHIT = IIf(.Stats.ELV > 35, 1, 3)
+                    AumentoMANA = .Stats.UserAtributos(eAtributos.Inteligencia)
+                    AumentoSTA = AumentoSTDef
+                
+                Case eClass.Thief
+                    AumentoHIT = 2
+                    AumentoSTA = AumentoSTLadron
+                
+                Case eClass.Mage
+                    AumentoHIT = 1
+                    AumentoMANA = 2.8 * .Stats.UserAtributos(eAtributos.Inteligencia)
+                    AumentoSTA = AumentoSTMago
+                
+                Case eClass.Worker
+                    AumentoHIT = 2
+                    AumentoSTA = AumentoSTTrabajador
+                
+                Case eClass.Cleric
+                    AumentoHIT = 2
+                    AumentoMANA = 2 * .Stats.UserAtributos(eAtributos.Inteligencia)
+                    AumentoSTA = AumentoSTDef
+                
+                Case eClass.Druid
+                    AumentoHIT = 2
+                    AumentoMANA = 2 * .Stats.UserAtributos(eAtributos.Inteligencia)
+                    AumentoSTA = AumentoSTDef
+                
+                Case eClass.Assasin
+                    AumentoHIT = IIf(.Stats.ELV > 35, 1, 3)
+                    AumentoMANA = .Stats.UserAtributos(eAtributos.Inteligencia)
+                    AumentoSTA = AumentoSTDef
+                
+                Case eClass.Bard
+                    AumentoHIT = 2
+                    AumentoMANA = 2 * .Stats.UserAtributos(eAtributos.Inteligencia)
+                    AumentoSTA = AumentoSTDef
+                    
+                Case eClass.Bandit
+                    AumentoHIT = IIf(.Stats.ELV > 35, 1, 3)
+                    AumentoMANA = .Stats.UserAtributos(eAtributos.Inteligencia) / 3 * 2
+                    AumentoSTA = AumentoStBandido
+                
+                Case Else
+                    AumentoHIT = 2
+                    AumentoSTA = AumentoSTDef
+
+            End Select
+            
+            'Actualizamos HitPoints
+            .Stats.MaxHp = .Stats.MaxHp + AumentoHP
+
+            If .Stats.MaxHp > STAT_MAXHP Then .Stats.MaxHp = STAT_MAXHP
+            
+            'Actualizamos Stamina
+            .Stats.MaxSta = .Stats.MaxSta + AumentoSTA
+
+            If .Stats.MaxSta > STAT_MAXSTA Then .Stats.MaxSta = STAT_MAXSTA
+            
+            'Actualizamos Mana
+            .Stats.MaxMAN = .Stats.MaxMAN + AumentoMANA
+
+            If .Stats.MaxMAN > STAT_MAXMAN Then .Stats.MaxMAN = STAT_MAXMAN
+            
+            'Actualizamos Golpe Maximo
+            .Stats.MaxHIT = .Stats.MaxHIT + AumentoHIT
+
+            If .Stats.ELV < 36 Then
+                If .Stats.MaxHIT > STAT_MAXHIT_UNDER36 Then .Stats.MaxHIT = STAT_MAXHIT_UNDER36
+            Else
+
+                If .Stats.MaxHIT > STAT_MAXHIT_OVER36 Then .Stats.MaxHIT = STAT_MAXHIT_OVER36
+
+            End If
+            
+            'Actualizamos Golpe Minimo
+            .Stats.MinHIT = .Stats.MinHIT + AumentoHIT
+
+            If .Stats.ELV < 36 Then
+                If .Stats.MinHIT > STAT_MAXHIT_UNDER36 Then .Stats.MinHIT = STAT_MAXHIT_UNDER36
+            Else
+
+                If .Stats.MinHIT > STAT_MAXHIT_OVER36 Then .Stats.MinHIT = STAT_MAXHIT_OVER36
+
+            End If
+            
+            
+            'Notificamos al user
+            If PrintInConsole Then
+                If AumentoHP > 0 Then
+                    Call WriteConsoleMsg(Userindex, "Has ganado " & AumentoHP & " puntos de vida.", FontTypeNames.FONTTYPE_INFO)
+
+                End If
+
+                If AumentoSTA > 0 Then
+                    Call WriteConsoleMsg(Userindex, "Has ganado " & AumentoSTA & " puntos de energia.", FontTypeNames.FONTTYPE_INFO)
+
+                End If
+
+                If AumentoMANA > 0 Then
+                    Call WriteConsoleMsg(Userindex, "Has ganado " & AumentoMANA & " puntos de mana.", FontTypeNames.FONTTYPE_INFO)
+
+                End If
+
+                If AumentoHIT > 0 Then
+                    Call WriteConsoleMsg(Userindex, "Tu golpe maximo aumento en " & AumentoHIT & " puntos.", FontTypeNames.FONTTYPE_INFO)
+                    Call WriteConsoleMsg(Userindex, "Tu golpe minimo aumento en " & AumentoHIT & " puntos.", FontTypeNames.FONTTYPE_INFO)
+
+                End If
+            End If
+            
+            Call LogDesarrollo(.Name & " paso a nivel " & .Stats.ELV & " gano HP: " & AumentoHP)
+            
+            .Stats.MinHp = .Stats.MaxHp
+
+            'If user is in a party, we modify the variable p_sumaniveleselevados
+            Call mdParty.ActualizarSumaNivelesElevados(Userindex)
+            'If user reaches lvl 25 and he is in a guild, we check the guild's alignment and expulses the user if guild has factionary alignment
+        
+            If .Stats.ELV = 25 Then
+                GI = .GuildIndex
+
+                If GI > 0 Then
+                    If modGuilds.GuildAlignment(GI) = "Del Mal" Or modGuilds.GuildAlignment(GI) = "Real" Then
+                        'We get here, so guild has factionary alignment, we have to expulse the user
+                        Call modGuilds.m_EcharMiembroDeClan(-1, .Name)
+                        
+                        If PrintInConsole Then
+                            Call SendData(SendTarget.ToGuildMembers, GI, PrepareMessageConsoleMsg(.Name & " deja el clan.", FontTypeNames.FONTTYPE_GUILD))
+                            Call WriteConsoleMsg(Userindex, "Ya tienes la madurez suficiente como para decidir bajo que estandarte pelearas! Por esta razon, hasta tanto no te enlistes en la faccion bajo la cual tu clan esta alineado, estaras excluido del mismo.", FontTypeNames.FONTTYPE_GUILD)
+                        End If
+
+                    End If
+
+                End If
+
+            End If
+
+        Loop
+        
+        'If it ceased to be a newbie, remove newbie items and get char away from newbie dungeon
+        If Not EsNewbie(Userindex) And WasNewbie Then
+            Call QuitarNewbieObj(Userindex)
+
+            If MapInfo(.Pos.Map).Restringir = eRestrict.restrict_newbie Then
+                Call WarpUserChar(Userindex, 1, 50, 50, True)
+
+                If PrintInConsole Then
+                    Call WriteConsoleMsg(Userindex, "Debes abandonar el Dungeon Newbie.", FontTypeNames.FONTTYPE_INFO)
+                End If
+
+            End If
+
+        End If
+        
+        'Send all gained skill points at once (if any)
+        If Pts > 0 Then
+            Call WriteLevelUp(Userindex, Pts)
+            
+            .Stats.SkillPts = .Stats.SkillPts + Pts
+            If PrintInConsole Then
+                Call WriteConsoleMsg(Userindex, "Has ganado un total de " & Pts & " skillpoints.", FontTypeNames.FONTTYPE_INFO)
+            End If
+
+        End If
+        
+    End With
+    
+    'Guardamos los datos del usuario.
+    Call SaveUser(Userindex, True)
+    
+    Call WriteUpdateUserStats(Userindex)
+    
+    Exit Sub
+
+ErrHandler:
+    Call LogError("Error en la subrutina CheckUserLevel - Error : " & Err.Number & " - Description : " & Err.description)
+
+End Sub
