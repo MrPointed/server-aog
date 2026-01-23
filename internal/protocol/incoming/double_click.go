@@ -18,6 +18,7 @@ type DoubleClickPacket struct {
 	ObjectService *service.ObjectService
 	AreaService   *service.AreaService
 	BankService   *service.BankService
+	SpellService  *service.SpellService
 }
 
 func (p *DoubleClickPacket) Handle(buffer *network.DataBuffer, connection protocol.Connection) (bool, error) {
@@ -139,26 +140,9 @@ func (p *DoubleClickPacket) Handle(buffer *network.DataBuffer, connection protoc
 			}
 
 			if user.Dead {
-				// Resurrect
-				user.Dead = false
-				user.Hp = 1
-
-				// Restore body/head graphics
-				user.Body = p.UserService.BodyService.GetBody(user.Race, user.Gender)
-				user.Head = user.OriginalHead
-
-				connection.Send(outgoing.NewUpdateUserStatsPacket(user))
-
-				// Notify the area about the character change (resurrected appearance)
-				p.AreaService.BroadcastToArea(user.Position, &outgoing.CharacterChangePacket{Character: user})
-
-				connection.Send(&outgoing.ConsoleMessagePacket{Message: "Has resucitado.", Font: outgoing.INFO})
-			}
-
-			if user.Hp < user.MaxHp {
-				user.Hp = user.MaxHp
-				connection.Send(outgoing.NewUpdateUserStatsPacket(user))
-				connection.Send(&outgoing.ConsoleMessagePacket{Message: "Tus heridas han sido sanadas.", Font: outgoing.INFO})
+				p.SpellService.SacerdoteResucitateUser(user)
+			} else if user.Hp < user.MaxHp {
+				p.SpellService.SacerdoteHealUser(user)
 			}
 		}
 		return true, nil

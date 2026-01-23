@@ -199,6 +199,93 @@ func (s *CombatService) resolvePVE(attacker *model.Character, victim *model.Worl
 	}
 }
 
+func (s *CombatService) NpcAtacaUser(npc *model.WorldNPC, victim *model.Character) bool {
+	if victim.Dead {
+		return false
+	}
+
+	// Check interval
+	if !s.intervals.CanNPCAttack(npc) {
+		return false
+	}
+
+	// Hit check
+	attackerPower := npc.NPC.AttackPower
+	victimEvasion := s.formulas.GetEvasionPower(victim)
+
+	// Shield bonus
+	if s.getEquippedShield(victim) != nil {
+		victimEvasion += s.formulas.GetShieldEvasionPower(victim)
+	}
+
+	chance := s.formulas.CalculateHitChance(attackerPower, victimEvasion)
+
+	if rand.Intn(100) >= chance {
+		s.messageService.SendConsoleMessage(victim, fmt.Sprintf("¡%s ha fallado el golpe!", npc.NPC.Name), outgoing.FIGHT)
+
+		// Play miss sound
+		s.messageService.SendToArea(&outgoing.PlayWavePacket{
+			Wave: 2, // SND_MISS
+			X:    victim.Position.X,
+			Y:    victim.Position.Y,
+		}, victim.Position)
+
+		// Update interval even on miss
+		s.intervals.UpdateNPCLastAttack(npc)
+		return true
+	}
+
+	// Damage calculation
+	damage := utils.RandomNumber(npc.NPC.MinHit, npc.NPC.MaxHit)
+
+	// Armor defense
+	armor := s.getEquippedArmor(victim)
+	if armor != nil {
+		defense := utils.RandomNumber(armor.MinDef, armor.MaxDef)
+		damage -= defense
+	}
+
+	if damage < 1 {
+		damage = 1
+	}
+
+	victim.Hp -= damage
+	if victim.Hp < 0 {
+		victim.Hp = 0
+	}
+
+	// Feedback
+	s.messageService.SendConsoleMessage(victim, fmt.Sprintf("¡%s te ha golpeado por %d!", npc.NPC.Name, damage), outgoing.FIGHT)
+
+	// Play hit sound
+	s.messageService.SendToArea(&outgoing.PlayWavePacket{
+		Wave: 5, // SND_HIT (Sword/Melee)
+		X:    victim.Position.X,
+		Y:    victim.Position.Y,
+	}, victim.Position)
+
+	// Blood FX
+	s.messageService.SendToArea(&outgoing.CreateFxPacket{
+		CharIndex: victim.CharIndex,
+		FxID:      1, // Blood placeholder
+		Loops:     0,
+	}, victim.Position)
+
+	if victim.Hp <= 0 {
+		s.handleCharacterDeath(victim)
+	} else {
+		connVictim := s.messageService.userService.GetConnection(victim)
+		if connVictim != nil {
+			connVictim.Send(outgoing.NewUpdateUserStatsPacket(victim))
+		}
+	}
+
+	// Update interval
+	s.intervals.UpdateNPCLastAttack(npc)
+
+	return true
+}
+
 func (s *CombatService) grantExperience(attacker *model.Character, victim *model.WorldNPC, damage int) {
 	if victim.NPC.MaxHp == 0 || victim.NPC.Exp == 0 || victim.RemainingExp <= 0 {
 		return

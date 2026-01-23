@@ -10,6 +10,12 @@ type Account struct {
 	Banned     bool
 }
 
+type CharacterFaccion struct {
+	Criminal   bool
+	ArmadaReal int
+	FuerzasCaos int
+}
+
 func (a *Account) Authenticate(password string) bool {
 	// Simple comparison, should be hashed in real scenario
 	return a.Password == password
@@ -33,6 +39,8 @@ type Character struct {
 	Level       byte
 	Exp         int
 	ExpToNext   int
+
+	Faccion CharacterFaccion
 
 	MinHit      int
 	MaxHit      int

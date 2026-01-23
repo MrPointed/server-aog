@@ -153,6 +153,43 @@ func (s *SpellService) CastSpell(caster *model.Character, spellID int, target an
 }
 
 func (s *SpellService) applySpellToCharacter(caster *model.Character, target *model.Character, spell *model.Spell) {
+	s.applySpellEffectToCharacter(target, spell, caster.Name)
+}
+
+func (s *SpellService) NpcLanzaSpellSobreUser(npc *model.WorldNPC, target *model.Character, spellID int) bool {
+	// Check interval
+	if !s.intervals.CanNPCCastSpell(npc) {
+		return false
+	}
+
+	spell := s.GetSpell(spellID)
+	if spell == nil {
+		return false
+	}
+
+	// Broadcast magic words as overhead text
+	s.messageService.SendToArea(&outgoing.ChatOverHeadPacket{
+		Message:   spell.MagicWords,
+		CharIndex: npc.Index,
+		R:         65,
+		G:         190,
+		B:         156,
+	}, npc.Position)
+
+	// Resolve effect on target
+	if spell.TargetType == model.TargetUser || spell.TargetType == model.TargetUserAndNpc {
+		// We need a version of applySpellToCharacter that doesn't require a 'caster' *model.Character
+		// or we use a dummy caster. Let's refactor slightly.
+		s.applySpellEffectToCharacter(target, spell, npc.NPC.Name)
+	}
+
+	// Update interval
+	s.intervals.UpdateNPCLastSpell(npc)
+
+	return true
+}
+
+func (s *SpellService) applySpellEffectToCharacter(target *model.Character, spell *model.Spell, casterName string) {
 	// FX
 	s.messageService.SendToArea(&outgoing.CreateFxPacket{
 		CharIndex: target.CharIndex,
@@ -164,27 +201,23 @@ func (s *SpellService) applySpellToCharacter(caster *model.Character, target *mo
 	if spell.Revive {
 		if target.Dead {
 			target.Dead = false
-			target.Hp = target.MaxHp // Full HP or partial? Mod says usually partial or penalizes. Let's do full for simplicity now.
+			target.Hp = target.MaxHp
 			target.Mana = 0
 			target.Stamina = 0
-			target.Body = 1 // Default body, should restore original
+			target.Body = 1
 			target.Head = target.OriginalHead
-			
+
 			s.messageService.SendToArea(&outgoing.CharacterChangePacket{Character: target}, target.Position)
 			s.messageService.SendConsoleMessage(target, "¡Has sido revivido!", outgoing.INFO)
-			s.messageService.SendConsoleMessage(caster, "Has revivido a tu objetivo.", outgoing.INFO)
-			return // Don't apply other effects if dead
-		} else {
-			s.messageService.SendConsoleMessage(caster, "El objetivo está vivo.", outgoing.INFO)
+			return
 		}
 	}
 
 	if target.Dead {
-		s.messageService.SendConsoleMessage(caster, "El objetivo está muerto.", outgoing.INFO)
 		return
 	}
 
-	// Heal (SubeHP = 1)
+	// Heal
 	if spell.SubeHP == 1 {
 		amount := rand.Intn(spell.MaxHP-spell.MinHP+1) + spell.MinHP
 		target.Hp += amount
@@ -192,17 +225,17 @@ func (s *SpellService) applySpellToCharacter(caster *model.Character, target *mo
 			target.Hp = target.MaxHp
 		}
 		s.messageService.SendConsoleMessage(target, fmt.Sprintf("Te han sanado %d puntos.", amount), outgoing.FIGHT)
-		s.messageService.SendConsoleMessage(caster, fmt.Sprintf("Has sanado %d puntos.", amount), outgoing.FIGHT)
 	}
 
-	// Damage (SubeHP = 2)
+	// Damage
 	if spell.SubeHP == 2 {
 		amount := rand.Intn(spell.MaxHP-spell.MinHP+1) + spell.MinHP
 		target.Hp -= amount
-		if target.Hp < 0 { target.Hp = 0 }
-		
-		s.messageService.SendConsoleMessage(target, fmt.Sprintf("¡%s te quitó %d puntos de vida!", caster.Name, amount), outgoing.FIGHT)
-		s.messageService.SendConsoleMessage(caster, fmt.Sprintf("Has quitado %d puntos de vida.", amount), outgoing.FIGHT)
+		if target.Hp < 0 {
+			target.Hp = 0
+		}
+
+		s.messageService.SendConsoleMessage(target, fmt.Sprintf("¡%s te quitó %d puntos de vida!", casterName, amount), outgoing.FIGHT)
 
 		if target.Hp <= 0 {
 			s.handleCharacterDeath(target)
@@ -215,7 +248,7 @@ func (s *SpellService) applySpellToCharacter(caster *model.Character, target *mo
 		s.messageService.SendConsoleMessage(target, "¡Te han paralizado!", outgoing.INFO)
 	}
 	if spell.Immobilizes {
-		target.Immobilized = true // Need to ensure Character struct has this
+		target.Immobilized = true
 		s.messageService.SendConsoleMessage(target, "¡Te han inmovilizado!", outgoing.INFO)
 	}
 
@@ -225,18 +258,57 @@ func (s *SpellService) applySpellToCharacter(caster *model.Character, target *mo
 		s.messageService.SendConsoleMessage(target, "¡Te han envenenado!", outgoing.INFO)
 	}
 
-	// Cure Poison
-	if spell.CurePoison {
-		if target.Poisoned {
-			target.Poisoned = false
-			s.messageService.SendConsoleMessage(target, "Te has curado del envenenamiento.", outgoing.INFO)
-			s.messageService.SendConsoleMessage(caster, "Has curado el envenenamiento.", outgoing.INFO)
-		} else {
-			s.messageService.SendConsoleMessage(caster, "El objetivo no está envenenado.", outgoing.INFO)
-		}
+	conn := s.userService.GetConnection(target)
+	if conn != nil {
+		conn.Send(outgoing.NewUpdateUserStatsPacket(target))
+	}
+}
+
+func (s *SpellService) SacerdoteHealUser(target *model.Character) {
+	// SND_CURAR_SACERDOTE = 13 (example)
+	s.messageService.SendToArea(&outgoing.PlayWavePacket{
+		Wave: 13,
+		X:    target.Position.X,
+		Y:    target.Position.Y,
+	}, target.Position)
+
+	target.Hp = target.MaxHp
+	s.messageService.SendConsoleMessage(target, "El sacerdote te ha curado!!", outgoing.INFO)
+
+	// If newbie, restore everything
+	if target.Level <= 13 { // Assuming newbie level <= 13
+		target.Mana = target.MaxMana
+		target.Poisoned = false
+		s.messageService.SendConsoleMessage(target, "El sacerdote te ha restaurado el mana completamente.", outgoing.INFO)
 	}
 
-	s.messageService.userService.GetConnection(target).Send(outgoing.NewUpdateUserStatsPacket(target))
+	conn := s.userService.GetConnection(target)
+	if conn != nil {
+		conn.Send(outgoing.NewUpdateUserStatsPacket(target))
+	}
+}
+
+func (s *SpellService) SacerdoteResucitateUser(target *model.Character) {
+	// SND_RESUCITAR_SACERDOTE = 16 (example)
+	s.messageService.SendToArea(&outgoing.PlayWavePacket{
+		Wave: 16,
+		X:    target.Position.X,
+		Y:    target.Position.Y,
+	}, target.Position)
+
+	if target.Dead {
+		target.Dead = false
+		target.Hp = target.MaxHp / 10 // Standard AO revive gives 1/10 HP
+		if target.Level <= 13 {
+			target.Hp = target.MaxHp
+			target.Mana = target.MaxMana
+		}
+		target.Body = 1
+		target.Head = target.OriginalHead
+
+		s.messageService.SendToArea(&outgoing.CharacterChangePacket{Character: target}, target.Position)
+		s.messageService.SendConsoleMessage(target, "¡Has sido resucitado!", outgoing.INFO)
+	}
 }
 
 func (s *SpellService) handleCharacterDeath(char *model.Character) {

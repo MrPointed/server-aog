@@ -70,14 +70,14 @@ func NewServer(addr string) *Server {
 	timedEventsService := service.NewTimedEventsService(userService, messageService)
 	timedEventsService.Start()
 
-	aiService := service.NewAIService(npcService, mapService, areaService)
-	aiService.Start()
-
 	spellDAO := persistence.NewSpellDAO("../../resources/data/hechizos.dat")
 	spellService := service.NewSpellService(spellDAO, userService, messageService, objectService, intervalService, trainingService)
 	if err := spellService.LoadSpells(); err != nil {
 		fmt.Printf("Critical error loading spells: %v\n", err)
 	}
+
+	aiService := service.NewAIService(npcService, mapService, areaService, userService, combatService, messageService, spellService)
+	aiService.Start()
 
 	skillService := service.NewSkillService(mapService, objectService, messageService, userService, npcService, spellService, intervalService)
 	bankService := service.NewBankService(objectService, messageService, userService)
@@ -111,7 +111,7 @@ func NewServer(addr string) *Server {
 	m.RegisterHandler(protocol.CP_EquipItem, &incoming.EquipItemPacket{ItemActionService: itemActionService})
 	m.RegisterHandler(protocol.CP_ModifySkills, &incoming.ModifySkillsPacket{})
 	m.RegisterHandler(protocol.CP_ChangeHeading, &incoming.ChangeHeadingPacket{AreaService: areaService})
-	m.RegisterHandler(protocol.CP_Double_Click, &incoming.DoubleClickPacket{MapService: mapService, NpcService: npcService, UserService: userService, ObjectService: objectService, AreaService: areaService, BankService: bankService})
+	m.RegisterHandler(protocol.CP_Double_Click, &incoming.DoubleClickPacket{MapService: mapService, NpcService: npcService, UserService: userService, ObjectService: objectService, AreaService: areaService, BankService: bankService, SpellService: spellService})
 	m.RegisterHandler(protocol.CP_Work, &incoming.UseSkillPacket{})
 	m.RegisterHandler(protocol.CP_WorkLeftClick, &incoming.UseSkillClickPacket{SkillService: skillService})
 	m.RegisterHandler(protocol.CP_Resurrect, &incoming.ResurrectPacket{MapService: mapService, AreaService: areaService, MessageService: messageService, BodyService: bodyService})

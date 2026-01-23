@@ -1,5 +1,7 @@
 package model
 
+import "time"
+
 type NPCType int
 
 const (
@@ -13,6 +15,20 @@ const (
 	NTGambler                     // 7 (Timberos)
 	NTGuardCaos                   // 8
 	NTHealerNewbie                // 9
+)
+
+type MovementType int
+
+const (
+	MovementStatic                MovementType = 1
+	MovementRandom                MovementType = 2
+	MovementHostile               MovementType = 3
+	MovementDefense               MovementType = 4
+	MovementGuardAttackCriminals  MovementType = 5
+	MovementObject                MovementType = 6
+	MovementFollowOwner           MovementType = 8
+	MovementAttackNpc             MovementType = 9
+	MovementPathfinding           MovementType = 10
 )
 
 type NPC struct {
@@ -40,6 +56,11 @@ type NPC struct {
 
 	Hostile bool
 
+	// Template AI properties
+	LanzaSpells int
+	Spells      []int
+	AtacaDoble  bool
+
 	// Trading
 	CanTrade  bool
 	Inventory []InventorySlot
@@ -62,4 +83,17 @@ type WorldNPC struct {
 	HP           int
 	RemainingExp int
 	Index        int16
+
+	// Stateful AI flags
+	Inmovilizado bool
+	Paralizado   bool
+	OldMovement  int
+	OldHostile   bool
+	AttackedBy   string
+	Follow       bool
+	MaestroUser  int // Index of the user who owns this NPC
+
+	// Intervals
+	LastAttack time.Time
+	LastSpell  time.Time
 }

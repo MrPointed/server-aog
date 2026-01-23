@@ -64,8 +64,48 @@ func (s *IntervalService) CanWork(char *model.Character) bool {
 	return true
 }
 
+func (s *IntervalService) CanNPCAttack(npc *model.WorldNPC) bool {
+	now := time.Now()
+
+	// Check standard attack interval
+	if now.Sub(npc.LastAttack).Milliseconds() < s.config.IntervalAttack {
+		return false
+	}
+
+	// Check Magic-Hit interval
+	if now.Sub(npc.LastSpell).Milliseconds() < s.config.IntervalMagicHit {
+		return false
+	}
+
+	return true
+}
+
+func (s *IntervalService) CanNPCCastSpell(npc *model.WorldNPC) bool {
+	now := time.Now()
+
+	// Check standard spell interval
+	if now.Sub(npc.LastSpell).Milliseconds() < s.config.IntervalSpell {
+		return false
+	}
+
+	// Check Hit-Magic interval
+	if now.Sub(npc.LastAttack).Milliseconds() < s.config.IntervalMagicHit {
+		return false
+	}
+
+	return true
+}
+
 func (s *IntervalService) UpdateLastAttack(char *model.Character) {
 	char.LastAttack = time.Now()
+}
+
+func (s *IntervalService) UpdateNPCLastAttack(npc *model.WorldNPC) {
+	npc.LastAttack = time.Now()
+}
+
+func (s *IntervalService) UpdateNPCLastSpell(npc *model.WorldNPC) {
+	npc.LastSpell = time.Now()
 }
 
 func (s *IntervalService) UpdateLastSpell(char *model.Character) {
