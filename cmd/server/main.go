@@ -66,12 +66,12 @@ func NewServer(addr string) *Server {
 	areaService := service.NewAreaService(mapService, userService)
 	messageService := service.NewMessageService(userService, areaService, mapService)
 	trainingService := service.NewTrainingService(messageService, userService, archetypeMods)
-	combatService := service.NewCombatService(messageService, objectService, mapService, combatFormulas, intervalService, trainingService)
+	combatService := service.NewCombatService(messageService, objectService, npcService, mapService, combatFormulas, intervalService, trainingService)
 	timedEventsService := service.NewTimedEventsService(userService, messageService)
 	timedEventsService.Start()
 
 	spellDAO := persistence.NewSpellDAO("../../resources/data/hechizos.dat")
-	spellService := service.NewSpellService(spellDAO, userService, messageService, objectService, intervalService, trainingService)
+	spellService := service.NewSpellService(spellDAO, userService, npcService, messageService, objectService, intervalService, trainingService)
 	if err := spellService.LoadSpells(); err != nil {
 		fmt.Printf("Critical error loading spells: %v\n", err)
 	}

@@ -50,10 +50,24 @@ func (s *NpcService) SpawnNpc(id int, pos model.Position) *model.WorldNPC {
 		HP:           def.MaxHp,
 		RemainingExp: def.Exp,
 		Index:        s.indexManager.AssignIndex(),
+		Respawn:      def.ReSpawn,
 	}
 
 	s.worldNpcs[worldNpc.Index] = worldNpc
 	return worldNpc
+}
+
+func (s *NpcService) RemoveNPC(npc *model.WorldNPC, mapService *MapService) {
+	delete(s.worldNpcs, npc.Index)
+	s.indexManager.FreeIndex(npc.Index)
+
+	// Remove from map
+	mapService.RemoveNPC(npc)
+
+	// Respawn logic
+	if npc.Respawn {
+		mapService.SpawnNpcInMap(npc.NPC.ID, npc.Position.Map)
+	}
 }
 
 func (s *NpcService) GetWorldNpcs() map[int16]*model.WorldNPC {

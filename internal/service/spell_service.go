@@ -12,6 +12,7 @@ import (
 type SpellService struct {
 	dao             *persistence.SpellDAO
 	userService     *UserService
+	npcService      *NpcService
 	messageService  *MessageService
 	objectService   *ObjectService
 	intervals       *IntervalService
@@ -19,10 +20,11 @@ type SpellService struct {
 	spells          map[int]*model.Spell
 }
 
-func NewSpellService(dao *persistence.SpellDAO, userService *UserService, messageService *MessageService, objectService *ObjectService, intervals *IntervalService, trainingService *TrainingService) *SpellService {
+func NewSpellService(dao *persistence.SpellDAO, userService *UserService, npcService *NpcService, messageService *MessageService, objectService *ObjectService, intervals *IntervalService, trainingService *TrainingService) *SpellService {
 	return &SpellService{
 		dao:             dao,
 		userService:     userService,
+		npcService:      npcService,
 		messageService:  messageService,
 		objectService:   objectService,
 		intervals:       intervals,
@@ -395,7 +397,7 @@ func (s *SpellService) handleNpcDeath(caster *model.Character, target *model.Wor
 		}
 	}
 
-	s.messageService.MapService.RemoveNPC(target)
+	s.npcService.RemoveNPC(target, s.messageService.MapService)
 }
 
 func (s *SpellService) grantExperience(attacker *model.Character, victim *model.WorldNPC, damage int) {

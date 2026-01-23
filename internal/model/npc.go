@@ -60,6 +60,7 @@ type NPC struct {
 	LanzaSpells int
 	Spells      []int
 	AtacaDoble  bool
+	ReSpawn     bool
 
 	// Trading
 	CanTrade  bool
@@ -92,6 +93,7 @@ type WorldNPC struct {
 	AttackedBy   string
 	Follow       bool
 	MaestroUser  int // Index of the user who owns this NPC
+	Respawn      bool
 
 	// Intervals
 	LastAttack time.Time

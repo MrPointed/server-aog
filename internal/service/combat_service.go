@@ -12,16 +12,18 @@ import (
 type CombatService struct {
 	messageService  *MessageService
 	objectService   *ObjectService
+	npcService      *NpcService
 	mapService      *MapService
 	formulas        *CombatFormulas
 	intervals       *IntervalService
 	trainingService *TrainingService
 }
 
-func NewCombatService(messageService *MessageService, objectService *ObjectService, mapService *MapService, formulas *CombatFormulas, intervals *IntervalService, trainingService *TrainingService) *CombatService {
+func NewCombatService(messageService *MessageService, objectService *ObjectService, npcService *NpcService, mapService *MapService, formulas *CombatFormulas, intervals *IntervalService, trainingService *TrainingService) *CombatService {
 	return &CombatService{
 		messageService:  messageService,
 		objectService:   objectService,
+		npcService:      npcService,
 		mapService:      mapService,
 		formulas:        formulas,
 		intervals:       intervals,
@@ -358,7 +360,7 @@ func (s *CombatService) handleNpcDeath(killer *model.Character, npc *model.World
 		}
 	}
 
-	s.mapService.RemoveNPC(npc)
+	s.npcService.RemoveNPC(npc, s.mapService)
 }
 
 func (s *CombatService) getEquippedWeapon(char *model.Character) *model.Object {
