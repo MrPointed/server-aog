@@ -51,6 +51,25 @@ func (d *NpcDAO) Load() (map[int]*model.NPC, error) {
 			}
 		}
 
+		minHit := toInt(props["MINHIT"])
+		if minHit == 0 {
+			minHit = toInt(props["MIN_HIT"])
+		}
+		maxHit := toInt(props["MAXHIT"])
+		if maxHit == 0 {
+			maxHit = toInt(props["MAX_HIT"])
+		}
+
+		attackPower := toInt(props["PODERATAQUE"])
+		if attackPower == 0 {
+			attackPower = toInt(props["PODER_ATAQUE"])
+		}
+
+		evasionPower := toInt(props["PODEREVASION"])
+		if evasionPower == 0 {
+			evasionPower = toInt(props["PODER_EVASION"])
+		}
+
 		npc := &model.NPC{
 			ID:          id,
 			Name:        props["NAME"],
@@ -61,15 +80,27 @@ func (d *NpcDAO) Load() (map[int]*model.NPC, error) {
 			Heading:     model.Heading(toInt(props["HEADING"]) - 1),
 			Level:       toInt(props["LEVEL"]),
 			Exp:         exp,
-			MinHit:      toInt(props["MIN_HIT"]),
-			MaxHit:      toInt(props["MAX_HIT"]),
-			AttackPower:  toInt(props["PODERATAQUE"]),
-			EvasionPower: toInt(props["PODEREVASION"]),
+			MinHit:      minHit,
+			MaxHit:      maxHit,
+			AttackPower:  attackPower,
+			EvasionPower: evasionPower,
 			Defense:      toInt(props["DEF"]),
 			MagicDefense: toInt(props["DEFENSAMAGICA"]),
 			Hostile:     props["HOSTILE"] == "1",
 			CanTrade:    props["COMERCIA"] == "1",
 			Movement:    toInt(props["MOVEMENT"]),
+			ReSpawn:     props["RESPAWN"] == "1" || props["RE_SPAWN"] == "1",
+			LanzaSpells: toInt(props["LANZASPELLS"]),
+			AtacaDoble:  props["ATACADOBLE"] == "1",
+		}
+
+		if npc.LanzaSpells > 0 {
+			for i := 1; i <= npc.LanzaSpells; i++ {
+				spellKey := fmt.Sprintf("SP%d", i)
+				if val, ok := props[spellKey]; ok {
+					npc.Spells = append(npc.Spells, toInt(val))
+				}
+			}
 		}
 
 		if npc.CanTrade {
