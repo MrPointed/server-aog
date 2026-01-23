@@ -241,6 +241,7 @@ func (d *FileDAO) SaveCharacter(char *model.Character) error {
 	stats["MinAGU"] = strconv.Itoa(char.Thirstiness)
 	stats["MaxAGU"] = strconv.Itoa(100)
 	stats["ORO"] = strconv.Itoa(char.Gold)
+	stats["SKILLPTS"] = strconv.Itoa(char.SkillPoints)
 
 	// Skills
 	if data["SKILLS"] == nil { data["SKILLS"] = make(map[string]string) }

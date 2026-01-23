@@ -47,6 +47,8 @@ const (
 	CP_SpellInfo
 	CP_EquipItem
 	CP_ChangeHeading
+	CP_ModifySkills
+	CP_Train
 	
 	CP_CommerceBuy ClientPackets = 40
 	CP_CommerceSell ClientPackets = 42

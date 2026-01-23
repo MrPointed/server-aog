@@ -4,7 +4,6 @@ import (
 	"fmt"
 	"github.com/ao-go-server/internal/network"
 	"github.com/ao-go-server/internal/protocol"
-	"github.com/ao-go-server/internal/protocol/outgoing"
 	"github.com/ao-go-server/internal/service"
 )
 
@@ -68,19 +67,8 @@ func (p *LoginNewCharacterPacket) Handle(buffer *network.DataBuffer, connection 
 	cityId, _ := buffer.Get()
 
 	err = p.LoginService.ConnectNewCharacter(connection, nick, password, mail, raceId, genderId, archetypeId, headId, cityId, clientHash, version)
-
 	if err != nil {
-
-		connection.Send(&outgoing.ErrorMessagePacket{Message: err.Error()})
-
-		connection.Disconnect()
-
-		return true, nil
-
+		return true, err
 	}
-
-
-
 	return true, nil
-
 }

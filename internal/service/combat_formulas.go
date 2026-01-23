@@ -31,10 +31,10 @@ func (f *CombatFormulas) GetEvasionPower(char *model.Character) int {
 		return 0
 	}
 
-	skillTactics := char.Skills[model.CombatTactics]
+	skillEvasion := char.Skills[model.Evasion]
 	agility := int(char.Attributes[model.Dexterity])
 
-	lTemp := float32(skillTactics+skillTactics/33*agility) * mod.Evasion
+	lTemp := float32(skillEvasion+skillEvasion/33*agility) * mod.Evasion
 	return int(lTemp + (2.5 * float32(utils.Max(int(char.Level)-12, 0))))
 }
 

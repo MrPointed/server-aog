@@ -183,3 +183,11 @@ func (db *DataBuffer) PutUTF8String(s string) {
 	db.PutShort(int16(len(b)))
 	db.buf = append(db.buf, b...)
 }
+
+func (db *DataBuffer) PutCp1252String(s string) {
+	// For now, AO Go server seems to just use raw bytes for string.
+	// We'll treat it as standard string bytes which is usually compatible for ASCII.
+	b := []byte(s)
+	db.PutShort(int16(len(b)))
+	db.buf = append(db.buf, b...)
+}

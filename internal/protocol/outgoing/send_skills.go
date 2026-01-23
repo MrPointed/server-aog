@@ -6,8 +6,9 @@ import (
 )
 
 type SendSkillsPacket struct {
-	Archetype model.UserArchetype
-	Skills    map[model.Skill]int
+	Archetype   model.UserArchetype
+	Skills      map[model.Skill]int
+	SkillPoints int
 }
 
 func (p *SendSkillsPacket) Write(buffer *network.DataBuffer) error {
@@ -20,5 +21,8 @@ func (p *SendSkillsPacket) Write(buffer *network.DataBuffer) error {
 		buffer.Put(byte(val))
 		buffer.Put(0) // percentage placeholder
 	}
+
+	buffer.PutInt(int32(p.SkillPoints))
+
 	return nil
 }

@@ -16,8 +16,9 @@ func (p *RequestSkillsPacket) Handle(buffer *network.DataBuffer, connection prot
 	}
 
 	connection.Send(&outgoing.SendSkillsPacket{
-		Archetype: char.Archetype,
-		Skills:    char.Skills,
+		Archetype:   char.Archetype,
+		Skills:      char.Skills,
+		SkillPoints: char.SkillPoints,
 	})
 
 	return true, nil

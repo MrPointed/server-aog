@@ -16,6 +16,7 @@ type UpdateUserStatsPacket struct {
 	Level       byte
 	ExpToNext   int
 	Exp         int
+	SkillPoints int
 }
 
 func NewUpdateUserStatsPacket(char *model.Character) *UpdateUserStatsPacket {
@@ -30,6 +31,7 @@ func NewUpdateUserStatsPacket(char *model.Character) *UpdateUserStatsPacket {
 		Level:       char.Level,
 		ExpToNext:   char.ExpToNext,
 		Exp:         char.Exp,
+		SkillPoints: char.SkillPoints,
 	}
 }
 
@@ -44,5 +46,6 @@ func (p *UpdateUserStatsPacket) Write(buffer *network.DataBuffer) error {
 	buffer.Put(p.Level)
 	buffer.PutInt(int32(p.ExpToNext))
 	buffer.PutInt(int32(p.Exp))
+	buffer.PutInt(int32(p.SkillPoints))
 	return nil
 }
