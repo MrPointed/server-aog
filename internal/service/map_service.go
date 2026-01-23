@@ -181,13 +181,24 @@ func (s *MapService) MoveCharacterTo(char *model.Character, heading model.Headin
 
 		// Map static blocking
 		if tile.Blocked {
-			fmt.Printf("Move blocked by server at %d,%d\n", newPos.X, newPos.Y)
+			// fmt.Printf("Move blocked by server at %d,%d\n", newPos.X, newPos.Y)
 			return char.Position, false
 		}
 
-		if tile.Trigger == model.TriggerInvalidPosition {
-			fmt.Printf("Move blocked by invalid position trigger at %d,%d\n", newPos.X, newPos.Y)
-			return char.Position, false
+		// Sailing Logic
+		hasBridge := tile.Layer2 > 0 || tile.Layer3 > 0
+		
+		if char.Sailing {
+			// Can only sail on Water AND No Bridge (assuming bridges block boats)
+			if !tile.IsWater || hasBridge {
+				return char.Position, false
+			}
+		} else {
+			// Can walk if Land OR Bridge
+			// (IsWater implies need boat, UNLESS there is a bridge)
+			if tile.IsWater && !hasBridge {
+				return char.Position, false
+			}
 		}
 
 		if tile.Character != nil {

@@ -27,6 +27,8 @@ const (
 	OTDeposit
 	OTMetal
 	OTParchment
+	
+	OTBoat ObjectType = 31
 )
 
 type Object struct {

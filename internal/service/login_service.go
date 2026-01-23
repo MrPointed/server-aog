@@ -2,13 +2,14 @@ package service
 
 import (
 	"fmt"
+	"strings"
+
 	"github.com/ao-go-server/internal/actions"
 	"github.com/ao-go-server/internal/config"
 	"github.com/ao-go-server/internal/model"
 	"github.com/ao-go-server/internal/persistence"
 	"github.com/ao-go-server/internal/protocol"
 	"github.com/ao-go-server/internal/protocol/outgoing"
-	"strings"
 )
 
 type LoginService struct {
@@ -215,22 +216,13 @@ func (s *LoginService) ensureValidCharacterState(char *model.Character, defaultB
 func (s *LoginService) finalizeLogin(conn protocol.Connection, acc *model.Account, char *model.Character) {
 	s.determinePrivileges(char)
 	conn.Send(&outgoing.LoggedPacket{})
-	
+
 	// Assign Index
 	char.CharIndex = s.indexManager.AssignIndex()
-	
+
 	// Bind to connection and service
 	conn.SetUser(char)
 	s.userService.LogIn(conn)
-
-	// Validate Position (Prevent stuck in void)
-	if s.mapService.IsInvalidPosition(char.Position) {
-		city, ok := s.cityService.GetCity(1)
-		if !ok {
-			city = model.City{Map: 1, X: 50, Y: 50}
-		}
-		char.Position = model.Position{X: city.X, Y: city.Y, Map: city.Map}
-	}
 
 	// Dispatch to World (Thread-safe map modification)
 	s.executor.Dispatch(func(m *MapService) {
@@ -282,7 +274,7 @@ func (s *LoginService) determinePrivileges(char *model.Character) {
 func (s *LoginService) sendInitialGameState(conn protocol.Connection, char *model.Character) {
 	// Send UserIndexInServer (Packet 27) - Contains Privileges & Color
 	conn.Send(&outgoing.UserIndexInServerPacket{
-		UserIndex:  char.CharIndex,
+		UserIndex: char.CharIndex,
 	})
 
 	// Map Info

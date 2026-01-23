@@ -58,16 +58,6 @@ func (s *SpellService) CastSpell(caster *model.Character, spellID int, target an
 
 	conn := s.userService.GetConnection(caster)
 
-	if s.messageService.MapService.IsInvalidPosition(caster.Position) {
-		if conn != nil {
-			conn.Send(&outgoing.ConsoleMessagePacket{
-				Message: "Posición inválida.",
-				Font:    outgoing.INFO,
-			})
-		}
-		return
-	}
-
 	// Check intervals
 	if !s.intervals.CanCastSpell(caster) {
 		return
@@ -99,7 +89,7 @@ func (s *SpellService) CastSpell(caster *model.Character, spellID int, target an
 	// Consume resources
 	caster.Mana -= spell.ManaRequired
 	caster.Stamina -= spell.StaminaRequired
-	
+
 	// Update last spell time
 	s.intervals.UpdateLastSpell(caster)
 
@@ -116,7 +106,7 @@ func (s *SpellService) CastSpell(caster *model.Character, spellID int, target an
 		B:         156,
 	}, caster.Position)
 
-	// Keep a console message for the caster specifically? 
+	// Keep a console message for the caster specifically?
 	// Standard AO usually just does overhead for everyone.
 	// But let's add a console msg for the caster for better feedback as previously requested.
 	if conn != nil {
@@ -367,18 +357,18 @@ func (s *SpellService) applySpellToNPC(caster *model.Character, target *model.Wo
 	// Damage
 	if spell.SubeHP == 2 {
 		amount := rand.Intn(spell.MaxHP-spell.MinHP+1) + spell.MinHP
-		
+
 		// Grant experience proportional to damage
 		s.grantExperience(caster, target, amount)
 
 		target.HP -= amount
 		s.messageService.SendConsoleMessage(caster, fmt.Sprintf("Has quitado %d puntos a la criatura.", amount), outgoing.FIGHT)
-		
+
 		if target.HP <= 0 {
 			s.handleNpcDeath(caster, target)
 		}
 	}
-	
+
 	// Paralysis
 	if spell.Paralyzes {
 		// target.Paralyzed = true // NPC struct needs this field
@@ -387,7 +377,7 @@ func (s *SpellService) applySpellToNPC(caster *model.Character, target *model.Wo
 
 func (s *SpellService) handleNpcDeath(caster *model.Character, target *model.WorldNPC) {
 	s.messageService.SendToArea(&outgoing.CharacterRemovePacket{CharIndex: target.Index}, target.Position)
-	
+
 	if target.RemainingExp > 0 {
 		caster.Exp += target.RemainingExp
 		s.messageService.SendConsoleMessage(caster, fmt.Sprintf("¡Has matado a la criatura! Ganaste %d exp.", target.RemainingExp), outgoing.INFO)
@@ -423,7 +413,7 @@ func (s *SpellService) grantExperience(attacker *model.Character, victim *model.
 	}
 
 	expToGive := int(float32(damage) * (float32(victim.NPC.Exp) / float32(victim.NPC.MaxHp)))
-	
+
 	// Ensure at least 1 exp if damage was dealt and there's exp left
 	if expToGive == 0 && damage > 0 && victim.RemainingExp > 0 {
 		expToGive = 1
@@ -446,7 +436,7 @@ func (s *SpellService) applySpellToPosition(caster *model.Character, pos model.P
 	if spell.SummonNPC > 0 {
 		// Simple summon logic
 		// Need NpcService to spawn? SpellService doesn't have NpcService.
-		// I should inject it. Or expose SpawnNpc in MapService? 
+		// I should inject it. Or expose SpawnNpc in MapService?
 		// NpcService is best.
 		// For now, print message "Summon not implemented fully".
 		s.messageService.SendConsoleMessage(caster, "Invocación no implementada por completo.", outgoing.INFO)

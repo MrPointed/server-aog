@@ -2,6 +2,7 @@ package incoming
 
 import (
 	"fmt"
+
 	"github.com/ao-go-server/internal/network"
 	"github.com/ao-go-server/internal/protocol"
 	"github.com/ao-go-server/internal/protocol/outgoing"
@@ -16,14 +17,6 @@ type PickUpPacket struct {
 func (p *PickUpPacket) Handle(buffer *network.DataBuffer, connection protocol.Connection) (bool, error) {
 	char := connection.GetUser()
 	if char == nil {
-		return true, nil
-	}
-
-	if p.MapService.IsInvalidPosition(char.Position) {
-		connection.Send(&outgoing.ConsoleMessagePacket{
-			Message: "Posición inválida.",
-			Font:    outgoing.INFO,
-		})
 		return true, nil
 	}
 

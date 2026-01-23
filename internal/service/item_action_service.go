@@ -2,6 +2,7 @@ package service
 
 import (
 	"fmt"
+
 	"github.com/ao-go-server/internal/model"
 	"github.com/ao-go-server/internal/protocol"
 	"github.com/ao-go-server/internal/protocol/outgoing"
@@ -12,7 +13,7 @@ type ItemActionService struct {
 	messageService  *MessageService
 	intervalService *IntervalService
 	bodyService     *CharacterBodyService
-	
+
 	useBehaviors   map[model.ObjectType]ItemBehavior
 	equipBehaviors map[model.ObjectType]EquipBehavior
 }
@@ -100,13 +101,6 @@ func (s *ItemActionService) EquipItem(char *model.Character, slot int, connectio
 }
 
 func (s *ItemActionService) CanUse(char *model.Character, obj *model.Object, connection protocol.Connection) bool {
-	if s.messageService.MapService.IsInvalidPosition(char.Position) {
-		connection.Send(&outgoing.ConsoleMessagePacket{
-			Message: "Posición inválida.",
-			Font:    outgoing.INFO,
-		})
-		return false
-	}
 
 	// Newbie check
 	if obj.Newbie && char.Level > 12 {
@@ -219,9 +213,9 @@ func (s *ItemActionService) CanEquip(char *model.Character, obj *model.Object, c
 			return false
 		}
 	}
-	
+
 	// TODO: Add Gender, Race, alignment checks from inventario_vb
-	
+
 	return true
 }
 
@@ -245,6 +239,7 @@ func (s *ItemActionService) registerDefaultBehaviors() {
 	s.equipBehaviors[model.OTShield] = shieldBehavior
 	s.equipBehaviors[model.OTHelmet] = helmetBehavior
 	s.equipBehaviors[model.OTRing] = ringBehavior
+	s.equipBehaviors[model.OTBoat] = &BoatBehavior{s}
 }
 
 // Internal sync helper
@@ -254,7 +249,7 @@ func (s *ItemActionService) SyncSlot(char *model.Character, slot int, connection
 	if itemSlot.ObjectID != 0 {
 		obj = s.objectService.GetObject(itemSlot.ObjectID)
 	}
-	
+
 	connection.Send(&outgoing.ChangeInventorySlotPacket{
 		Slot:     byte(slot + 1),
 		Object:   obj,

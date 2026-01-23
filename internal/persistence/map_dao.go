@@ -1,9 +1,13 @@
 package persistence
 
 import (
+	"bufio"
 	"encoding/binary"
 	"fmt"
 	"os"
+	"strconv"
+	"strings"
+
 	"github.com/ao-go-server/internal/model"
 )
 
@@ -20,6 +24,62 @@ func NewMapDAO(mapsPath string, mapsAmount int) *MapDAO {
 		mapsAmount: mapsAmount,
 		waterGrhs:  make(map[int16]bool),
 		lavaGrhs:   make(map[int16]bool),
+	}
+}
+
+func (d *MapDAO) LoadProperties(path string) error {
+	file, err := os.Open(path)
+	if err != nil {
+		return err
+	}
+	defer file.Close()
+
+	scanner := bufio.NewScanner(file)
+	for scanner.Scan() {
+		line := strings.TrimSpace(scanner.Text())
+		if line == "" || strings.HasPrefix(line, "#") {
+			continue
+		}
+
+		parts := strings.SplitN(line, "=", 2)
+		if len(parts) != 2 {
+			continue
+		}
+
+		key := strings.TrimSpace(parts[0])
+		value := strings.TrimSpace(parts[1])
+
+		if key == "maps.water" {
+			d.parseRanges(value, d.waterGrhs)
+		} else if key == "maps.lava" {
+			d.parseRanges(value, d.lavaGrhs)
+		}
+	}
+
+	return scanner.Err()
+}
+
+func (d *MapDAO) parseRanges(value string, target map[int16]bool) {
+	// Format: 1505-1520,5665-5680
+	ranges := strings.Split(value, ",")
+	for _, r := range ranges {
+		r = strings.TrimSpace(r)
+		bounds := strings.Split(r, "-")
+		if len(bounds) == 2 {
+			start, err1 := strconv.Atoi(strings.TrimSpace(bounds[0]))
+			end, err2 := strconv.Atoi(strings.TrimSpace(bounds[1]))
+			if err1 == nil && err2 == nil {
+				for i := start; i <= end; i++ {
+					target[int16(i)] = true
+				}
+			}
+		} else {
+			// Single value
+			val, err := strconv.Atoi(r)
+			if err == nil {
+				target[int16(val)] = true
+			}
+		}
 	}
 }
 
@@ -98,16 +158,15 @@ func (d *MapDAO) loadMap(id int) (*model.Map, error) {
 			isWater := d.waterGrhs[floor]
 			isLava := d.lavaGrhs[floor]
 
+			var l2, l3, l4 int16
+
 			if (flag & BitflagLayer2) == BitflagLayer2 {
-				var l2 int16
 				binary.Read(mapFile, binary.LittleEndian, &l2)
 			}
 			if (flag & BitflagLayer3) == BitflagLayer3 {
-				var l3 int16
 				binary.Read(mapFile, binary.LittleEndian, &l3)
 			}
 			if (flag & BitflagLayer4) == BitflagLayer4 {
-				var l4 int16
 				binary.Read(mapFile, binary.LittleEndian, &l4)
 			}
 
@@ -147,6 +206,9 @@ func (d *MapDAO) loadMap(id int) (*model.Map, error) {
 				Blocked:      blocked,
 				IsWater:      isWater,
 				IsLava:       isLava,
+				Layer2:       l2,
+				Layer3:       l3,
+				Layer4:       l4,
 				Trigger:      trigger,
 				TileExit:     tileExit,
 				ObjectID:     int(objIdx),

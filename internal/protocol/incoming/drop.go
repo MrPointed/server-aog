@@ -2,11 +2,12 @@ package incoming
 
 import (
 	"fmt"
+
+	"github.com/ao-go-server/internal/model"
 	"github.com/ao-go-server/internal/network"
 	"github.com/ao-go-server/internal/protocol"
 	"github.com/ao-go-server/internal/protocol/outgoing"
 	"github.com/ao-go-server/internal/service"
-	"github.com/ao-go-server/internal/model"
 )
 
 type DropPacket struct {
@@ -22,7 +23,7 @@ func (p *DropPacket) Handle(buffer *network.DataBuffer, connection protocol.Conn
 
 	slotIdx, _ := buffer.Get()
 	amountShort, _ := buffer.GetShort()
-	
+
 	slot := int(slotIdx) - 1
 	amount := int(amountShort)
 
@@ -32,14 +33,6 @@ func (p *DropPacket) Handle(buffer *network.DataBuffer, connection protocol.Conn
 	}
 
 	if char.Dead {
-		return true, nil
-	}
-
-	if p.MapService.IsInvalidPosition(char.Position) {
-		connection.Send(&outgoing.ConsoleMessagePacket{
-			Message: "Posición inválida.",
-			Font:    outgoing.INFO,
-		})
 		return true, nil
 	}
 

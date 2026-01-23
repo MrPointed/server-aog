@@ -61,6 +61,9 @@ func NewServer(addr string) *Server {
 	userService := service.NewUserService(bodyService)
 
 	mapDAO := persistence.NewMapDAO("../../resources/maps", 150)
+	if err := mapDAO.LoadProperties("../../resources/maps.properties"); err != nil {
+		fmt.Printf("Warning: could not load maps.properties: %v\n", err)
+	}
 	mapService := service.NewMapService(mapDAO, objectService, npcService)
 	mapService.LoadMaps()
 

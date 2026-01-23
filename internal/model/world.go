@@ -44,6 +44,9 @@ type Tile struct {
 	Blocked   bool
 	IsWater   bool
 	IsLava    bool
+	Layer2    int16
+	Layer3    int16
+	Layer4    int16
 	TileExit  *Position
 	Character *Character
 	Object    *WorldObject

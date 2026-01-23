@@ -295,6 +295,8 @@ func GetOutgoingPacketID(packet OutgoingPacket) (ServerPackets, error) {
 		return SP_SendSkills, nil
 	case *outgoing.MeditateTogglePacket:
 		return SP_MeditateToggle, nil
+	case *outgoing.NavigateTogglePacket:
+		return SP_ToggleNavigate, nil
 	}
 	return 0, fmt.Errorf("unknown outgoing packet type")
 }

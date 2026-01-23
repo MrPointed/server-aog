@@ -75,6 +75,11 @@ func (p *WalkPacket) Handle(buffer *network.DataBuffer, connection protocol.Conn
 				// 4. Send ChangeMap to client
 				connection.Send(&outgoing.ChangeMapPacket{MapId: targetMap, Version: 0})
 
+				// 4.5 Resync sailing state if needed
+				if char.Sailing {
+					connection.Send(&outgoing.NavigateTogglePacket{})
+				}
+
 				// 5. Force Client Position Update
 				connection.Send(&outgoing.PosUpdatePacket{
 					X: char.Position.X,

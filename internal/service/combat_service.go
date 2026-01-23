@@ -37,11 +37,6 @@ func (s *CombatService) ResolveAttack(attacker *model.Character, target any) {
 		return
 	}
 
-	if s.mapService.IsInvalidPosition(attacker.Position) {
-		s.messageService.SendConsoleMessage(attacker, "Posición inválida.", outgoing.INFO)
-		return
-	}
-
 	// Check stamina
 	if attacker.Stamina < 10 {
 		s.messageService.SendConsoleMessage(attacker, "Estás muy cansado para luchar.", outgoing.INFO)
