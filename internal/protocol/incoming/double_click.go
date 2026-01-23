@@ -147,15 +147,7 @@ func (p *DoubleClickPacket) Handle(buffer *network.DataBuffer, connection protoc
 				user.Body = p.UserService.BodyService.GetBody(user.Race, user.Gender)
 				user.Head = user.OriginalHead
 
-				connection.Send(&outgoing.UpdateUserStatsPacket{
-					Hp:         user.Hp,
-					MaxHp:      user.MaxHp,
-					Mana:       user.Mana,
-					MaxMana:    user.MaxMana,
-					Stamina:    user.Stamina,
-					MaxStamina: user.MaxStamina,
-					Exp:        user.Exp,
-				})
+				connection.Send(outgoing.NewUpdateUserStatsPacket(user))
 
 				// Notify the area about the character change (resurrected appearance)
 				p.AreaService.BroadcastToArea(user.Position, &outgoing.CharacterChangePacket{Character: user})
@@ -165,15 +157,7 @@ func (p *DoubleClickPacket) Handle(buffer *network.DataBuffer, connection protoc
 
 			if user.Hp < user.MaxHp {
 				user.Hp = user.MaxHp
-				connection.Send(&outgoing.UpdateUserStatsPacket{
-					Hp:         user.Hp,
-					MaxHp:      user.MaxHp,
-					Mana:       user.Mana,
-					MaxMana:    user.MaxMana,
-					Stamina:    user.Stamina,
-					MaxStamina: user.MaxStamina,
-					Exp:        user.Exp,
-				})
+				connection.Send(outgoing.NewUpdateUserStatsPacket(user))
 				connection.Send(&outgoing.ConsoleMessagePacket{Message: "Tus heridas han sido sanadas.", Font: outgoing.INFO})
 			}
 		}

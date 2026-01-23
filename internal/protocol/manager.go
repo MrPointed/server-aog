@@ -58,6 +58,16 @@ const (
 	CP_ExtractGold ClientPackets = 111
 	CP_DepositGold ClientPackets = 112
 
+	CP_Online ClientPackets = 70
+	CP_Quit ClientPackets = 71
+	CP_GuildLeave ClientPackets = 72
+	CP_Balance ClientPackets = 73
+	CP_PetStay ClientPackets = 74
+	CP_PetFollow ClientPackets = 75
+	CP_PetRelease ClientPackets = 76
+	CP_TrainList ClientPackets = 77
+	CP_Rest ClientPackets = 78
+	CP_Meditate ClientPackets = 79
 	CP_Resurrect ClientPackets = 80
 )
 
@@ -208,6 +218,8 @@ func GetOutgoingPacketID(packet OutgoingPacket) (ServerPackets, error) {
 	switch packet.(type) {
 	case *outgoing.LoggedPacket:
 		return SP_Logged, nil
+	case *outgoing.DisconnectPacket:
+		return SP_Disconnect, nil
 	case *outgoing.ConsoleMessagePacket:
 		return SP_ConsoleMessage, nil
 	case *outgoing.ErrorMessagePacket:
@@ -276,6 +288,8 @@ func GetOutgoingPacketID(packet OutgoingPacket) (ServerPackets, error) {
 		return SP_Attributes, nil
 	case *outgoing.SendSkillsPacket:
 		return SP_SendSkills, nil
+	case *outgoing.MeditateTogglePacket:
+		return SP_MeditateToggle, nil
 	}
 	return 0, fmt.Errorf("unknown outgoing packet type")
 }

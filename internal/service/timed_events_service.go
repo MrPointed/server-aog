@@ -65,6 +65,11 @@ func (s *TimedEventsService) processRegen() {
 		if char.Mana < char.MaxMana {
 			regen := int(char.Attributes[model.Intelligence] / 3)
 			if regen < 1 { regen = 1 }
+			
+			if char.Meditating {
+				regen *= 3
+			}
+			
 			char.Mana = utils.Min(char.MaxMana, char.Mana+regen)
 			changed = true
 		}
