@@ -37,12 +37,12 @@ const (
 	CP_CastSpell
 	CP_LeftClick
 	CP_Double_Click
-	CP_UseSkill
+	CP_Work
 	CP_UseSpellMacro
 	CP_UseItem
 	CP_CraftBlacksmith
 	CP_CraftCarpenter
-	CP_UseSkillClick
+	CP_WorkLeftClick
 	CP_CreateNewGuild
 	CP_SpellInfo
 	CP_EquipItem
@@ -51,7 +51,12 @@ const (
 	CP_Train
 	
 	CP_CommerceBuy ClientPackets = 40
+	CP_BankExtractItem ClientPackets = 41
 	CP_CommerceSell ClientPackets = 42
+	CP_BankDeposit ClientPackets = 43
+
+	CP_ExtractGold ClientPackets = 111
+	CP_DepositGold ClientPackets = 112
 
 	CP_Resurrect ClientPackets = 80
 )
@@ -213,6 +218,8 @@ func GetOutgoingPacketID(packet OutgoingPacket) (ServerPackets, error) {
 		return SP_UpdateUserStats, nil
 	case *outgoing.UpdateGoldPacket:
 		return SP_UpdateGold, nil
+	case *outgoing.UpdateBankGoldPacket:
+		return SP_UpdateBankGold, nil
 	case *outgoing.UpdateHungerAndThirstPacket:
 		return SP_UpdateHungerAndThirst, nil
 	case *outgoing.UpdateStrengthAndDexterityPacket:
@@ -245,6 +252,8 @@ func GetOutgoingPacketID(packet OutgoingPacket) (ServerPackets, error) {
 		return SP_CreateFx, nil
 	case *outgoing.ChangeInventorySlotPacket:
 		return SP_ChangeInventorySlot, nil
+	case *outgoing.ChangeBankSlotPacket:
+		return SP_ChangeBankSlot, nil
 	case *outgoing.ChangeSpellSlotPacket:
 		return SP_ChangeSpellSlot, nil
 	case *outgoing.PlayWavePacket:
@@ -257,6 +266,10 @@ func GetOutgoingPacketID(packet OutgoingPacket) (ServerPackets, error) {
 		return SP_CommerceInit, nil
 	case *outgoing.CommerceEndPacket:
 		return SP_CommerceEnd, nil
+	case *outgoing.BankInitPacket:
+		return SP_BankInit, nil
+	case *outgoing.BankingEndPacket:
+		return SP_BankingEnd, nil
 	case *outgoing.ChangeNpcInventorySlotPacket:
 		return SP_ChangeNpcInventorySlot, nil
 	case *outgoing.AttributesPacket:

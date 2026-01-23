@@ -46,6 +46,7 @@ type Character struct {
 	Hunger      int
 	Thirstiness int
 	Gold        int
+	BankGold    int
 
 	SkillPoints int
 	Attributes  map[Attribute]byte
@@ -66,8 +67,9 @@ type Character struct {
 
 	TradingNPCIndex int16
 
-	Inventory Inventory
-	Spells    []int
+	Inventory     Inventory
+	BankInventory Inventory
+	Spells        []int
 	SelectedSpell int
 
 	Poisoned    bool

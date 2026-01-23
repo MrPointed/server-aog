@@ -80,6 +80,7 @@ func NewServer(addr string) *Server {
 	}
 
 	skillService := service.NewSkillService(mapService, objectService, messageService, userService, npcService, spellService, intervalService)
+	bankService := service.NewBankService(objectService, messageService, userService)
 
 	fileDAO := persistence.NewFileDAO("../../resources/charfiles")
 	loginService := service.NewLoginService(fileDAO, fileDAO, cfg, userService, mapService, bodyService, indexManager, messageService, objectService, cityService, spellService, executor)
@@ -107,14 +108,20 @@ func NewServer(addr string) *Server {
 	m.RegisterHandler(protocol.CP_EquipItem, &incoming.EquipItemPacket{ItemActionService: itemActionService})
 	m.RegisterHandler(protocol.CP_ModifySkills, &incoming.ModifySkillsPacket{})
 	m.RegisterHandler(protocol.CP_ChangeHeading, &incoming.ChangeHeadingPacket{AreaService: areaService})
-	m.RegisterHandler(protocol.CP_Double_Click, &incoming.DoubleClickPacket{MapService: mapService, NpcService: npcService, UserService: userService, ObjectService: objectService, AreaService: areaService})
-	m.RegisterHandler(protocol.CP_UseSkill, &incoming.UseSkillPacket{})
-	m.RegisterHandler(protocol.CP_UseSkillClick, &incoming.UseSkillClickPacket{SkillService: skillService})
+	m.RegisterHandler(protocol.CP_Double_Click, &incoming.DoubleClickPacket{MapService: mapService, NpcService: npcService, UserService: userService, ObjectService: objectService, AreaService: areaService, BankService: bankService})
+	m.RegisterHandler(protocol.CP_Work, &incoming.UseSkillPacket{})
+	m.RegisterHandler(protocol.CP_WorkLeftClick, &incoming.UseSkillClickPacket{SkillService: skillService})
 	m.RegisterHandler(protocol.CP_Resurrect, &incoming.ResurrectPacket{MapService: mapService, AreaService: areaService, MessageService: messageService, BodyService: bodyService})
 
 	m.RegisterHandler(protocol.CP_CommerceEnd, &incoming.CommerceEndPacket{})
 	m.RegisterHandler(protocol.CP_CommerceBuy, &incoming.CommerceBuyPacket{NpcService: npcService, ObjectService: objectService, MessageService: messageService})
 	m.RegisterHandler(protocol.CP_CommerceSell, &incoming.CommerceSellPacket{NpcService: npcService, ObjectService: objectService, MessageService: messageService})
+
+	m.RegisterHandler(protocol.CP_BankEnd, &incoming.BankEndPacket{BankService: bankService})
+	m.RegisterHandler(protocol.CP_BankExtractItem, &incoming.BankExtractItemPacket{BankService: bankService})
+	m.RegisterHandler(protocol.CP_BankDeposit, &incoming.BankDepositPacket{BankService: bankService})
+	m.RegisterHandler(protocol.CP_ExtractGold, &incoming.ExtractGoldPacket{BankService: bankService})
+	m.RegisterHandler(protocol.CP_DepositGold, &incoming.DepositGoldPacket{BankService: bankService})
 
 	return &Server{
 		addr:           addr,

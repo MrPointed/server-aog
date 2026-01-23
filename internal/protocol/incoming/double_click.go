@@ -17,6 +17,7 @@ type DoubleClickPacket struct {
 	UserService   *service.UserService
 	ObjectService *service.ObjectService
 	AreaService   *service.AreaService
+	BankService   *service.BankService
 }
 
 func (p *DoubleClickPacket) Handle(buffer *network.DataBuffer, connection protocol.Connection) (bool, error) {
@@ -128,8 +129,8 @@ func (p *DoubleClickPacket) Handle(buffer *network.DataBuffer, connection protoc
 				connection.Send(&outgoing.ConsoleMessagePacket{Message: "Estás demasiado lejos del banquero.", Font: outgoing.INFO})
 				return true, nil
 			}
-			// TODO: IniciarDeposito(user)
-			connection.Send(&outgoing.ConsoleMessagePacket{Message: "Banca no implementada aún.", Font: outgoing.INFO})
+			p.BankService.OpenBank(user)
+			return true, nil
 
 		case model.NTHealer, model.NTHealerNewbie:
 			if dist > 10 {

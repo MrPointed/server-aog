@@ -90,6 +90,7 @@ func (d *FileDAO) Load(nick string) (*model.Character, error) {
 	char.Hunger = toInt(stats["MINHAM"])
 	char.Thirstiness = toInt(stats["MINAGU"])
 	char.Gold = toInt(stats["ORO"])
+	char.BankGold = toInt(stats["BANCO"])
 	char.SkillPoints = toInt(stats["SKILLPTS"])
 
 	char.Attributes[model.Strength] = byte(toInt(attrs["AT1"]))
@@ -124,6 +125,22 @@ func (d *FileDAO) Load(nick string) (*model.Character, error) {
 					if len(parts) >= 3 {
 						char.Inventory.Slots[i].Equipped = toInt(parts[2]) == 1
 					}
+				}
+			}
+		}
+	}
+
+	// Bank Inventory
+	bankInv := data["BANCOINVENTORY"]
+	if bankInv != nil {
+		for i := 0; i < model.InventorySlots; i++ {
+			key := strings.ToUpper(fmt.Sprintf("Obj%d", i+1))
+			val := bankInv[key]
+			if val != "" {
+				parts := strings.Split(val, "-")
+				if len(parts) >= 2 {
+					char.BankInventory.Slots[i].ObjectID = toInt(parts[0])
+					char.BankInventory.Slots[i].Amount = toInt(parts[1])
 				}
 			}
 		}
@@ -241,6 +258,7 @@ func (d *FileDAO) SaveCharacter(char *model.Character) error {
 	stats["MinAGU"] = strconv.Itoa(char.Thirstiness)
 	stats["MaxAGU"] = strconv.Itoa(100)
 	stats["ORO"] = strconv.Itoa(char.Gold)
+	stats["BANCO"] = strconv.Itoa(char.BankGold)
 	stats["SKILLPTS"] = strconv.Itoa(char.SkillPoints)
 
 	// Skills
@@ -270,6 +288,22 @@ func (d *FileDAO) SaveCharacter(char *model.Character) error {
 		}
 	}
 	inv["CANTIDADITEMS"] = strconv.Itoa(count)
+
+	// Bank Inventory
+	if data["BANCOINVENTORY"] == nil { data["BANCOINVENTORY"] = make(map[string]string) }
+	binv := data["BANCOINVENTORY"]
+	bcount := 0
+	for i := 0; i < model.InventorySlots; i++ {
+		slot := char.BankInventory.Slots[i]
+		key := strings.ToUpper(fmt.Sprintf("OBJ%d", i+1))
+		if slot.ObjectID > 0 {
+			binv[key] = fmt.Sprintf("%d-%d", slot.ObjectID, slot.Amount)
+			bcount++
+		} else {
+			delete(binv, key)
+		}
+	}
+	binv["CANTIDADITEMS"] = strconv.Itoa(bcount)
 
 	// Spells
 	if data["HECHIZOS"] == nil { data["HECHIZOS"] = make(map[string]string) }
@@ -347,7 +381,7 @@ func (d *FileDAO) writeINI(path string, data map[string]map[string]string) error
 
 	writer := bufio.NewWriter(file)
 	// We want some order if possible, but for simplicity let's just range
-	sections := []string{"INIT", "CONTACTO", "FLAGS", "ATRIBUTOS", "STATS", "SKILLS", "REP", "INVENTORY", "HECHIZOS"}
+	sections := []string{"INIT", "CONTACTO", "FLAGS", "ATRIBUTOS", "STATS", "SKILLS", "REP", "INVENTORY", "BANCOINVENTORY", "HECHIZOS"}
 	for _, sec := range sections {
 		if inner, ok := data[sec]; ok {
 			fmt.Fprintf(writer, "[%s]\n", sec)

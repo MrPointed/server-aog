@@ -1,6 +1,6 @@
-# TODO: Mirror Java Server Implementation in Go
+# TODO: Server Implementation in Go
 
-This list outlines the tasks required to achieve feature parity with the existing Java server implementation.
+This list outlines the tasks required to achieve a functional golang server implementation.
 
 ## 1. Core Models & Data Structures
 - [x] **Character Attributes:** Implement `Strength`, `Dexterity`, `Intelligence`, `Charisma`, and `Constitution`.
@@ -18,6 +18,7 @@ This list outlines the tasks required to achieve feature parity with the existin
 - [x] **`Attack` Packet:** Handle physical attacks.
 - [x] **`CastSpell` Packet:** Handle casting spells on targets.
 - [x] **`PickUp` Packet:** Handle picking up items from the ground.
+- [x] **`ModifySkills` Packet:** Allow players to assign skill points.
 
 ## 3. Networking & Protocol (Outgoing)
 - [x] **State Sync Packets:** `UpdateUserStats`, `UpdateHungerAndThirst`, and `UpdateStrengthAndDexterity`.
@@ -30,6 +31,7 @@ This list outlines the tasks required to achieve feature parity with the existin
 - [x] **Map & World Packets:** `CharacterRemove` and `CharacterMove`.
 - [x] **Object Packets:** `ObjectCreate`, `ObjectDelete`.
 - [x] **Inventory & Spells:** `ChangeInventorySlot` and `ChangeSpellSlot`.
+- [x] **`SendSkills` Packet:** Send current skills and free skill points to client.
 
 ## 4. Services & Business Logic
 - [x] **`LoginService`:** Full logic for new and existing connections.
@@ -43,6 +45,7 @@ This list outlines the tasks required to achieve feature parity with the existin
 - [x] **`CombatService`:** Implementation of combat formulas (hit/miss, damage).
 - [x] **`TimedEventsService`:** Handle periodic updates (HP/Mana regen, spell durations).
 - [x] **`SpellService`:** Spell definitions and management.
+- [x] **`TrainingService`:** Level up logic, stat gains, and skill points awarding.
 
 ## 5. Data Access (Persistence)
 - [x] **`AccountDAO`:** FileDAO implemented (.chr files).
@@ -57,25 +60,31 @@ This list outlines the tasks required to achieve feature parity with the existin
 - [x] **Hashing:** MD5 hashing for passwords implemented.
 - [x] **Server Configuration:** `config.go` implemented.
 - [x] **Action System:** Generic `ActionExecutor` implemented using Go generics.
+- [ ] **Anticheat:** Implement interval validation for all critical actions (Move, Attack, Spell, Work).
 
 ## 7. Items & Inventory System
 - [ ] **Item Models:** Implement `MeleeWeapon`, `RangedWeapon`, `Armor`, `Helmet`, `Shield`, `Potion`, `Food`, `Drink`, `Source` (Tree/Mine).
-- [ ] **Inventory Logic:** Slot management, weight calculations, and item stacking.
-- [ ] **Object Interaction:** Picking up, dropping, and using objects on the map (Doors, Signs, Forges).
+- [ ] **Inventory Logic:** Weight calculations and item stacking.
+- [x] **Initial Inventory:** Newbie items granted upon character creation.
+- [ ] **Object Interaction:** Logic for using objects on the map (Doors, Signs, Forges).
 
 ## 8. Spells & Combat System
 - [x] **Spell Models:** Implement spell properties (mana cost, target type, effects).
-- [ ] **Combat Formulas:** Implement race/archetype modifiers for combat.
-- [ ] **Health & Status:** Handle death, resurrection, paralysis, and poisoning.
-- [ ] **Spell Casting:** Implement `CastSpell` packet handler and logic.
+- [x] **Combat Formulas:** Implement race/archetype modifiers for combat.
+- [ ] **Health & Status:** Handle resurrection, paralysis, and poisoning (Death and basic HP already implemented).
+- [x] **Spell Casting:** Logic and effects for damage/healing spells.
 
 ## 9. NPCs & AI
-- [ ] **AI System:** Basic pathfinding and hostile/friendly behaviors.
+- [ ] **AI System:** Pathfinding and hostile/friendly behaviors.
 - [ ] **Spawning Logic:** Map-based spawning from configuration files.
 - [ ] **Loot System:** Handling NPC death and item drops.
 
 ## 10. Social & World Interactions
-- [ ] **Guilds:** Basic guild creation and chat.
-- [ ] **Parties:** Party formation and experience sharing.
-- [ ] **Bank & Shop:** Interaction with Banker and Merchant NPCs.
-- [ ] **Skills:** Implement the 21 skills (Magic, Combat, Crafting, etc.) and their progression.
+- [ ] **Guilds:** Creation, management, and chat.
+- [ ] **Parties:** Formation, management, and experience sharing.
+- [ ] **Bank & Shop:** Complete logic for Banker and Merchant interactions.
+- [x] **Skills:** 21 skills implemented and assigned to client-compatible IDs.
+- [x] **Skill Progression:** Allocation of skill points (10 initial, 5 per level).
+- [ ] **World Triggers:** Map-to-map transitions (Warps).
+- [ ] **Navigation:** Sailing system and water-only zones.
+- [ ] **Admin Commands:** Full set of GM commands (/TELEP, /BAN, /KICK, /ITEM).
