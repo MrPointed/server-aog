@@ -303,6 +303,14 @@ func (d *FileDAO) CreateAccountAndCharacter(nick, password, mail string, race mo
 	char.Hunger = 100
 	char.Thirstiness = 100
 
+	// Add newbie items
+	char.Inventory.AddItem(460, 1)  // Daga (Newbie)
+	char.Inventory.AddItem(463, 1)  // Vestimentas Comunes (Newbie)
+	char.Inventory.AddItem(461, 50) // Pocion Roja (Newbie)
+	char.Inventory.AddItem(462, 50) // Pocion Verde (Newbie)
+	char.Inventory.AddItem(855, 50) // Pocion Amarilla (Newbie)
+	char.Inventory.AddItem(856, 50) // Pocion Azul (Newbie)
+
 	acc := &model.Account{
 		Nick:     nick,
 		Password: password,

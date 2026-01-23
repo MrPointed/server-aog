@@ -53,11 +53,7 @@ func (s *TrainingService) CheckLevel(char *model.Character) {
 		char.Level++
 
 		// Award skill points
-		if char.Level == 2 {
-			ptsAwarded += 10
-		} else {
-			ptsAwarded += 5
-		}
+		ptsAwarded += 5
 
 		// Calculate new EXP threshold
 		s.updateExpThreshold(char)

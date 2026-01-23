@@ -145,13 +145,14 @@ func (inv *Inventory) AddItem(objectID int, amount int) bool {
 
 func NewCharacter(name string, race Race, gender Gender, archetype UserArchetype) *Character {
 	return &Character{
-		Name:      name,
-		Race:      race,
-		Gender:    gender,
-		Archetype: archetype,
-		Level:     1,
-		ExpToNext: 300,
-		Attributes: make(map[Attribute]byte),
-		Skills:     make(map[Skill]int),
+		Name:        name,
+		Race:        race,
+		Gender:      gender,
+		Archetype:   archetype,
+		Level:       1,
+		ExpToNext:   300,
+		SkillPoints: 10,
+		Attributes:  make(map[Attribute]byte),
+		Skills:      make(map[Skill]int),
 	}
 }
