@@ -100,6 +100,14 @@ func (s *ItemActionService) EquipItem(char *model.Character, slot int, connectio
 }
 
 func (s *ItemActionService) CanUse(char *model.Character, obj *model.Object, connection protocol.Connection) bool {
+	if s.messageService.MapService.IsInvalidPosition(char.Position) {
+		connection.Send(&outgoing.ConsoleMessagePacket{
+			Message: "Posición inválida.",
+			Font:    outgoing.INFO,
+		})
+		return false
+	}
+
 	// Newbie check
 	if obj.Newbie && char.Level > 12 {
 		connection.Send(&outgoing.ConsoleMessagePacket{
@@ -129,6 +137,14 @@ func (s *ItemActionService) CanEquip(char *model.Character, obj *model.Object, c
 	if char.Dead {
 		connection.Send(&outgoing.ConsoleMessagePacket{
 			Message: "¡Estás muerto!",
+			Font:    outgoing.INFO,
+		})
+		return false
+	}
+
+	if s.messageService.MapService.IsInvalidPosition(char.Position) {
+		connection.Send(&outgoing.ConsoleMessagePacket{
+			Message: "Posición inválida.",
 			Font:    outgoing.INFO,
 		})
 		return false

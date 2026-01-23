@@ -58,6 +58,16 @@ func (s *SpellService) CastSpell(caster *model.Character, spellID int, target an
 
 	conn := s.userService.GetConnection(caster)
 
+	if s.messageService.MapService.IsInvalidPosition(caster.Position) {
+		if conn != nil {
+			conn.Send(&outgoing.ConsoleMessagePacket{
+				Message: "Posición inválida.",
+				Font:    outgoing.INFO,
+			})
+		}
+		return
+	}
+
 	// Check intervals
 	if !s.intervals.CanCastSpell(caster) {
 		return
@@ -121,6 +131,19 @@ func (s *SpellService) CastSpell(caster *model.Character, spellID int, target an
 	case *model.Character:
 		fmt.Printf("CastSpell: Target is Character %s. Spell Type: %d\n", t.Name, spell.TargetType)
 		if spell.TargetType == model.TargetUser || spell.TargetType == model.TargetUserAndNpc {
+			// Safe zone check for offensive spells
+			isOffensive := spell.SubeHP == 2 || spell.Paralyzes || spell.Immobilizes || spell.Poison
+			if isOffensive {
+				if s.messageService.MapService.IsSafeZone(caster.Position) || s.messageService.MapService.IsSafeZone(t.Position) {
+					if conn != nil {
+						conn.Send(&outgoing.ConsoleMessagePacket{
+							Message: "No puedes combatir en zona segura.",
+							Font:    outgoing.INFO,
+						})
+					}
+					return
+				}
+			}
 			s.applySpellToCharacter(caster, t, spell)
 		} else {
 			fmt.Println("CastSpell: Invalid target type for Character")
@@ -131,6 +154,19 @@ func (s *SpellService) CastSpell(caster *model.Character, spellID int, target an
 	case *model.WorldNPC:
 		fmt.Printf("CastSpell: Target is NPC. Spell Type: %d\n", spell.TargetType)
 		if spell.TargetType == model.TargetNpc || spell.TargetType == model.TargetUserAndNpc {
+			// Safe zone check for offensive spells on NPCs
+			isOffensive := spell.SubeHP == 2 || spell.Paralyzes || spell.Immobilizes || spell.Poison
+			if isOffensive {
+				if s.messageService.MapService.IsSafeZone(caster.Position) || s.messageService.MapService.IsSafeZone(t.Position) {
+					if conn != nil {
+						conn.Send(&outgoing.ConsoleMessagePacket{
+							Message: "No puedes combatir en zona segura.",
+							Font:    outgoing.INFO,
+						})
+					}
+					return
+				}
+			}
 			s.applySpellToNPC(caster, t, spell)
 		} else {
 			fmt.Println("CastSpell: Invalid target type for NPC")
@@ -167,6 +203,14 @@ func (s *SpellService) NpcLanzaSpellSobreUser(npc *model.WorldNPC, target *model
 	spell := s.GetSpell(spellID)
 	if spell == nil {
 		return false
+	}
+
+	// Safe zone check for offensive spells
+	isOffensive := spell.SubeHP == 2 || spell.Paralyzes || spell.Immobilizes || spell.Poison
+	if isOffensive {
+		if s.messageService.MapService.IsSafeZone(npc.Position) || s.messageService.MapService.IsSafeZone(target.Position) {
+			return false
+		}
 	}
 
 	// Broadcast magic words as overhead text

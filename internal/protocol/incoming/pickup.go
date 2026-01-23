@@ -19,6 +19,14 @@ func (p *PickUpPacket) Handle(buffer *network.DataBuffer, connection protocol.Co
 		return true, nil
 	}
 
+	if p.MapService.IsInvalidPosition(char.Position) {
+		connection.Send(&outgoing.ConsoleMessagePacket{
+			Message: "Posición inválida.",
+			Font:    outgoing.INFO,
+		})
+		return true, nil
+	}
+
 	worldObj := p.MapService.GetObjectAt(char.Position)
 	if worldObj == nil {
 		connection.Send(&outgoing.ConsoleMessagePacket{

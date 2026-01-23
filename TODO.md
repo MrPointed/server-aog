@@ -85,6 +85,6 @@ This list outlines the tasks required to achieve a functional golang server impl
 - [ ] **Bank & Shop:** Complete logic for Banker and Merchant interactions.
 - [x] **Skills:** 21 skills implemented and assigned to client-compatible IDs.
 - [x] **Skill Progression:** Allocation of skill points (10 initial, 5 per level).
-- [ ] **World Triggers:** Map-to-map transitions (Warps).
+- [x] **World Triggers:** Map-to-map transitions (Warps).
 - [ ] **Navigation:** Sailing system and water-only zones.
 - [ ] **Admin Commands:** Full set of GM commands (/TELEP, /BAN, /KICK, /ITEM).

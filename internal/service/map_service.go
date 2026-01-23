@@ -185,6 +185,11 @@ func (s *MapService) MoveCharacterTo(char *model.Character, heading model.Headin
 			return char.Position, false
 		}
 
+		if tile.Trigger == model.TriggerInvalidPosition {
+			fmt.Printf("Move blocked by invalid position trigger at %d,%d\n", newPos.X, newPos.Y)
+			return char.Position, false
+		}
+
 		if tile.Character != nil {
 			fmt.Printf("Move blocked by character at %d,%d\n", newPos.X, newPos.Y)
 			return char.Position, false
@@ -192,6 +197,24 @@ func (s *MapService) MoveCharacterTo(char *model.Character, heading model.Headin
 	}
 	char.Heading = heading
 	return newPos, true
+}
+
+func (s *MapService) IsSafeZone(pos model.Position) bool {
+	m := s.GetMap(pos.Map)
+	if m == nil {
+		return true // Assume safe if map not found? Or false? Usually false for safety.
+	}
+	tile := m.GetTile(int(pos.X), int(pos.Y))
+	return tile.Trigger == model.TriggerSafeZone
+}
+
+func (s *MapService) IsInvalidPosition(pos model.Position) bool {
+	m := s.GetMap(pos.Map)
+	if m == nil {
+		return true
+	}
+	tile := m.GetTile(int(pos.X), int(pos.Y))
+	return tile.Trigger == model.TriggerInvalidPosition
 }
 
 func (s *MapService) IsTileEmpty(mapID int, x, y int) bool {

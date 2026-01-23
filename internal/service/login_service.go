@@ -146,6 +146,14 @@ func (s *LoginService) finalizeLogin(conn protocol.Connection, acc *model.Accoun
 	conn.SetUser(char)
 	s.userService.LogIn(conn)
 
+	if s.mapService.IsInvalidPosition(char.Position) {
+		city, ok := s.cityService.GetCity(1)
+		if !ok {
+			city = model.City{Map: 1, X: 50, Y: 50}
+		}
+		char.Position = model.Position{X: city.X, Y: city.Y, Map: city.Map}
+	}
+
 	// Place character in world via action executor
 	s.executor.Dispatch(func(m *MapService) {
 		m.PutCharacterAtPos(char, char.Position)

@@ -37,6 +37,11 @@ func (s *CombatService) ResolveAttack(attacker *model.Character, target any) {
 		return
 	}
 
+	if s.mapService.IsInvalidPosition(attacker.Position) {
+		s.messageService.SendConsoleMessage(attacker, "Posición inválida.", outgoing.INFO)
+		return
+	}
+
 	// Check stamina
 	if attacker.Stamina < 10 {
 		s.messageService.SendConsoleMessage(attacker, "Estás muy cansado para luchar.", outgoing.INFO)
@@ -69,6 +74,11 @@ func (s *CombatService) ResolveAttack(attacker *model.Character, target any) {
 func (s *CombatService) resolvePVP(attacker *model.Character, victim *model.Character) {
 	if victim.Dead {
 		s.messageService.SendConsoleMessage(attacker, "No puedes atacar a un espíritu.", outgoing.INFO)
+		return
+	}
+
+	if s.mapService.IsSafeZone(attacker.Position) || s.mapService.IsSafeZone(victim.Position) {
+		s.messageService.SendConsoleMessage(attacker, "No puedes combatir en zona segura.", outgoing.INFO)
 		return
 	}
 
@@ -152,6 +162,11 @@ func (s *CombatService) resolvePVE(attacker *model.Character, victim *model.Worl
 		return
 	}
 
+	if s.mapService.IsSafeZone(attacker.Position) || s.mapService.IsSafeZone(victim.Position) {
+		s.messageService.SendConsoleMessage(attacker, "No puedes combatir en zona segura.", outgoing.INFO)
+		return
+	}
+
 	weapon := s.getEquippedWeapon(attacker)
 
 	// Hit check
@@ -203,6 +218,10 @@ func (s *CombatService) resolvePVE(attacker *model.Character, victim *model.Worl
 
 func (s *CombatService) NpcAtacaUser(npc *model.WorldNPC, victim *model.Character) bool {
 	if victim.Dead {
+		return false
+	}
+
+	if s.mapService.IsSafeZone(npc.Position) || s.mapService.IsSafeZone(victim.Position) {
 		return false
 	}
 

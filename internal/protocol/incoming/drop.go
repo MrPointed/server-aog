@@ -35,6 +35,14 @@ func (p *DropPacket) Handle(buffer *network.DataBuffer, connection protocol.Conn
 		return true, nil
 	}
 
+	if p.MapService.IsInvalidPosition(char.Position) {
+		connection.Send(&outgoing.ConsoleMessagePacket{
+			Message: "Posición inválida.",
+			Font:    outgoing.INFO,
+		})
+		return true, nil
+	}
+
 	itemSlot := char.Inventory.GetSlot(slot)
 	if itemSlot == nil || itemSlot.ObjectID == 0 || itemSlot.Amount < amount {
 		return true, nil
