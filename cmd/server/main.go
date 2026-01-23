@@ -64,7 +64,7 @@ func NewServer(addr string) *Server {
 	executor.Start()
 
 	areaService := service.NewAreaService(mapService, userService)
-	messageService := service.NewMessageService(userService, areaService, mapService)
+	messageService := service.NewMessageService(userService, areaService, mapService, objectService)
 	trainingService := service.NewTrainingService(messageService, userService, archetypeMods)
 	combatService := service.NewCombatService(messageService, objectService, npcService, mapService, combatFormulas, intervalService, trainingService)
 	timedEventsService := service.NewTimedEventsService(userService, messageService)
@@ -114,7 +114,7 @@ func NewServer(addr string) *Server {
 	m.RegisterHandler(protocol.CP_Double_Click, &incoming.DoubleClickPacket{MapService: mapService, NpcService: npcService, UserService: userService, ObjectService: objectService, AreaService: areaService, BankService: bankService, SpellService: spellService})
 	m.RegisterHandler(protocol.CP_Work, &incoming.UseSkillPacket{})
 	m.RegisterHandler(protocol.CP_WorkLeftClick, &incoming.UseSkillClickPacket{SkillService: skillService})
-	m.RegisterHandler(protocol.CP_Resurrect, &incoming.ResurrectPacket{MapService: mapService, AreaService: areaService, MessageService: messageService, BodyService: bodyService})
+	m.RegisterHandler(protocol.CP_Resurrect, &incoming.ResurrectPacket{MapService: mapService, AreaService: areaService, MessageService: messageService})
 
 	m.RegisterHandler(protocol.CP_CommerceEnd, &incoming.CommerceEndPacket{})
 	m.RegisterHandler(protocol.CP_CommerceBuy, &incoming.CommerceBuyPacket{NpcService: npcService, ObjectService: objectService, MessageService: messageService})

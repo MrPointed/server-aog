@@ -71,7 +71,7 @@ This list outlines the tasks required to achieve a functional golang server impl
 ## 8. Spells & Combat System
 - [x] **Spell Models:** Implement spell properties (mana cost, target type, effects).
 - [x] **Combat Formulas:** Implement race/archetype modifiers for combat.
-- [ ] **Health & Status:** Handle resurrection, paralysis, and poisoning (Death and basic HP already implemented).
+- [x] **Health & Status:** Handle resurrection, paralysis, and poisoning (Death and basic HP already implemented).
 - [x] **Spell Casting:** Logic and effects for damage/healing spells.
 
 ## 9. NPCs & AI

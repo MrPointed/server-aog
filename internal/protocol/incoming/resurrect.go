@@ -12,7 +12,6 @@ type ResurrectPacket struct {
 	MapService     *service.MapService
 	AreaService    *service.AreaService
 	MessageService *service.MessageService
-	BodyService    *service.CharacterBodyService
 }
 
 func (p *ResurrectPacket) Handle(buffer *network.DataBuffer, connection protocol.Connection) (bool, error) {
@@ -53,21 +52,7 @@ func (p *ResurrectPacket) Handle(buffer *network.DataBuffer, connection protocol
 	}
 
 	// Resurrect!
-	char.Dead = false
-	char.Hp = char.MaxHp
-	char.Head = char.OriginalHead
-	char.Body = p.BodyService.GetBody(char.Race, char.Gender)
-
-	connection.Send(&outgoing.ConsoleMessagePacket{
-		Message: "Has sido resucitado.",
-		Font:    outgoing.INFO,
-	})
-
-	// Sync self
-	connection.Send(outgoing.NewUpdateUserStatsPacket(char))
-	
-	// Broadcast change
-	p.MessageService.SendToArea(&outgoing.CharacterChangePacket{Character: char}, char.Position)
+	p.MessageService.HandleResurrection(char)
 
 	return true, nil
 }

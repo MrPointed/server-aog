@@ -128,6 +128,13 @@ func (s *CombatService) resolvePVP(attacker *model.Character, victim *model.Char
 		victim.Hp = 0
 	}
 
+	// Remove paralysis on hit
+	if victim.Paralyzed || victim.Immobilized {
+		victim.Paralyzed = false
+		victim.Immobilized = false
+		s.messageService.SendConsoleMessage(victim, "¡Has recuperado el movimiento!", outgoing.INFO)
+	}
+
 	// Feedback
 	s.messageService.SendConsoleMessage(attacker, fmt.Sprintf("¡Has golpeado a %s por %d!", victim.Name, damage), outgoing.FIGHT)
 	s.messageService.SendConsoleMessage(victim, fmt.Sprintf("¡%s te ha golpeado por %d!", attacker.Name, damage), outgoing.FIGHT)
@@ -147,7 +154,7 @@ func (s *CombatService) resolvePVP(attacker *model.Character, victim *model.Char
 	}, victim.Position)
 
 	if victim.Hp <= 0 {
-		s.handleCharacterDeath(victim)
+		s.messageService.HandleDeath(victim, "")
 	} else {
 		connVictim := s.messageService.userService.GetConnection(victim)
 		if connVictim != nil {
@@ -275,6 +282,13 @@ func (s *CombatService) NpcAtacaUser(npc *model.WorldNPC, victim *model.Characte
 		victim.Hp = 0
 	}
 
+	// Remove paralysis on hit
+	if victim.Paralyzed || victim.Immobilized {
+		victim.Paralyzed = false
+		victim.Immobilized = false
+		s.messageService.SendConsoleMessage(victim, "¡Has recuperado el movimiento!", outgoing.INFO)
+	}
+
 	// Feedback
 	s.messageService.SendConsoleMessage(victim, fmt.Sprintf("¡%s te ha golpeado por %d!", npc.NPC.Name, damage), outgoing.FIGHT)
 
@@ -293,7 +307,7 @@ func (s *CombatService) NpcAtacaUser(npc *model.WorldNPC, victim *model.Characte
 	}, victim.Position)
 
 	if victim.Hp <= 0 {
-		s.handleCharacterDeath(victim)
+		s.messageService.HandleDeath(victim, "")
 	} else {
 		connVictim := s.messageService.userService.GetConnection(victim)
 		if connVictim != nil {
@@ -329,25 +343,6 @@ func (s *CombatService) grantExperience(attacker *model.Character, victim *model
 		s.messageService.SendConsoleMessage(attacker, fmt.Sprintf("Has ganado %d puntos de experiencia.", expToGive), outgoing.FIGHT)
 		s.trainingService.CheckLevel(attacker)
 	}
-}
-
-func (s *CombatService) handleCharacterDeath(char *model.Character) {
-	char.Dead = true
-	char.Hp = 0
-	char.Body = 8   // Ghost
-	char.Head = 500 // Ghost head
-
-	conn := s.messageService.userService.GetConnection(char)
-	if conn != nil {
-		conn.Send(outgoing.NewUpdateUserStatsPacket(char))
-		conn.Send(&outgoing.ConsoleMessagePacket{
-			Message: "¡Has muerto!",
-			Font:    outgoing.INFO,
-		})
-	}
-
-	// Broadcast change
-	s.messageService.SendToArea(&outgoing.CharacterChangePacket{Character: char}, char.Position)
 }
 
 func (s *CombatService) handleNpcDeath(killer *model.Character, npc *model.WorldNPC) {

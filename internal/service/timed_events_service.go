@@ -81,10 +81,38 @@ func (s *TimedEventsService) processRegen() {
 			changed = true
 		}
 
+		// Poison damage
+		if char.Poisoned {
+			damage := utils.RandomNumber(1, 5)
+			char.Hp -= damage
+			if char.Hp <= 0 {
+				s.messageService.HandleDeath(char, "Has muerto por el veneno.")
+			}
+			changed = true
+		}
+
+		// Hunger and Thirst
+		char.Hunger = utils.Min(100, char.Hunger+1)
+		char.Thirstiness = utils.Min(100, char.Thirstiness+1)
+		
+		if char.Hunger >= 100 || char.Thirstiness >= 100 {
+			char.Hp -= 1
+			if char.Hp <= 0 {
+				s.messageService.HandleDeath(char, "Has muerto de hambre o sed.")
+			}
+			changed = true
+		}
+
 		if changed {
 			conn := s.userService.GetConnection(char)
 			if conn != nil {
 				conn.Send(outgoing.NewUpdateUserStatsPacket(char))
+				if char.Hunger%10 == 0 || char.Thirstiness%10 == 0 {
+					conn.Send(&outgoing.UpdateHungerAndThirstPacket{
+						MinHunger: char.Hunger, MaxHunger: 100,
+						MinThirst: char.Thirstiness, MaxThirst: 100,
+					})
+				}
 			}
 		}
 	}

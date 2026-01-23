@@ -246,15 +246,7 @@ func (s *SpellService) applySpellEffectToCharacter(target *model.Character, spel
 	// Revive
 	if spell.Revive {
 		if target.Dead {
-			target.Dead = false
-			target.Hp = target.MaxHp
-			target.Mana = 0
-			target.Stamina = 0
-			target.Body = 1
-			target.Head = target.OriginalHead
-
-			s.messageService.SendToArea(&outgoing.CharacterChangePacket{Character: target}, target.Position)
-			s.messageService.SendConsoleMessage(target, "¡Has sido revivido!", outgoing.INFO)
+			s.messageService.HandleResurrection(target)
 			return
 		}
 	}
@@ -284,7 +276,7 @@ func (s *SpellService) applySpellEffectToCharacter(target *model.Character, spel
 		s.messageService.SendConsoleMessage(target, fmt.Sprintf("¡%s te quitó %d puntos de vida!", casterName, amount), outgoing.FIGHT)
 
 		if target.Hp <= 0 {
-			s.handleCharacterDeath(target)
+			s.messageService.HandleDeath(target, "")
 		}
 	}
 
@@ -355,25 +347,6 @@ func (s *SpellService) SacerdoteResucitateUser(target *model.Character) {
 		s.messageService.SendToArea(&outgoing.CharacterChangePacket{Character: target}, target.Position)
 		s.messageService.SendConsoleMessage(target, "¡Has sido resucitado!", outgoing.INFO)
 	}
-}
-
-func (s *SpellService) handleCharacterDeath(char *model.Character) {
-	char.Dead = true
-	char.Hp = 0
-	char.Body = 8   // Casper
-	char.Head = 500 // Casper head
-
-	conn := s.userService.GetConnection(char)
-	if conn != nil {
-		conn.Send(outgoing.NewUpdateUserStatsPacket(char))
-		conn.Send(&outgoing.ConsoleMessagePacket{
-			Message: "¡Has muerto!",
-			Font:    outgoing.INFO,
-		})
-	}
-
-	// Broadcast change
-	s.messageService.SendToArea(&outgoing.CharacterChangePacket{Character: char}, char.Position)
 }
 
 func (s *SpellService) applySpellToNPC(caster *model.Character, target *model.WorldNPC, spell *model.Spell) {
