@@ -80,8 +80,8 @@ func (s *CombatService) resolvePVP(attacker *model.Character, victim *model.Char
 	chance := s.formulas.CalculateHitChance(attackerPower, victimEvasion)
 	
 	if rand.Intn(100) >= chance {
-		s.messageService.SendConsoleMessage(attacker, "¡Has fallado el golpe!", outgoing.INFO)
-		s.messageService.SendConsoleMessage(victim, fmt.Sprintf("¡%s ha fallado el golpe!", attacker.Name), outgoing.INFO)
+		s.messageService.SendConsoleMessage(attacker, "¡Has fallado el golpe!", outgoing.FIGHT)
+		s.messageService.SendConsoleMessage(victim, fmt.Sprintf("¡%s ha fallado el golpe!", attacker.Name), outgoing.FIGHT)
 		return
 	}
 
@@ -101,8 +101,8 @@ func (s *CombatService) resolvePVP(attacker *model.Character, victim *model.Char
 	if victim.Hp < 0 { victim.Hp = 0 }
 
 	// Feedback
-	s.messageService.SendConsoleMessage(attacker, fmt.Sprintf("¡Has golpeado a %s por %d!", victim.Name, damage), outgoing.INFO)
-	s.messageService.SendConsoleMessage(victim, fmt.Sprintf("¡%s te ha golpeado por %d!", attacker.Name, damage), outgoing.INFO)
+	s.messageService.SendConsoleMessage(attacker, fmt.Sprintf("¡Has golpeado a %s por %d!", victim.Name, damage), outgoing.FIGHT)
+	s.messageService.SendConsoleMessage(victim, fmt.Sprintf("¡%s te ha golpeado por %d!", attacker.Name, damage), outgoing.FIGHT)
 	
 	// Blood FX
 	s.messageService.SendToArea(&outgoing.CreateFxPacket{
@@ -131,7 +131,7 @@ func (s *CombatService) resolvePVE(attacker *model.Character, victim *model.Worl
 	chance := s.formulas.CalculateHitChance(attackerPower, victimEvasion)
 	
 	if rand.Intn(100) >= chance {
-		s.messageService.SendConsoleMessage(attacker, "¡Has fallado el golpe!", outgoing.INFO)
+		s.messageService.SendConsoleMessage(attacker, "¡Has fallado el golpe!", outgoing.FIGHT)
 		return
 	}
 
@@ -144,7 +144,7 @@ func (s *CombatService) resolvePVE(attacker *model.Character, victim *model.Worl
 	if damage < 1 { damage = 1 }
 
 	victim.HP -= damage
-	s.messageService.SendConsoleMessage(attacker, fmt.Sprintf("¡Has golpeado a la criatura por %d!", damage), outgoing.INFO)
+	s.messageService.SendConsoleMessage(attacker, fmt.Sprintf("¡Has golpeado a la criatura por %d!", damage), outgoing.FIGHT)
 
 	if victim.HP <= 0 {
 		s.handleNpcDeath(attacker, victim)

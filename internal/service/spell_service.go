@@ -189,8 +189,8 @@ func (s *SpellService) applySpellToCharacter(caster *model.Character, target *mo
 		if target.Hp > target.MaxHp {
 			target.Hp = target.MaxHp
 		}
-		s.messageService.SendConsoleMessage(target, fmt.Sprintf("Te han sanado %d puntos.", amount), outgoing.INFO)
-		s.messageService.SendConsoleMessage(caster, fmt.Sprintf("Has sanado %d puntos.", amount), outgoing.INFO)
+		s.messageService.SendConsoleMessage(target, fmt.Sprintf("Te han sanado %d puntos.", amount), outgoing.FIGHT)
+		s.messageService.SendConsoleMessage(caster, fmt.Sprintf("Has sanado %d puntos.", amount), outgoing.FIGHT)
 	}
 
 	// Damage (SubeHP = 2)
@@ -199,8 +199,8 @@ func (s *SpellService) applySpellToCharacter(caster *model.Character, target *mo
 		target.Hp -= amount
 		if target.Hp < 0 { target.Hp = 0 }
 		
-		s.messageService.SendConsoleMessage(target, fmt.Sprintf("¡%s te quitó %d puntos de vida!", caster.Name, amount), outgoing.INFO)
-		s.messageService.SendConsoleMessage(caster, fmt.Sprintf("Has quitado %d puntos de vida.", amount), outgoing.INFO)
+		s.messageService.SendConsoleMessage(target, fmt.Sprintf("¡%s te quitó %d puntos de vida!", caster.Name, amount), outgoing.FIGHT)
+		s.messageService.SendConsoleMessage(caster, fmt.Sprintf("Has quitado %d puntos de vida.", amount), outgoing.FIGHT)
 
 		if target.Hp <= 0 {
 			s.handleCharacterDeath(target)
@@ -268,14 +268,14 @@ func (s *SpellService) applySpellToNPC(caster *model.Character, target *model.Wo
 	if spell.SubeHP == 1 {
 		amount := rand.Intn(spell.MaxHP-spell.MinHP+1) + spell.MinHP
 		target.HP += amount
-		s.messageService.SendConsoleMessage(caster, fmt.Sprintf("Has curado %d puntos a la criatura.", amount), outgoing.INFO)
+		s.messageService.SendConsoleMessage(caster, fmt.Sprintf("Has curado %d puntos a la criatura.", amount), outgoing.FIGHT)
 	}
 
 	// Damage
 	if spell.SubeHP == 2 {
 		amount := rand.Intn(spell.MaxHP-spell.MinHP+1) + spell.MinHP
 		target.HP -= amount
-		s.messageService.SendConsoleMessage(caster, fmt.Sprintf("Has quitado %d puntos a la criatura.", amount), outgoing.INFO)
+		s.messageService.SendConsoleMessage(caster, fmt.Sprintf("Has quitado %d puntos a la criatura.", amount), outgoing.FIGHT)
 		
 		if target.HP <= 0 {
 			s.handleNpcDeath(caster, target)
