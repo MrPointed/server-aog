@@ -24,7 +24,11 @@ type Server struct {
 }
 
 func NewServer(addr string) *Server {
-	cfg := config.NewDefaultConfig()
+	cfg, err := config.Load("../../resources/server.ini")
+	if err != nil {
+		fmt.Printf("Warning: could not load server.ini: %v. Using defaults.\n", err)
+		cfg = config.NewDefaultConfig()
+	}
 
 	objectDAO := persistence.NewObjectDAO("../../resources/data/objects.dat")
 	objectService := service.NewObjectService(objectDAO)
@@ -87,8 +91,11 @@ func NewServer(addr string) *Server {
 
 	itemActionService := service.NewItemActionService(objectService, messageService, intervalService, bodyService)
 
+	gmService := service.NewGMService(userService, mapService, messageService, executor)
+
 	m := protocol.NewClientPacketsManager()
 	// Register handlers
+	m.RegisterHandler(protocol.CP_GMCommands, &incoming.GMCommandsPacket{GMService: gmService})
 	m.RegisterHandler(protocol.CP_LoginExistingCharacter, &incoming.LoginExistingCharacterPacket{LoginService: loginService})
 	m.RegisterHandler(protocol.CP_LoginNewCharacter, &incoming.LoginNewCharacterPacket{LoginService: loginService})
 	m.RegisterHandler(protocol.CP_ThrowDice, &incoming.ThrowDicesPacket{})

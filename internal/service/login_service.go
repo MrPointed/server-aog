@@ -8,6 +8,7 @@ import (
 	"github.com/ao-go-server/internal/persistence"
 	"github.com/ao-go-server/internal/protocol"
 	"github.com/ao-go-server/internal/protocol/outgoing"
+	"strings"
 )
 
 type LoginService struct {
@@ -212,6 +213,7 @@ func (s *LoginService) ensureValidCharacterState(char *model.Character, defaultB
 }
 
 func (s *LoginService) finalizeLogin(conn protocol.Connection, acc *model.Account, char *model.Character) {
+	s.determinePrivileges(char)
 	conn.Send(&outgoing.LoggedPacket{})
 	
 	// Assign Index
@@ -243,10 +245,46 @@ func (s *LoginService) finalizeLogin(conn protocol.Connection, acc *model.Accoun
 	s.messageService.SendToAreaButUser(&outgoing.CharacterCreatePacket{Character: char}, char.Position, char)
 	s.messageService.AreaService.SendAreaState(char)
 
-	fmt.Printf("User %s logged in at %+v\n", char.Name, char.Position)
+	fmt.Printf("User %s logged in at %+v (Privs: %d)\n", char.Name, char.Position, char.Privileges)
+}
+
+func (s *LoginService) determinePrivileges(char *model.Character) {
+	name := strings.ToUpper(char.Name)
+	char.Privileges = model.PrivilegeUser
+
+	// Check in descending order of power
+	for _, admin := range s.config.Gods {
+		if name == admin {
+			char.Privileges = model.PrivilegeGod
+			return
+		}
+	}
+	for _, admin := range s.config.SemiGods {
+		if name == admin {
+			char.Privileges = model.PrivilegeSemiGod
+			return
+		}
+	}
+	for _, admin := range s.config.Counselors {
+		if name == admin {
+			char.Privileges = model.PrivilegeCounselor
+			return
+		}
+	}
+	for _, admin := range s.config.RoleMasters {
+		if name == admin {
+			char.Privileges = model.PrivilegeRoleMaster
+			return
+		}
+	}
 }
 
 func (s *LoginService) sendInitialGameState(conn protocol.Connection, char *model.Character) {
+	// Send UserIndexInServer (Packet 27) - Contains Privileges & Color
+	conn.Send(&outgoing.UserIndexInServerPacket{
+		UserIndex:  char.CharIndex,
+	})
+
 	// Map Info
 	gameMap := s.mapService.GetMap(char.Position.Map)
 	if gameMap != nil {
@@ -275,6 +313,22 @@ func (s *LoginService) sendInitialGameState(conn protocol.Connection, char *mode
 		Strength:  char.Attributes[model.Strength],
 		Dexterity: char.Attributes[model.Dexterity],
 	})
+}
+
+func (s *LoginService) getChatColor(privs model.PrivilegeLevel) int32 {
+	rgb := func(r, g, b int32) int32 {
+		return r + (g * 256) + (b * 65536)
+	}
+
+	if privs.IsGod() {
+		return rgb(250, 250, 150)
+	} else if privs == model.PrivilegeCounselor {
+		return rgb(0, 255, 0)
+	} else if privs == model.PrivilegeSemiGod {
+		return rgb(0, 255, 0)
+	}
+	// Default white
+	return rgb(255, 255, 255)
 }
 
 func (s *LoginService) sendInventory(conn protocol.Connection, char *model.Character) {

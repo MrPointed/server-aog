@@ -40,6 +40,17 @@ func (s *UserService) IsUserLoggedIn(name string) bool {
 	return false
 }
 
+func (s *UserService) GetCharacterByName(name string) *model.Character {
+	s.mu.RLock()
+	defer s.mu.RUnlock()
+	for char := range s.charToConn {
+		if char.Name == name {
+			return char
+		}
+	}
+	return nil
+}
+
 func (s *UserService) LogIn(conn protocol.Connection) {
 	s.mu.Lock()
 	defer s.mu.Unlock()

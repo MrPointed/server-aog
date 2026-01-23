@@ -40,6 +40,7 @@ type Character struct {
 	Exp         int
 	ExpToNext   int
 
+	Privileges  PrivilegeLevel
 	Faccion CharacterFaccion
 
 	MinHit      int

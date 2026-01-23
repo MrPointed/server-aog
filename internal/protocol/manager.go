@@ -69,6 +69,7 @@ const (
 	CP_Rest ClientPackets = 78
 	CP_Meditate ClientPackets = 79
 	CP_Resurrect ClientPackets = 80
+	CP_GMCommands ClientPackets = 122
 )
 
 type ClientPacketsManager struct {
@@ -242,6 +243,8 @@ func GetOutgoingPacketID(packet OutgoingPacket) (ServerPackets, error) {
 		return SP_ChatOverHead, nil
 	case *outgoing.PosUpdatePacket:
 		return SP_PositionUpdate, nil
+	case *outgoing.UserIndexInServerPacket:
+		return SP_UserIndexInServer, nil
 	case *outgoing.UserCharIndexInServerPacket:
 		return SP_UserCharacterIndexInServer, nil
 	case *outgoing.CharacterCreatePacket:

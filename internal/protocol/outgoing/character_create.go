@@ -26,7 +26,7 @@ func (p *CharacterCreatePacket) Write(buffer *network.DataBuffer) error {
 	
 	buffer.PutUTF8String(p.Character.Name) // Java uses putUnicodeString which is UTF-8 with 2 byte len
 	buffer.Put(0) // Nick Color
-	buffer.Put(0) // Privileges Flags
+	buffer.Put(byte(p.Character.Privileges)) // Privileges Flags
 	
 	return nil
 }
