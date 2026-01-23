@@ -12,9 +12,9 @@ type UpdateHungerAndThirstPacket struct {
 }
 
 func (p *UpdateHungerAndThirstPacket) Write(buffer *network.DataBuffer) error {
-	buffer.Put(byte(p.MaxHunger))
-	buffer.Put(byte(p.MinHunger))
 	buffer.Put(byte(p.MaxThirst))
 	buffer.Put(byte(p.MinThirst))
+	buffer.Put(byte(p.MaxHunger))
+	buffer.Put(byte(p.MinHunger))
 	return nil
 }

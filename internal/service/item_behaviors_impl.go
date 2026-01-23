@@ -172,11 +172,11 @@ func (b *EquipGenericBehavior) equip(char *model.Character, obj *model.Object) {
 	case model.OTWeapon:
 		char.Weapon = int16(obj.EquippedWeaponGraphic)
 	case model.OTArmor:
-		char.Body = obj.EquippedBodyGraphic
+		char.Body = obj.EquippedArmorGraphic
 	case model.OTShield:
 		char.Shield = int16(obj.EquippedWeaponGraphic)
 	case model.OTHelmet:
-		char.Helmet = int16(obj.EquippedHeadGraphic)
+		char.Helmet = int16(obj.EquippedHelmetGraphic)
 	}
 }
 

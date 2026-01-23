@@ -93,6 +93,8 @@ func NewServer(addr string) *Server {
 	m.RegisterHandler(protocol.CP_ThrowDice, &incoming.ThrowDicesPacket{})
 	m.RegisterHandler(protocol.CP_Walk, &incoming.WalkPacket{MapService: mapService, AreaService: areaService, MessageService: messageService})
 	m.RegisterHandler(protocol.CP_RequestPositionUpdate, &incoming.RequestPositionUpdatePacket{})
+	m.RegisterHandler(protocol.CP_RequestAttributes, &incoming.RequestAttributesPacket{})
+	m.RegisterHandler(protocol.CP_RequestSkills, &incoming.RequestSkillsPacket{})
 	m.RegisterHandler(protocol.CP_Talk, &incoming.TalkPacket{MessageService: messageService})
 	m.RegisterHandler(protocol.CP_Yell, &incoming.YellPacket{MessageService: messageService})
 	m.RegisterHandler(protocol.CP_Whisper, &incoming.WhisperPacket{UserService: userService})

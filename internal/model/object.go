@@ -67,8 +67,8 @@ type Object struct {
 	
 	// Graphics
 	EquippedWeaponGraphic int
-	EquippedBodyGraphic   int
-	EquippedHeadGraphic   int
+	EquippedArmorGraphic  int
+	EquippedHelmetGraphic int
 	
 	// Map interaction
 	Pickupable bool

@@ -86,110 +86,110 @@ func (m *ClientPacketsManager) Handle(buffer *network.DataBuffer, connection Con
 type ServerPackets int
 
 const (
-	SP_Logged ServerPackets = iota
-	SP_RemoveAllDialogs
-	SP_RemoveChrDialog
-	SP_ToggleNavigate
-	SP_Disconnect
-	SP_CommerceEnd
-	SP_BankingEnd
-	SP_CommerceInit
-	SP_BankInit
-	SP_UserCommerceInit
-	SP_UserCommerceEnd
-	SP_UserOfferConfirm
-	SP_CommerceChat
-	SP_ShowBlacksmithForm
-	SP_ShowCarpenterForm
-	SP_UpdateStamina
-	SP_UpdateMana
-	SP_UpdateHP
-	SP_UpdateGold
-	SP_UpdateBankGold
-	SP_UpdateExp
-	SP_ChangeMap
-	SP_PositionUpdate
-	SP_ChatOverHead
-	SP_ConsoleMessage
-	SP_GuildChat
-	SP_ShowMessageBox
-	SP_UserIndexInServer
-	SP_UserCharacterIndexInServer
-	SP_CharacterCreate
-	SP_CharacterRemove
-	SP_CharacterChangeNickname
-	SP_CharacterMove
-	SP_CharacterForceMove
-	SP_CharacterChange
-	SP_ObjectCreate
-	SP_ObjectDelete
-	SP_BlockPosition
-	SP_PlayMidi
-	SP_PlayWave
-	SP_GuildList
-	SP_AreaChanged
-	SP_TogglePause
-	SP_ToggleRain
-	SP_CreateFx
-	SP_UpdateUserStats
-	SP_WorkRequestTarget
-	SP_ChangeInventorySlot
-	SP_ChangeBankSlot
-	SP_ChangeSpellSlot
-	SP_Attributes
-	SP_BlacksmithWeapons
-	SP_BlacksmithArmors
-	SP_CarpenterObjects
-	SP_RestOk
-	SP_ErrorMessage
-	SP_Blind
-	SP_Dumb
-	SP_ShowSignal
-	SP_ChangeNpcInventorySlot
-	SP_UpdateHungerAndThirst
-	SP_Fame
-	SP_MiniStats
-	SP_LevelUp
-	SP_AddForumMessage
-	SP_ShowForumMessage
-	SP_SetInvisible
-	SP_RollDice
-	SP_MeditateToggle
-	SP_BlindNoMore
-	SP_DumbNoMore
-	SP_SendSkills
-	SP_TrainerCreatureList
-	SP_GuildNews
-	SP_OfferDetails
-	SP_AllianceProposalsList
-	SP_PeaceProposalsList
-	SP_CharacterInfo
-	SP_GuildLeaderInfo
-	SP_GuildMemberInfo
-	SP_GuildDetails
-	SP_ShowGuildFoundationForm
-	SP_ParalyzeOk
-	SP_ShowUserRequest
-	SP_TradeOk
-	SP_BankOk
-	SP_ChangeUserTradeSlot
-	SP_SendNight
-	SP_Pong
-	SP_UpdateTagAndStatus
-	SP_SpawnList
-	SP_ShowSosForm
-	SP_ShowMotdEditionForm
-	SP_ShowGmPanelForm
-	SP_UserNameList
-	SP_ShowGuildAlign
-	SP_ShowPartyForm
-	SP_UpdateStrengthAndDexterity
-	SP_UpdateStrength
-	SP_UpdateDexterity
-	SP_AddSlots
-	SP_MultiMessage
-	SP_StopWorking
-	SP_CancelOfferItem
+	SP_Logged                     ServerPackets = 0
+	SP_RemoveAllDialogs           ServerPackets = 1
+	SP_RemoveChrDialog            ServerPackets = 2
+	SP_ToggleNavigate             ServerPackets = 3
+	SP_Disconnect                 ServerPackets = 4
+	SP_CommerceEnd                ServerPackets = 5
+	SP_BankingEnd                 ServerPackets = 6
+	SP_CommerceInit               ServerPackets = 7
+	SP_BankInit                   ServerPackets = 8
+	SP_UserCommerceInit           ServerPackets = 9
+	SP_UserCommerceEnd            ServerPackets = 10
+	SP_UserOfferConfirm           ServerPackets = 11
+	SP_CommerceChat               ServerPackets = 12
+	SP_ShowBlacksmithForm         ServerPackets = 13
+	SP_ShowCarpenterForm          ServerPackets = 14
+	SP_UpdateStamina              ServerPackets = 15
+	SP_UpdateMana                 ServerPackets = 16
+	SP_UpdateHP                   ServerPackets = 17
+	SP_UpdateGold                 ServerPackets = 18
+	SP_UpdateBankGold             ServerPackets = 19
+	SP_UpdateExp                  ServerPackets = 20
+	SP_ChangeMap                  ServerPackets = 21
+	SP_PositionUpdate             ServerPackets = 22
+	SP_ChatOverHead               ServerPackets = 23
+	SP_ConsoleMessage             ServerPackets = 24
+	SP_GuildChat                  ServerPackets = 25
+	SP_ShowMessageBox             ServerPackets = 26
+	SP_UserIndexInServer          ServerPackets = 27
+	SP_UserCharacterIndexInServer ServerPackets = 28
+	SP_CharacterCreate            ServerPackets = 29
+	SP_CharacterRemove            ServerPackets = 30
+	SP_CharacterChangeNickname    ServerPackets = 31
+	SP_CharacterMove              ServerPackets = 32
+	SP_CharacterForceMove         ServerPackets = 33
+	SP_CharacterChange            ServerPackets = 34
+	SP_ObjectCreate               ServerPackets = 35
+	SP_ObjectDelete               ServerPackets = 36
+	SP_BlockPosition              ServerPackets = 37
+	SP_PlayMidi                   ServerPackets = 38
+	SP_PlayWave                   ServerPackets = 39
+	SP_GuildList                  ServerPackets = 40
+	SP_AreaChanged                ServerPackets = 41
+	SP_TogglePause                ServerPackets = 42
+	SP_ToggleRain                 ServerPackets = 43
+	SP_CreateFx                   ServerPackets = 44
+	SP_UpdateUserStats            ServerPackets = 45
+	SP_WorkRequestTarget          ServerPackets = 46
+	SP_ChangeInventorySlot        ServerPackets = 47
+	SP_ChangeBankSlot             ServerPackets = 48
+	SP_ChangeSpellSlot            ServerPackets = 49
+	SP_Attributes                 ServerPackets = 50
+	SP_BlacksmithWeapons          ServerPackets = 51
+	SP_BlacksmithArmors           ServerPackets = 52
+	SP_CarpenterObjects           ServerPackets = 53
+	SP_RestOk                     ServerPackets = 54
+	SP_ErrorMessage              ServerPackets = 55
+	SP_Blind                      ServerPackets = 56
+	SP_Dumb                       ServerPackets = 57
+	SP_ShowSignal                 ServerPackets = 58
+	SP_ChangeNpcInventorySlot     ServerPackets = 59
+	SP_UpdateHungerAndThirst      ServerPackets = 60
+	SP_Fame                       ServerPackets = 61
+	SP_MiniStats                  ServerPackets = 62
+	SP_LevelUp                    ServerPackets = 63
+	SP_AddForumMessage            ServerPackets = 64
+	SP_ShowForumMessage           ServerPackets = 65
+	SP_SetInvisible               ServerPackets = 66
+	SP_RollDice                   ServerPackets = 67
+	SP_MeditateToggle             ServerPackets = 68
+	SP_BlindNoMore                ServerPackets = 69
+	SP_DumbNoMore                 ServerPackets = 70
+	SP_SendSkills                 ServerPackets = 71
+	SP_TrainerCreatureList        ServerPackets = 72
+	SP_GuildNews                  ServerPackets = 73
+	SP_OfferDetails               ServerPackets = 74
+	SP_AllianceProposalsList      ServerPackets = 75
+	SP_PeaceProposalsList         ServerPackets = 76
+	SP_CharacterInfo              ServerPackets = 77
+	SP_GuildLeaderInfo            ServerPackets = 78
+	SP_GuildMemberInfo            ServerPackets = 79
+	SP_GuildDetails               ServerPackets = 80
+	SP_ShowGuildFoundationForm    ServerPackets = 81
+	SP_ParalyzeOk                 ServerPackets = 82
+	SP_ShowUserRequest            ServerPackets = 83
+	SP_TradeOk                    ServerPackets = 84
+	SP_BankOk                     ServerPackets = 85
+	SP_ChangeUserTradeSlot        ServerPackets = 86
+	SP_SendNight                  ServerPackets = 87
+	SP_Pong                       ServerPackets = 88
+	SP_UpdateTagAndStatus         ServerPackets = 89
+	SP_SpawnList                  ServerPackets = 90
+	SP_ShowSosForm                ServerPackets = 91
+	SP_ShowMotdEditionForm        ServerPackets = 92
+	SP_ShowGmPanelForm            ServerPackets = 93
+	SP_UserNameList               ServerPackets = 94
+	SP_ShowGuildAlign             ServerPackets = 95
+	SP_ShowPartyForm              ServerPackets = 96
+	SP_UpdateStrengthAndDexterity ServerPackets = 97
+	SP_UpdateStrength             ServerPackets = 98
+	SP_UpdateDexterity            ServerPackets = 99
+	SP_AddSlots                   ServerPackets = 100
+	SP_MultiMessage               ServerPackets = 101
+	SP_StopWorking                ServerPackets = 102
+	SP_CancelOfferItem            ServerPackets = 103
 )
 
 func WriteOutgoing(packet OutgoingPacket, id ServerPackets, buffer *network.DataBuffer) error {
@@ -257,6 +257,10 @@ func GetOutgoingPacketID(packet OutgoingPacket) (ServerPackets, error) {
 		return SP_CommerceEnd, nil
 	case *outgoing.ChangeNpcInventorySlotPacket:
 		return SP_ChangeNpcInventorySlot, nil
+	case *outgoing.AttributesPacket:
+		return SP_Attributes, nil
+	case *outgoing.SendSkillsPacket:
+		return SP_SendSkills, nil
 	}
 	return 0, fmt.Errorf("unknown outgoing packet type")
 }

@@ -79,8 +79,8 @@ func (d *ObjectDAO) Load() (map[int]*model.Object, error) {
 
 		// Graphics
 		obj.EquippedWeaponGraphic = toInt(props["EQUIPPED_WEAPON_GRAPHIC"])
-		obj.EquippedBodyGraphic = toInt(props["EQUIPPED_BODY_GRAPHIC"])
-		obj.EquippedHeadGraphic = toInt(props["EQUIPPED_HEAD_GRAPHIC"])
+		obj.EquippedArmorGraphic = toInt(props["EQUIPPED_ARMOR_GRAPHIC"])
+		obj.EquippedHelmetGraphic = toInt(props["EQUIPPED_HEAD_GRAPHIC"])
 
 		// Map interaction overrides
 		if p, ok := props["PICKUPABLE"]; ok {
