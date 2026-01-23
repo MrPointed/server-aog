@@ -29,6 +29,17 @@ func (s *UserService) IsLoggedIn(conn protocol.Connection) bool {
 	return s.loggedUsers[conn]
 }
 
+func (s *UserService) IsUserLoggedIn(name string) bool {
+	s.mu.RLock()
+	defer s.mu.RUnlock()
+	for char := range s.charToConn {
+		if char.Name == name {
+			return true
+		}
+	}
+	return false
+}
+
 func (s *UserService) LogIn(conn protocol.Connection) {
 	s.mu.Lock()
 	defer s.mu.Unlock()
