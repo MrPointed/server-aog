@@ -258,7 +258,11 @@ func (d *FileDAO) SaveCharacter(char *model.Character) error {
 		slot := char.Inventory.Slots[i]
 		key := strings.ToUpper(fmt.Sprintf("OBJ%d", i+1))
 		if slot.ObjectID > 0 {
-			inv[key] = fmt.Sprintf("%d-%d", slot.ObjectID, slot.Amount)
+			equipped := 0
+			if slot.Equipped {
+				equipped = 1
+			}
+			inv[key] = fmt.Sprintf("%d-%d-%d", slot.ObjectID, slot.Amount, equipped)
 			count++
 		} else {
 			delete(inv, key)

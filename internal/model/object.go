@@ -42,6 +42,16 @@ type Object struct {
 	MinDef int
 	MaxDef int
 	
+	// Requirements
+	MinLevel int
+	Newbie   bool
+	OnlyMen  bool
+	OnlyWomen bool
+	DwarfOnly bool
+	DarkElfOnly bool
+	OnlyRoyal bool
+	OnlyChaos bool
+	
 	// Consumables
 	HungerPoints int
 	ThirstPoints int

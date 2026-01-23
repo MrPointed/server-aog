@@ -84,6 +84,8 @@ func NewServer(addr string) *Server {
 	fileDAO := persistence.NewFileDAO("../../resources/charfiles")
 	loginService := service.NewLoginService(fileDAO, fileDAO, cfg, userService, mapService, bodyService, indexManager, messageService, objectService, cityService, spellService, executor)
 
+	itemActionService := service.NewItemActionService(objectService, messageService, intervalService, bodyService)
+
 	m := protocol.NewClientPacketsManager()
 	// Register handlers
 	m.RegisterHandler(protocol.CP_LoginExistingCharacter, &incoming.LoginExistingCharacterPacket{LoginService: loginService})
@@ -99,8 +101,8 @@ func NewServer(addr string) *Server {
 	m.RegisterHandler(protocol.CP_Drop, &incoming.DropPacket{MapService: mapService, MessageService: messageService, ObjectService: objectService})
 	m.RegisterHandler(protocol.CP_CastSpell, &incoming.CastSpellPacket{MapService: mapService, SpellService: spellService})
 	m.RegisterHandler(protocol.CP_LeftClick, &incoming.LeftClickPacket{MapService: mapService, NpcService: npcService, UserService: userService, ObjectService: objectService, AreaService: areaService})
-	m.RegisterHandler(protocol.CP_UseItem, &incoming.UseItemPacket{ObjectService: objectService, MessageService: messageService, IntervalService: intervalService})
-	m.RegisterHandler(protocol.CP_EquipItem, &incoming.EquipItemPacket{ObjectService: objectService, MessageService: messageService, BodyService: bodyService})
+	m.RegisterHandler(protocol.CP_UseItem, &incoming.UseItemPacket{ItemActionService: itemActionService})
+	m.RegisterHandler(protocol.CP_EquipItem, &incoming.EquipItemPacket{ItemActionService: itemActionService})
 	m.RegisterHandler(protocol.CP_ChangeHeading, &incoming.ChangeHeadingPacket{AreaService: areaService})
 	m.RegisterHandler(protocol.CP_Double_Click, &incoming.DoubleClickPacket{MapService: mapService, NpcService: npcService, UserService: userService, ObjectService: objectService, AreaService: areaService})
 	m.RegisterHandler(protocol.CP_UseSkill, &incoming.UseSkillPacket{})

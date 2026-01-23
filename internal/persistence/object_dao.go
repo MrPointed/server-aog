@@ -54,6 +54,19 @@ func (d *ObjectDAO) Load() (map[int]*model.Object, error) {
 		obj.MinDef = toInt(props["MIN_DEF"])
 		obj.MaxDef = toInt(props["MAX_DEF"])
 
+		// Requirements
+		obj.MinLevel = toInt(props["MIN_LEVEL"])
+		if obj.MinLevel == 0 {
+			obj.MinLevel = toInt(props["MINLEVEL"])
+		}
+		obj.Newbie = props["NEWBIE"] == "1"
+		obj.OnlyMen = props["HOMBRE"] == "1"
+		obj.OnlyWomen = props["MUJER"] == "1"
+		obj.DwarfOnly = props["DWARF"] == "1"
+		obj.DarkElfOnly = props["DARK_ELF"] == "1"
+		obj.OnlyRoyal = props["REAL"] == "1"
+		obj.OnlyChaos = props["CAOS"] == "1"
+
 		// Consumables
 		obj.HungerPoints = toInt(props["HUNGER_POINTS"])
 		obj.ThirstPoints = toInt(props["THIRST_POINTS"])
