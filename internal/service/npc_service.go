@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"github.com/ao-go-server/internal/model"
 	"github.com/ao-go-server/internal/persistence"
+	"github.com/ao-go-server/internal/protocol/outgoing"
 )
 
 type NpcService struct {
@@ -76,6 +77,11 @@ func (s *NpcService) GetWorldNpcs() map[int16]*model.WorldNPC {
 
 func (s *NpcService) GetWorldNpcByIndex(index int16) *model.WorldNPC {
 	return s.worldNpcs[index]
+}
+
+func (s *NpcService) ChangeNpcHeading(npc *model.WorldNPC, heading model.Heading, areaService *AreaService) {
+	npc.Heading = heading
+	areaService.BroadcastToArea(npc.Position, &outgoing.NpcChangePacket{Npc: npc})
 }
 
 func (s *NpcService) MoveNpc(npc *model.WorldNPC, newPos model.Position, heading model.Heading, mapService *MapService, areaService *AreaService) {

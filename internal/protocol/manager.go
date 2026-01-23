@@ -254,6 +254,8 @@ func GetOutgoingPacketID(packet OutgoingPacket) (ServerPackets, error) {
 		return SP_CharacterMove, nil
 	case *outgoing.CharacterChangePacket:
 		return SP_CharacterChange, nil
+	case *outgoing.NpcChangePacket:
+		return SP_CharacterChange, nil
 	case *outgoing.ObjectCreatePacket:
 		return SP_ObjectCreate, nil
 	case *outgoing.ObjectDeletePacket:

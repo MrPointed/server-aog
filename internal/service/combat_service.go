@@ -124,7 +124,7 @@ func (s *CombatService) resolvePVP(attacker *model.Character, victim *model.Char
 
 	// Play hit sound
 	s.messageService.SendToArea(&outgoing.PlayWavePacket{
-		Wave: 5, // SND_HIT (Sword/Melee)
+		Wave: 10, // SND_HIT (Sword/Melee)
 		X:    victim.Position.X,
 		Y:    victim.Position.Y,
 	}, victim.Position)
@@ -261,7 +261,7 @@ func (s *CombatService) NpcAtacaUser(npc *model.WorldNPC, victim *model.Characte
 
 	// Play hit sound
 	s.messageService.SendToArea(&outgoing.PlayWavePacket{
-		Wave: 5, // SND_HIT (Sword/Melee)
+		Wave: 10, // SND_HIT (Sword/Melee)
 		X:    victim.Position.X,
 		Y:    victim.Position.Y,
 	}, victim.Position)
@@ -269,7 +269,7 @@ func (s *CombatService) NpcAtacaUser(npc *model.WorldNPC, victim *model.Characte
 	// Blood FX
 	s.messageService.SendToArea(&outgoing.CreateFxPacket{
 		CharIndex: victim.CharIndex,
-		FxID:      1, // Blood placeholder
+		FxID:      2, // Blood placeholder
 		Loops:     0,
 	}, victim.Position)
 

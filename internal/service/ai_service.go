@@ -355,6 +355,12 @@ func (s *AIService) aiNpcObjeto(npc *model.WorldNPC) {
 }
 
 func (s *AIService) npcAtacaUser(npc *model.WorldNPC, victim *model.Character) bool {
+	// Head to player before hitting
+	heading := s.findDirection(npc.Position, victim.Position)
+	if npc.Heading != heading {
+		s.npcService.ChangeNpcHeading(npc, heading, s.areaService)
+	}
+
 	if npc.NPC.LanzaSpells > 0 {
 		if npc.NPC.AtacaDoble {
 			if rand.Intn(2) == 0 {
@@ -373,6 +379,7 @@ func (s *AIService) npcLanzaUnSpell(npc *model.WorldNPC, victim *model.Character
 		return false
 	}
 
+	// Heading is already set by npcAtacaUser
 	if npc.NPC.LanzaSpells > 0 && len(npc.NPC.Spells) > 0 {
 		idx := rand.Intn(len(npc.NPC.Spells))
 		spellID := npc.NPC.Spells[idx]
