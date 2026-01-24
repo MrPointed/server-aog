@@ -135,7 +135,7 @@ func (p *LeftClickPacket) Handle(buffer *network.DataBuffer, connection protocol
 		foundSomething = true
 		if isNpc {
 			// Handle NPC
-			worldNpc := p.NpcService.GetWorldNpcs()[targetCharIndex]
+			worldNpc := p.NpcService.GetWorldNpcByIndex(targetCharIndex)
 			if worldNpc != nil {
 				fmt.Printf("NPC LeftClick: User %s clicked NPC %d (%s)\n", user.Name, worldNpc.NPC.ID, worldNpc.NPC.Name)
 				user.TargetNPC = targetCharIndex

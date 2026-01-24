@@ -40,12 +40,7 @@ func (s *AreaService) InRange(p1, p2 model.Position) bool {
 }
 
 func (s *AreaService) BroadcastNearby(origin *model.Character, packet protocol.OutgoingPacket) {
-	gameMap := s.mapService.GetMap(origin.Position.Map)
-	if gameMap == nil {
-		return
-	}
-
-	for _, char := range gameMap.Characters {
+	s.mapService.ForEachCharacter(origin.Position.Map, func(char *model.Character) {
 		if char != origin {
 			if s.InRange(origin.Position, char.Position) {
 				conn := s.userService.GetConnection(char)
@@ -54,35 +49,25 @@ func (s *AreaService) BroadcastNearby(origin *model.Character, packet protocol.O
 				}
 			}
 		}
-	}
+	})
 }
 
 func (s *AreaService) BroadcastToArea(pos model.Position, packet protocol.OutgoingPacket) {
-	gameMap := s.mapService.GetMap(pos.Map)
-	if gameMap == nil {
-		return
-	}
-
-	for _, char := range gameMap.Characters {
+	s.mapService.ForEachCharacter(pos.Map, func(char *model.Character) {
 		if s.InRange(pos, char.Position) {
 			conn := s.userService.GetConnection(char)
 			if conn != nil {
 				conn.Send(packet)
 			}
 		}
-	}
+	})
 }
 
 func (s *AreaService) NotifyNpcMovement(npc *model.WorldNPC, oldPos model.Position) {
-	gameMap := s.mapService.GetMap(npc.Position.Map)
-	if gameMap == nil {
-		return
-	}
-
-	for _, other := range gameMap.Characters {
+	s.mapService.ForEachCharacter(npc.Position.Map, func(other *model.Character) {
 		connOther := s.userService.GetConnection(other)
 		if connOther == nil {
-			continue
+			return
 		}
 
 		wasInRange := s.InRange(oldPos, other.Position)
@@ -94,6 +79,7 @@ func (s *AreaService) NotifyNpcMovement(npc *model.WorldNPC, oldPos model.Positi
 				CharIndex: npc.Index,
 				X:         npc.Position.X,
 				Y:         npc.Position.Y,
+				Heading:   npc.Heading,
 			})
 		} else if wasInRange && !isInRange {
 			// NPC disappeared for this player
@@ -102,18 +88,13 @@ func (s *AreaService) NotifyNpcMovement(npc *model.WorldNPC, oldPos model.Positi
 			// NPC appeared for this player
 			connOther.Send(&outgoing.NpcCreatePacket{Npc: npc})
 		}
-	}
+	})
 }
 
 func (s *AreaService) NotifyMovement(char *model.Character, oldPos model.Position) {
-	gameMap := s.mapService.GetMap(char.Position.Map)
-	if gameMap == nil {
-		return
-	}
-
-	for _, other := range gameMap.Characters {
+	s.mapService.ForEachCharacter(char.Position.Map, func(other *model.Character) {
 		if other == char {
-			continue
+			return
 		}
 
 		connOther := s.userService.GetConnection(other)
@@ -129,6 +110,7 @@ func (s *AreaService) NotifyMovement(char *model.Character, oldPos model.Positio
 					CharIndex: char.CharIndex,
 					X:         char.Position.X,
 					Y:         char.Position.Y,
+					Heading:   char.Heading,
 				})
 			}
 		} else if wasInRange && !isInRange {
@@ -150,7 +132,7 @@ func (s *AreaService) NotifyMovement(char *model.Character, oldPos model.Positio
 				connMe.Send(&outgoing.CharacterCreatePacket{Character: other})
 			}
 		}
-	}
+	})
 }
 
 func (s *AreaService) SendAreaState(char *model.Character) {
@@ -163,6 +145,9 @@ func (s *AreaService) SendAreaState(char *model.Character) {
 	if gameMap == nil {
 		return
 	}
+
+	gameMap.Mu.RLock()
+	defer gameMap.Mu.RUnlock()
 
 	for y := 0; y < 100; y++ {
 		for x := 0; x < 100; x++ {
@@ -208,11 +193,11 @@ func (s *AreaService) SendAreaState(char *model.Character) {
 	}
 
 	// Characters
-	for _, other := range gameMap.Characters {
+	s.mapService.ForEachCharacter(char.Position.Map, func(other *model.Character) {
 		if other != char {
 			if s.InRange(char.Position, other.Position) {
 				conn.Send(&outgoing.CharacterCreatePacket{Character: other})
 			}
 		}
-	}
+	})
 }

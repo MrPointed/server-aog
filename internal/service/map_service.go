@@ -33,6 +33,7 @@ func (s *MapService) LoadMaps() {
 	}
 	for _, m := range maps {
 		m.Characters = make(map[int16]*model.Character)
+		m.Npcs = make(map[int16]*model.WorldNPC)
 
 		objectsFound := 0
 		npcsFound := 0
@@ -69,6 +70,7 @@ func (s *MapService) LoadMaps() {
 				worldNpc := s.npcService.SpawnNpc(tile.NPCID, pos)
 				if worldNpc != nil {
 					tile.NPC = worldNpc
+					m.Npcs[worldNpc.Index] = worldNpc
 					npcsFound++
 				} else {
 					fmt.Printf("Map %d: Could not resolve NPC ID %d at tile %d\n", m.Id, tile.NPCID, i)
@@ -97,8 +99,20 @@ func (s *MapService) PutCharacterAtPos(char *model.Character, pos model.Position
 	if m == nil {
 		return
 	}
-	m.Characters[char.CharIndex] = char
+	
+	m.Mu.Lock()
+	defer m.Mu.Unlock()
+
 	tile := m.GetTile(int(pos.X), int(pos.Y))
+	if tile.Character != nil && tile.Character != char {
+		fmt.Printf("Warning: PutCharacterAtPos overwriting character at %d,%d\n", pos.X, pos.Y)
+	}
+	if tile.NPC != nil {
+		fmt.Printf("Warning: PutCharacterAtPos overwriting NPC at %d,%d\n", pos.X, pos.Y)
+		tile.NPC = nil // NPCs are removed if a character teleports on top of them
+	}
+
+	m.Characters[char.CharIndex] = char
 	tile.Character = char
 	char.Position = pos
 }
@@ -106,11 +120,25 @@ func (s *MapService) PutCharacterAtPos(char *model.Character, pos model.Position
 func (s *MapService) RemoveCharacter(char *model.Character) {
 	m := s.GetMap(char.Position.Map)
 	if m != nil {
+		m.Mu.Lock()
 		delete(m.Characters, char.CharIndex)
 		tile := m.GetTile(int(char.Position.X), int(char.Position.Y))
 		if tile.Character == char {
 			tile.Character = nil
 		}
+		m.Mu.Unlock()
+	}
+}
+
+func (s *MapService) ForEachCharacter(mapID int, f func(*model.Character)) {
+	m := s.GetMap(mapID)
+	if m == nil {
+		return
+	}
+	m.Mu.RLock()
+	defer m.Mu.RUnlock()
+	for _, char := range m.Characters {
+		f(char)
 	}
 }
 
@@ -149,15 +177,80 @@ func (s *MapService) GetNPCAt(pos model.Position) *model.WorldNPC {
 func (s *MapService) RemoveNPC(npc *model.WorldNPC) {
 	m := s.GetMap(npc.Position.Map)
 	if m != nil {
+		m.Mu.Lock()
+		delete(m.Npcs, npc.Index)
 		tile := m.GetTile(int(npc.Position.X), int(npc.Position.Y))
 		if tile.NPC == npc {
 			tile.NPC = nil
 		}
+		m.Mu.Unlock()
 	}
 }
 
+func (s *MapService) MoveNpc(npc *model.WorldNPC, newPos model.Position) bool {
+	oldPos := npc.Position
+	mOld := s.GetMap(oldPos.Map)
+	mNew := s.GetMap(newPos.Map)
+
+	if mOld == nil || mNew == nil {
+		return false
+	}
+
+	// Same map movement
+	if mOld == mNew {
+		mOld.Mu.Lock()
+		defer mOld.Mu.Unlock()
+
+		targetTile := mOld.GetTile(int(newPos.X), int(newPos.Y))
+		if targetTile.Blocked || targetTile.NPC != nil || targetTile.Character != nil {
+			return false
+		}
+
+		// Remove from old tile
+		oldTile := mOld.GetTile(int(oldPos.X), int(oldPos.Y))
+		if oldTile.NPC == npc {
+			oldTile.NPC = nil
+		}
+
+		// Add to new tile
+		targetTile.NPC = npc
+		return true
+	}
+
+	// Cross-map movement (Rare for NPCs but possible)
+	// To avoid deadlock, always lock in order of Map ID
+	first, second := mOld, mNew
+	if mOld.Id > mNew.Id {
+		first, second = mNew, mOld
+	}
+
+	first.Mu.Lock()
+	second.Mu.Lock()
+	defer first.Mu.Unlock()
+	defer second.Mu.Unlock()
+
+	targetTile := mNew.GetTile(int(newPos.X), int(newPos.Y))
+	if targetTile.Blocked || targetTile.NPC != nil || targetTile.Character != nil {
+		return false
+	}
+
+	// Remove from old map
+	oldTile := mOld.GetTile(int(oldPos.X), int(oldPos.Y))
+	if oldTile.NPC == npc {
+		oldTile.NPC = nil
+	}
+	delete(mOld.Npcs, npc.Index)
+
+	// Add to new map
+	mNew.Npcs[npc.Index] = npc
+	targetTile.NPC = npc
+
+	return true
+}
+
 func (s *MapService) MoveCharacterTo(char *model.Character, heading model.Heading) (model.Position, bool) {
-	newPos := char.Position
+	oldPos := char.Position
+	newPos := oldPos
 	switch heading {
 	case model.North:
 		newPos.Y--
@@ -176,37 +269,53 @@ func (s *MapService) MoveCharacterTo(char *model.Character, heading model.Headin
 
 	// Check if tile is blocked
 	gameMap := s.GetMap(newPos.Map)
-	if gameMap != nil {
-		tile := gameMap.GetTile(int(newPos.X), int(newPos.Y))
+	if gameMap == nil {
+		return char.Position, false
+	}
 
-		// Map static blocking
-		if tile.Blocked {
-			// fmt.Printf("Move blocked by server at %d,%d\n", newPos.X, newPos.Y)
+	gameMap.Mu.Lock()
+	defer gameMap.Mu.Unlock()
+
+	tile := gameMap.GetTile(int(newPos.X), int(newPos.Y))
+
+	// Map static blocking
+	if tile.Blocked {
+		return char.Position, false
+	}
+
+	// Sailing Logic
+	hasBridge := tile.Layer2 > 0 || tile.Layer3 > 0
+	if char.Sailing {
+		if !tile.IsWater || hasBridge {
 			return char.Position, false
 		}
-
-		// Sailing Logic
-		hasBridge := tile.Layer2 > 0 || tile.Layer3 > 0
-		
-		if char.Sailing {
-			// Can only sail on Water AND No Bridge (assuming bridges block boats)
-			if !tile.IsWater || hasBridge {
-				return char.Position, false
-			}
-		} else {
-			// Can walk if Land OR Bridge
-			// (IsWater implies need boat, UNLESS there is a bridge)
-			if tile.IsWater && !hasBridge {
-				return char.Position, false
-			}
-		}
-
-		if tile.Character != nil {
-			fmt.Printf("Move blocked by character at %d,%d\n", newPos.X, newPos.Y)
+	} else {
+		if tile.IsWater && !hasBridge {
 			return char.Position, false
 		}
 	}
+
+	// Occupancy check
+	if tile.Character != nil || tile.NPC != nil {
+		return char.Position, false
+	}
+
+	// Perform the move on the map
+	// 1. Remove from old tile
+	oldTile := gameMap.GetTile(int(oldPos.X), int(oldPos.Y))
+	if oldTile.Character == char {
+		oldTile.Character = nil
+	}
+
+	// 2. Add to new tile
+	tile.Character = char
+	
 	char.Heading = heading
+	char.Position = newPos
+	
+	// Ensure it's in the map's characters list (should already be there if same map)
+	gameMap.Characters[char.CharIndex] = char
+	
 	return newPos, true
 }
 
@@ -255,6 +364,9 @@ func (s *MapService) SpawnNpcInMap(npcID int, mapID int) *model.WorldNPC {
 			pos := model.Position{X: byte(x), Y: byte(y), Map: mapID}
 			worldNpc := s.npcService.SpawnNpc(npcID, pos)
 			if worldNpc != nil {
+				m.Mu.Lock()
+				m.Npcs[worldNpc.Index] = worldNpc
+				m.Mu.Unlock()
 				m.GetTile(x, y).NPC = worldNpc
 				return worldNpc
 			}

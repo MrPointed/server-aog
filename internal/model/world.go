@@ -1,6 +1,9 @@
 package model
 
-import "math"
+import (
+	"math"
+	"sync"
+)
 
 type Heading int
 
@@ -69,6 +72,8 @@ type Map struct {
 	Version int16
 	Tiles   []Tile
 	Characters map[int16]*Character
+	Npcs       map[int16]*WorldNPC
+	Mu         sync.RWMutex
 }
 
 func (m *Map) GetTile(x, y int) *Tile {

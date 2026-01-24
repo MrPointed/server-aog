@@ -2,6 +2,7 @@ package service
 
 import (
 	"fmt"
+	"sync"
 	"github.com/ao-go-server/internal/model"
 	"github.com/ao-go-server/internal/persistence"
 	"github.com/ao-go-server/internal/protocol/outgoing"
@@ -12,6 +13,7 @@ type NpcService struct {
 	npcDefs      map[int]*model.NPC
 	worldNpcs    map[int16]*model.WorldNPC
 	indexManager *CharacterIndexManager
+	mu           sync.RWMutex
 }
 
 func NewNpcService(dao *persistence.NpcDAO, indexManager *CharacterIndexManager) *NpcService {
@@ -54,12 +56,17 @@ func (s *NpcService) SpawnNpc(id int, pos model.Position) *model.WorldNPC {
 		Respawn:      def.ReSpawn,
 	}
 
+	s.mu.Lock()
 	s.worldNpcs[worldNpc.Index] = worldNpc
+	s.mu.Unlock()
 	return worldNpc
 }
 
 func (s *NpcService) RemoveNPC(npc *model.WorldNPC, mapService *MapService) {
+	s.mu.Lock()
 	delete(s.worldNpcs, npc.Index)
+	s.mu.Unlock()
+	
 	s.indexManager.FreeIndex(npc.Index)
 
 	// Remove from map
@@ -71,11 +78,20 @@ func (s *NpcService) RemoveNPC(npc *model.WorldNPC, mapService *MapService) {
 	}
 }
 
-func (s *NpcService) GetWorldNpcs() map[int16]*model.WorldNPC {
-	return s.worldNpcs
+func (s *NpcService) GetWorldNpcs() []*model.WorldNPC {
+	s.mu.RLock()
+	defer s.mu.RUnlock()
+	
+	npcs := make([]*model.WorldNPC, 0, len(s.worldNpcs))
+	for _, npc := range s.worldNpcs {
+		npcs = append(npcs, npc)
+	}
+	return npcs
 }
 
 func (s *NpcService) GetWorldNpcByIndex(index int16) *model.WorldNPC {
+	s.mu.RLock()
+	defer s.mu.RUnlock()
 	return s.worldNpcs[index]
 }
 
@@ -84,22 +100,11 @@ func (s *NpcService) ChangeNpcHeading(npc *model.WorldNPC, heading model.Heading
 	areaService.BroadcastToArea(npc.Position, &outgoing.NpcChangePacket{Npc: npc})
 }
 
-func (s *NpcService) MoveNpc(npc *model.WorldNPC, newPos model.Position, heading model.Heading, mapService *MapService, areaService *AreaService) {
+func (s *NpcService) MoveNpc(npc *model.WorldNPC, newPos model.Position, heading model.Heading, mapService *MapService, areaService *AreaService) bool {
 	oldPos := npc.Position
 	
-	// Update MapService tiles
-	m := mapService.GetMap(oldPos.Map)
-	if m != nil {
-		tile := m.GetTile(int(oldPos.X), int(oldPos.Y))
-		if tile.NPC == npc {
-			tile.NPC = nil
-		}
-	}
-
-	m = mapService.GetMap(newPos.Map)
-	if m != nil {
-		tile := m.GetTile(int(newPos.X), int(newPos.Y))
-		tile.NPC = npc
+	if !mapService.MoveNpc(npc, newPos) {
+		return false
 	}
 
 	npc.Position = newPos
@@ -107,4 +112,5 @@ func (s *NpcService) MoveNpc(npc *model.WorldNPC, newPos model.Position, heading
 
 	// Broadcast movement to nearby players
 	areaService.NotifyNpcMovement(npc, oldPos)
+	return true
 }

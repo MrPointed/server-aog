@@ -50,9 +50,6 @@ func (p *WalkPacket) Handle(buffer *network.DataBuffer, connection protocol.Conn
 			return true, nil
 		}
 
-		// Update tile in MapService atomicity
-		p.MapService.PutCharacterAtPos(char, newPos)
-
 		// Check for Map Change (Tile Exit)
 		gameMap := p.MapService.GetMap(newPos.Map)
 		if gameMap != nil {

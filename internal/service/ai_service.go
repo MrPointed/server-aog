@@ -17,6 +17,7 @@ type AIService struct {
 	messageService *MessageService
 	spellService   *SpellService
 	stopChan       chan struct{}
+	ticks          uint64
 }
 
 func NewAIService(npcService *NpcService, mapService *MapService, areaService *AreaService, userService *UserService, combatService *CombatService, messageService *MessageService, spellService *SpellService) *AIService {
@@ -41,12 +42,13 @@ func (s *AIService) Stop() {
 }
 
 func (s *AIService) aiLoop() {
-	ticker := time.NewTicker(500 * time.Millisecond)
+	ticker := time.NewTicker(400 * time.Millisecond)
 	defer ticker.Stop()
 
 	for {
 		select {
 		case <-ticker.C:
+			s.ticks++
 			s.processNpcs()
 		case <-s.stopChan:
 			return
@@ -62,7 +64,7 @@ func (s *AIService) processNpcs() {
 }
 
 func (s *AIService) handleNpcAI(npc *model.WorldNPC) {
-	// 1. Hostility/Attack Logic
+	// 1. Hostility/Attack Logic - Can happen every 400ms
 	if npc.MaestroUser == 0 {
 		if npc.NPC.Type == model.NTGuard {
 			s.guardiasAI(npc, false)
@@ -73,13 +75,17 @@ func (s *AIService) handleNpcAI(npc *model.WorldNPC) {
 		}
 	}
 
-	// 2. Movement Logic
+	// 2. Movement Logic - Only every 800ms (2 ticks) for smooth client animation
+	if s.ticks%2 != 0 {
+		return
+	}
+
 	switch model.MovementType(npc.NPC.Movement) {
 	case model.MovementRandom:
 		if npc.Inmovilizado {
 			return
 		}
-		if rand.Intn(12) == 3 {
+		if rand.Intn(15) == 3 {
 			s.moveRandomly(npc)
 		}
 		if npc.NPC.Type == model.NTGuard {
@@ -102,7 +108,7 @@ func (s *AIService) handleNpcAI(npc *model.WorldNPC) {
 			return
 		}
 		s.seguirAmo(npc)
-		if rand.Intn(12) == 3 {
+		if rand.Intn(15) == 3 {
 			s.moveRandomly(npc)
 		}
 
@@ -145,8 +151,7 @@ func (s *AIService) moveNpc(npc *model.WorldNPC, heading model.Heading) bool {
 		return false
 	}
 
-	s.npcService.MoveNpc(npc, newPos, heading, s.mapService, s.areaService)
-	return true
+	return s.npcService.MoveNpc(npc, newPos, heading, s.mapService, s.areaService)
 }
 
 func (s *AIService) guardiasAI(npc *model.WorldNPC, delCaos bool) {
