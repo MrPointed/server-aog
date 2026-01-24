@@ -7,6 +7,8 @@ Loading cities from data file...
 Successfully loaded 7 cities.
 Successfully loaded 50 spells.
 Successfully loaded maps.
-All resources loaded in 160.877398ms
-Admin API listening on :7667
+All resources loaded in 146.920824ms
 AO Go Server listening on :7666 (Press Ctrl+C to stop)
+Admin API listening on :7667
+
+Shutting down server...

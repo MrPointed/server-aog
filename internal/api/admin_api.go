@@ -4,6 +4,8 @@ import (
 	"encoding/json"
 	"fmt"
 	"net/http"
+	"runtime"
+	"sort"
 	"strconv"
 
 	"github.com/ao-go-server/internal/config"
@@ -66,6 +68,8 @@ func (a *AdminAPI) Start(addr string) error {
 	mux.HandleFunc("/config/set", a.handleConfigSet)
 	mux.HandleFunc("/config/list", a.handleConfigList)
 	mux.HandleFunc("/config/reload", a.handleConfigReload)
+	
+	mux.HandleFunc("/monitor/stats", a.handleMonitorStats)
 
 	mux.HandleFunc("/event/start", a.handleEventStart)
 	mux.HandleFunc("/event/stop", a.handleEventStop)
@@ -485,5 +489,49 @@ func (a *AdminAPI) handleWorldReload(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	fmt.Fprintf(w, "Map %d reloaded", id)
+}
+
+func (a *AdminAPI) handleMonitorStats(w http.ResponseWriter, r *http.Request) {
+	var m runtime.MemStats
+	runtime.ReadMemStats(&m)
+
+	stats := map[string]interface{}{
+		"system": map[string]interface{}{
+			"goroutines": runtime.NumGoroutine(),
+			"heap_alloc": m.HeapAlloc,
+			"heap_sys":   m.HeapSys,
+		},
+		"connections": len(a.userService.GetLoggedConnections()),
+		// "packets_sec": 0, // Placeholder, needs implementation in PacketsManager
+	}
+
+	// Map stats
+	loadedMaps := a.mapService.GetLoadedMaps()
+	mapStats := make([]map[string]interface{}, 0)
+	for _, mapID := range loadedMaps {
+		count := 0
+		a.mapService.ForEachCharacter(mapID, func(c *model.Character) {
+			count++
+		})
+		if count > 0 {
+			mapStats = append(mapStats, map[string]interface{}{
+				"id":    mapID,
+				"users": count,
+			})
+		}
+	}
+	
+	// Sort maps by users descending
+	sort.Slice(mapStats, func(i, j int) bool {
+		return mapStats[i]["users"].(int) > mapStats[j]["users"].(int)
+	})
+
+	// Top 10
+	if len(mapStats) > 10 {
+		mapStats = mapStats[:10]
+	}
+	stats["maps"] = mapStats
+
+	json.NewEncoder(w).Encode(stats)
 }
 

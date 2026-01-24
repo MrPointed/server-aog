@@ -15,33 +15,45 @@ func (m Model) updateMonitor(msg tea.Msg) (Model, tea.Cmd) {
 }
 
 func (m Model) viewMonitor() string {
-	// Mock Data
-	connections := 1243
-	// packetsPerSec := 250 // Unused for now
+	if m.monitorStats.Err != nil {
+		return fmt.Sprintf("Error fetching stats: %v", m.monitorStats.Err)
+	}
+
+	// Connections
+	connections := m.monitorStats.Connections
+	
+	// System Stats
+	goroutines := m.monitorStats.System.Goroutines
+	heapAlloc := m.monitorStats.System.HeapAlloc / 1024 / 1024 // MB
 	
 	// Layout
 	// [Connections] 1243
-	// [Packets/s]   ████▆▆▅▃
+	// [System]      Goroutines: 12  Heap: 45MB
 	// [Maps]
 	//   map_1  312
 	//   map_2  487
 
 	col1 := lipgloss.JoinVertical(lipgloss.Left,
 		fmt.Sprintf("%s %d", titleStyle.Render("[Connections]"), connections),
-		fmt.Sprintf("%s %s", titleStyle.Render("[Packets/s]"), lipgloss.NewStyle().Foreground(special).Render("████▆▆▅▃")),
-	)
-
-	mapsList := fmt.Sprintf(
-		"%s\n  %s %d\n  %s %d",
-		titleStyle.Render("[Maps]"),
-		"map_1", 312,
-		"map_2", 487,
-	)
-
-	return lipgloss.JoinVertical(
-		lipgloss.Left,
-		col1,
 		"\n",
-		mapsList,
+		titleStyle.Render("[System]"),
+		fmt.Sprintf("Goroutines: %d", goroutines),
+		fmt.Sprintf("Heap Alloc: %d MB", heapAlloc),
+	)
+
+	// Maps List
+	mapsStr := titleStyle.Render("[Top Maps]") + "\n"
+	if len(m.monitorStats.Maps) == 0 {
+		mapsStr += "No active users on maps."
+	} else {
+		for _, mapStat := range m.monitorStats.Maps {
+			mapsStr += fmt.Sprintf("  Map %d: %d users\n", mapStat.ID, mapStat.Users)
+		}
+	}
+
+	return lipgloss.JoinHorizontal(
+		lipgloss.Top,
+		listStyle.Render(col1),
+		detailStyle.Render(mapsStr),
 	)
 }

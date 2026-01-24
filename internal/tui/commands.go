@@ -1,7 +1,9 @@
 package tui
 
 import (
+	"encoding/json"
 	"fmt"
+	"net/http"
 	"os"
 	"os/exec"
 	"strconv"
@@ -100,5 +102,35 @@ func execServerActionCmd(action string) tea.Cmd {
 		}
 
 		return ActionMsg{Output: "Unknown action", Err: nil}
+	}
+}
+
+type MonitorStatsMsg struct {
+	System struct {
+		Goroutines int    `json:"goroutines"`
+		HeapAlloc  uint64 `json:"heap_alloc"`
+		HeapSys    uint64 `json:"heap_sys"`
+	} `json:"system"`
+	Connections int `json:"connections"`
+	Maps        []struct {
+		ID    int `json:"id"`
+		Users int `json:"users"`
+	} `json:"maps"`
+	Err error
+}
+
+func fetchMonitorStatsCmd() tea.Cmd {
+	return func() tea.Msg {
+		resp, err := http.Get("http://localhost:7667/monitor/stats")
+		if err != nil {
+			return MonitorStatsMsg{Err: err}
+		}
+		defer resp.Body.Close()
+
+		var stats MonitorStatsMsg
+		if err := json.NewDecoder(resp.Body).Decode(&stats); err != nil {
+			return MonitorStatsMsg{Err: err}
+		}
+		return stats
 	}
 }

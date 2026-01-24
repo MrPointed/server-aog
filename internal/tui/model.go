@@ -25,6 +25,9 @@ type Model struct {
 	serverStatus   string
 	startTime      time.Time
 	lastActionMsg  string
+
+	// Monitor State
+	monitorStats MonitorStatsMsg
 }
 
 func InitialModel() Model {
@@ -54,6 +57,8 @@ func (m Model) Init() tea.Cmd {
 }
 
 func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
+	var cmds []tea.Cmd
+
 	switch msg := msg.(type) {
 	case tea.KeyMsg:
 		switch msg.String() {
@@ -75,8 +80,13 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		m.width = msg.Width
 		m.height = msg.Height
 	case tickMsg:
-		// Check status every tick (1s)
-		return m, tea.Batch(tickCmd(), checkServerStatusCmd())
+		// Global ticks
+		cmds = append(cmds, tickCmd(), checkServerStatusCmd())
+		
+		// Tab specific ticks
+		if m.activeTab == 1 { // Monitor Tab
+			cmds = append(cmds, fetchMonitorStatsCmd())
+		}
 	
 	case ServerStatusMsg:
 		m.serverStatus = msg.Status
@@ -90,9 +100,12 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		} else {
 			m.lastActionMsg = msg.Output
 		}
+	
+	case MonitorStatsMsg:
+		m.monitorStats = msg
 	}
 
-	// Dispatch to active tab
+	// Dispatch to active tab logic if needed (e.g. navigation)
 	var cmd tea.Cmd
 	switch m.activeTab {
 	case 0:
@@ -102,8 +115,11 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	default:
 		// Other tabs not implemented yet
 	}
+	if cmd != nil {
+		cmds = append(cmds, cmd)
+	}
 
-	return m, cmd
+	return m, tea.Batch(cmds...)
 }
 
 func (m Model) View() string {
