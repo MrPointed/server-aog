@@ -24,6 +24,7 @@ type Model struct {
 	controlCursor  int
 	serverStatus   string
 	startTime      time.Time
+	lastActionMsg  string
 }
 
 func InitialModel() Model {
@@ -36,19 +37,20 @@ func InitialModel() Model {
 		
 		// Control Tab Init
 		controlChoices: []string{
+			"Start",
 			"Restart (graceful)",
 			"Stop (graceful)",
 			"Stop (force)",
 			"Reload config",
 		},
 		controlCursor:  0,
-		serverStatus:   "RUNNING",
-		startTime:      time.Now().Add(-3 * time.Hour),
+		serverStatus:   "CHECKING...",
+		startTime:      time.Now(),
 	}
 }
 
 func (m Model) Init() tea.Cmd {
-	return tickCmd()
+	return tea.Batch(tickCmd(), checkServerStatusCmd())
 }
 
 func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
@@ -73,7 +75,21 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		m.width = msg.Width
 		m.height = msg.Height
 	case tickMsg:
-		return m, tickCmd()
+		// Check status every tick (1s)
+		return m, tea.Batch(tickCmd(), checkServerStatusCmd())
+	
+	case ServerStatusMsg:
+		m.serverStatus = msg.Status
+		if msg.Running {
+			m.startTime = msg.StartTime
+		}
+	
+	case ActionMsg:
+		if msg.Err != nil {
+			m.lastActionMsg = fmt.Sprintf("Error: %v", msg.Err)
+		} else {
+			m.lastActionMsg = msg.Output
+		}
 	}
 
 	// Dispatch to active tab

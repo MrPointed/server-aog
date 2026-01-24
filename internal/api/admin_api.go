@@ -18,9 +18,10 @@ type AdminAPI struct {
 	npcService   *service.NpcService
 	aiService    *service.AIService
 	config       *config.Config
+	configPath   string
 }
 
-func NewAdminAPI(mapService *service.MapService, userService *service.UserService, loginService *service.LoginService, npcService *service.NpcService, aiService *service.AIService, cfg *config.Config) *AdminAPI {
+func NewAdminAPI(mapService *service.MapService, userService *service.UserService, loginService *service.LoginService, npcService *service.NpcService, aiService *service.AIService, cfg *config.Config, configPath string) *AdminAPI {
 	return &AdminAPI{
 		mapService:   mapService,
 		userService:  userService,
@@ -28,6 +29,7 @@ func NewAdminAPI(mapService *service.MapService, userService *service.UserServic
 		npcService:   npcService,
 		aiService:    aiService,
 		config:       cfg,
+		configPath:   configPath,
 	}
 }
 
@@ -63,6 +65,7 @@ func (a *AdminAPI) Start(addr string) error {
 	mux.HandleFunc("/config/get", a.handleConfigGet)
 	mux.HandleFunc("/config/set", a.handleConfigSet)
 	mux.HandleFunc("/config/list", a.handleConfigList)
+	mux.HandleFunc("/config/reload", a.handleConfigReload)
 
 	mux.HandleFunc("/event/start", a.handleEventStart)
 	mux.HandleFunc("/event/stop", a.handleEventStop)
@@ -70,6 +73,19 @@ func (a *AdminAPI) Start(addr string) error {
 
 	fmt.Printf("Admin API listening on %s\n", addr)
 	return http.ListenAndServe(addr, mux)
+}
+
+func (a *AdminAPI) handleConfigReload(w http.ResponseWriter, r *http.Request) {
+	newCfg, err := config.Load(a.configPath)
+	if err != nil {
+		http.Error(w, fmt.Sprintf("Error reloading config: %v", err), http.StatusInternalServerError)
+		return
+	}
+
+	// Update the existing config struct in place so all references see the new values
+	*a.config = *newCfg
+	
+	fmt.Fprintf(w, "Configuration reloaded from %s", a.configPath)
 }
 
 func (a *AdminAPI) handleEventList(w http.ResponseWriter, r *http.Request) {

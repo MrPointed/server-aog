@@ -1,3 +1,12 @@
-Loading maps...
-Loaded 10 maps
-Server failed: listen tcp :7666: bind: address already in use
+Starting server in dev environment on port 7666...
+Using resources from: /home/user98/Documents/ao-java/ao-go-server/resources
+Starting resource loading...
+Successfully loaded 1049 objects.
+Successfully loaded 316 NPC.
+Loading cities from data file...
+Successfully loaded 7 cities.
+Successfully loaded 50 spells.
+Successfully loaded maps.
+All resources loaded in 160.877398ms
+Admin API listening on :7667
+AO Go Server listening on :7666 (Press Ctrl+C to stop)

@@ -21,7 +21,20 @@ func (m Model) updateControl(msg tea.Msg) (Model, tea.Cmd) {
 				m.controlCursor++
 			}
 		case "enter", " ":
-			// Execute action (mock)
+			action := ""
+			switch m.controlCursor {
+			case 0:
+				action = "start"
+			case 1:
+				action = "restart_graceful"
+			case 2:
+				action = "stop_graceful"
+			case 3:
+				action = "stop_force"
+			case 4:
+				action = "reload_config"
+			}
+			return m, execServerActionCmd(action)
 		}
 	}
 	return m, nil
@@ -34,7 +47,10 @@ func (m Model) viewControl() string {
 		statusColor = statusStoppedStyle
 	}
 	
-uptime := time.Since(m.startTime).Round(time.Second)
+	uptime := time.Since(m.startTime).Round(time.Second)
+	if m.serverStatus != "RUNNING" {
+		uptime = 0
+	}
 	
 	statusView := fmt.Sprintf(
 		"%s\n%s: %s\n%s: %s\n",
@@ -57,6 +73,11 @@ uptime := time.Since(m.startTime).Round(time.Second)
 		} else {
 			s += listItemStyle(fmt.Sprintf("%s %s", cursor, choice)) + "\n"
 		}
+	}
+	
+	// Last Action Output
+	if m.lastActionMsg != "" {
+		s += "\n" + titleStyle.Render("[Output]") + "\n" + m.lastActionMsg + "\n"
 	}
 
 	return lipgloss.JoinHorizontal(

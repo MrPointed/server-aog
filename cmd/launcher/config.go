@@ -60,9 +60,16 @@ var configSetCmd = &cobra.Command{
 
 var configReloadCmd = &cobra.Command{
 	Use:   "reload",
-	Short: "Reload configuration (Not fully implemented in API)",
+	Short: "Reload configuration from server.yaml",
 	Run: func(cmd *cobra.Command, args []string) {
-		fmt.Println("Reloading configuration via API not implemented yet.")
+		resp, err := http.Get(fmt.Sprintf("%s/config/reload", AdminAPIAddrConfig))
+		if err != nil {
+			fmt.Printf("Error reloading config: %v\n", err)
+			return
+		}
+		defer resp.Body.Close()
+		body, _ := io.ReadAll(resp.Body)
+		fmt.Println(string(body))
 	},
 }
 
