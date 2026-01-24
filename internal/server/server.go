@@ -32,23 +32,31 @@ type Server struct {
 
 func NewServer(addr string, resourcesPath string) *Server {
 	res := resourcesPath
-	cfg, err := config.Load(filepath.Join(res, "server.ini"))
+	cfgPath := filepath.Join(res, "config_yaml")
+	
+	cfg, err := config.Load(filepath.Join(cfgPath, "server.yaml"))
 	if err != nil {
-		fmt.Printf("Warning: could not load server.ini: %v. Using defaults.\n", err)
+		fmt.Printf("Warning: could not load server.yaml: %v. Using defaults.\n", err)
 		cfg = config.NewDefaultConfig()
 	}
 
-	objectDAO := persistence.NewObjectDAO(filepath.Join(res, "data/objects.dat"))
+	projectCfg, err := config.LoadProjectConfig(filepath.Join(cfgPath, "project.yaml"))
+	if err != nil {
+		fmt.Printf("Warning: could not load project.yaml: %v.\n", err)
+		// Fallback or handle error
+	}
+
+	objectDAO := persistence.NewObjectDAO(filepath.Join(res, projectCfg.Project.Paths.ObjectsDat))
 	objectService := service.NewObjectService(objectDAO)
 
 	indexManager := service.NewCharacterIndexManager()
-	npcDAO := persistence.NewNpcDAO(filepath.Join(res, "data/npcs.dat"))
+	npcDAO := persistence.NewNpcDAO(filepath.Join(res, projectCfg.Project.Paths.NpcsDat))
 	npcService := service.NewNpcService(npcDAO, indexManager)
 
-	cityDAO := persistence.NewCityDAO(filepath.Join(res, "data/cities.dat"))
+	cityDAO := persistence.NewCityDAO(filepath.Join(res, projectCfg.Project.Paths.CitiesDat))
 	cityService := service.NewCityService(cityDAO)
 
-	balanceDAO := persistence.NewBalanceDAO(filepath.Join(res, "data/balances.dat"))
+	balanceDAO := persistence.NewBalanceDAO(filepath.Join(cfgPath, "balances.yaml"))
 	archetypeMods, _, err := balanceDAO.Load()
 	if err != nil {
 		fmt.Printf("Critical error loading balances: %v\n", err)
@@ -59,9 +67,9 @@ func NewServer(addr string, resourcesPath string) *Server {
 	bodyService := service.NewCharacterBodyService()
 	userService := service.NewUserService(bodyService)
 
-	mapDAO := persistence.NewMapDAO(filepath.Join(res, "maps"), 150)
-	if err := mapDAO.LoadProperties(filepath.Join(res, "maps.properties")); err != nil {
-		fmt.Printf("Warning: could not load maps.properties: %v\n", err)
+	mapDAO := persistence.NewMapDAO(filepath.Join(res, projectCfg.Project.Paths.Maps), projectCfg.Project.MapsCount)
+	if err := mapDAO.LoadProperties(filepath.Join(cfgPath, "maps.yaml")); err != nil {
+		fmt.Printf("Warning: could not load maps.yaml: %v\n", err)
 	}
 	mapService := service.NewMapService(mapDAO, objectService, npcService)
 
@@ -88,7 +96,7 @@ func NewServer(addr string, resourcesPath string) *Server {
 	skillService := service.NewSkillService(mapService, objectService, messageService, userService, npcService, spellService, intervalService)
 	bankService := service.NewBankService(objectService, messageService, userService)
 
-	fileDAO := persistence.NewFileDAO(filepath.Join(res, "charfiles"))
+	fileDAO := persistence.NewFileDAO(filepath.Join(res, projectCfg.Project.Paths.Charfiles))
 	loginService := service.NewLoginService(fileDAO, fileDAO, cfg, userService, mapService, bodyService, indexManager, messageService, objectService, cityService, spellService, executor)
 
 	itemActionService := service.NewItemActionService(objectService, messageService, intervalService, bodyService)

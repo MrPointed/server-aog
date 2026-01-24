@@ -1,0 +1,197 @@
+balance:
+  races:
+    human:
+      strength: 1
+      dexterity: 1
+      intelligence: 0
+      charisma: 0
+      constitution: 2
+    elf:
+      strength: -1
+      dexterity: 4
+      intelligence: 2
+      charisma: 2
+      constitution: 1
+    drow:
+      strength: 2
+      dexterity: 2
+      intelligence: 2
+      charisma: -3
+      constitution: 0
+    dwarf:
+      strength: 3
+      dexterity: -1
+      intelligence: -6
+      charisma: -2
+      constitution: 3
+    gnome:
+      strength: -4
+      dexterity: 3
+      intelligence: 3
+      charisma: 1
+      constitution: 0
+
+  classes:
+    guerrero:
+      evasion: 1.0
+      weapon_attack: 1.0
+      ranged_attack: 0.8
+      weapon_damage: 1.1
+      ranged_damage: 0.9
+      wrestling_damage: 0.4
+      shield: 1.0
+      hp: 10.0
+    cazador:
+      evasion: 0.9
+      weapon_attack: 0.8
+      ranged_attack: 1.0
+      weapon_damage: 0.9
+      ranged_damage: 1.1
+      wrestling_damage: 0.4
+      shield: 0.8
+      hp: 9.5
+    paladin:
+      evasion: 0.9
+      weapon_attack: 0.95
+      ranged_attack: 0.75
+      weapon_damage: 0.925
+      ranged_damage: 0.8
+      wrestling_damage: 0.4
+      shield: 1.0
+      hp: 9.5
+    bandido:
+      evasion: 0.7
+      weapon_attack: 0.7
+      ranged_attack: 0.75
+      weapon_damage: 0.9
+      ranged_damage: 0.8
+      wrestling_damage: 1.1
+      shield: 2.0
+      hp: 8.5
+    asesino:
+      evasion: 1.1
+      weapon_attack: 0.85
+      ranged_attack: 0.75
+      weapon_damage: 0.9
+      ranged_damage: 0.8
+      wrestling_damage: 0.4
+      shield: 0.8
+      hp: 8.5
+    pirata:
+      evasion: 0.9
+      weapon_attack: 0.8
+      ranged_attack: 0.75
+      weapon_damage: 0.8
+      ranged_damage: 0.75
+      wrestling_damage: 0.4
+      shield: 0.75
+      hp: 10.0
+    ladron:
+      evasion: 1.1
+      weapon_attack: 0.75
+      ranged_attack: 0.8
+      weapon_damage: 0.8
+      ranged_damage: 0.75
+      wrestling_damage: 0.4
+      shield: 0.7
+      hp: 10.0
+    clerigo:
+      evasion: 0.8
+      weapon_attack: 0.85
+      ranged_attack: 0.7
+      weapon_damage: 0.8
+      ranged_damage: 0.7
+      wrestling_damage: 0.4
+      shield: 0.85
+      hp: 8.5
+    bardo:
+      evasion: 1.075
+      weapon_attack: 0.7
+      ranged_attack: 0.7
+      weapon_damage: 0.75
+      ranged_damage: 0.7
+      wrestling_damage: 0.4
+      shield: 0.8
+      hp: 8.5
+    mago:
+      evasion: 0.4
+      weapon_attack: 0.5
+      ranged_attack: 0.5
+      weapon_damage: 0.5
+      ranged_damage: 0.5
+      wrestling_damage: 0.4
+      shield: 0.6
+      hp: 7.0
+    druida:
+      evasion: 0.75
+      weapon_attack: 0.65
+      ranged_attack: 0.75
+      weapon_damage: 0.7
+      ranged_damage: 0.75
+      wrestling_damage: 0.4
+      shield: 0.75
+      hp: 8.5
+    minero:
+      evasion: 0.8
+      weapon_attack: 0.6
+      ranged_attack: 0.65
+      weapon_damage: 0.8
+      ranged_damage: 0.7
+      wrestling_damage: 0.4
+      shield: 0.7
+      hp: 9.5
+    leñador:
+      evasion: 0.8
+      weapon_attack: 0.6
+      ranged_attack: 0.7
+      weapon_damage: 0.8
+      ranged_damage: 0.7
+      wrestling_damage: 0.4
+      shield: 0.7
+      hp: 9.5
+    pescador:
+      evasion: 0.8
+      weapon_attack: 0.6
+      ranged_attack: 0.65
+      weapon_damage: 0.8
+      ranged_damage: 0.7
+      wrestling_damage: 0.4
+      shield: 0.7
+      hp: 9.5
+    herrero:
+      evasion: 0.8
+      weapon_attack: 0.6
+      ranged_attack: 0.65
+      weapon_damage: 0.8
+      ranged_damage: 0.7
+      wrestling_damage: 0.4
+      shield: 0.7
+      hp: 8.5
+    carpintero:
+      evasion: 0.8
+      weapon_attack: 0.6
+      ranged_attack: 0.7
+      weapon_damage: 0.8
+      ranged_damage: 0.7
+      wrestling_damage: 0.4
+      shield: 0.7
+      hp: 8.5
+    trabajador:
+      evasion: 0.8
+      weapon_attack: 0.8
+      ranged_attack: 0.7
+      weapon_damage: 0.8
+      ranged_damage: 0.7
+      wrestling_damage: 0.5
+      shield: 0.7
+      hp: 9.5
+
+  distribution:
+    e: [20, 20, 20, 20, 20]
+    s: [25, 25, 25, 25]
+
+  extra:
+    mana_recovery_percentage: 6
+
+  party:
+    level_exponent: 1.75

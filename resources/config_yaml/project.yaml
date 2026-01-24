@@ -1,0 +1,57 @@
+project:
+  paths:
+    server_config: "server.ini"
+    charfiles: "charfiles"
+    archetype: "data/balances.dat"
+    cities_dat: "data/cities.dat"
+    npcs_dat: "data/npcs.dat"
+    objects_dat: "data/objects.dat"
+    maps: "maps/"
+  
+  maps_count: 290
+
+  security:
+    manager: "com.ao.security.impl.DefaultSecurityManager"
+
+  login_service:
+    initial_available_skills: 10
+
+  inventory:
+    items_per_row: 5
+
+  races:
+    darkelf:
+      heads:
+        male: "201-221"
+        female: "270-288"
+      bodies:
+        male: 3
+        female: 3
+    dwarf:
+      heads:
+        male: "301-319"
+        female: "370-384"
+      bodies:
+        male: 300
+        female: 300
+    elf:
+      heads:
+        male: "101-122"
+        female: "170-188"
+      bodies:
+        male: 2
+        female: 2
+    gnome:
+      heads:
+        male: "401-416"
+        female: "470-484"
+      bodies:
+        male: 300
+        female: 300
+    human:
+      heads:
+        male: "1-40"
+        female: "70-89"
+      bodies:
+        male: 1
+        female: 1

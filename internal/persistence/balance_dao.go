@@ -1,10 +1,10 @@
 package persistence
 
 import (
-	"fmt"
-	"strconv"
+	"os"
 
 	"github.com/ao-go-server/internal/model"
+	"gopkg.in/yaml.v3"
 )
 
 type BalanceDAO struct {
@@ -15,124 +15,78 @@ func NewBalanceDAO(path string) *BalanceDAO {
 	return &BalanceDAO{path: path}
 }
 
+type yamlBalance struct {
+	Balance struct {
+		Races   map[string]map[string]int     `yaml:"races"`
+		Classes map[string]map[string]float32 `yaml:"classes"`
+	} `yaml:"balance"`
+}
+
 func (d *BalanceDAO) Load() (map[model.UserArchetype]*model.ArchetypeModifiers, map[model.Race]*model.RaceModifiers, error) {
-	data, err := ReadINI(d.path)
+	data, err := os.ReadFile(d.path)
 	if err != nil {
 		return nil, nil, err
 	}
 
+	var yb yamlBalance
+	if err := yaml.Unmarshal(data, &yb); err != nil {
+		return nil, nil, err
+	}
+
 	archetypeModifiers := make(map[model.UserArchetype]*model.ArchetypeModifiers)
+	raceModifiers := make(map[model.Race]*model.RaceModifiers)
 
-raceModifiers := make(map[model.Race]*model.RaceModifiers)
+	// Map YAML races to model.Race
+	raceMap := map[string]model.Race{
+		"human":    model.Human,
+		"elf":      model.Elf,
+		"drow":     model.DarkElf,
+		"gnome":    model.Gnome,
+		"dwarf":    model.Dwarf,
+	}
 
-	// Races
-	if modRace, ok := data["MODRACE"]; ok {
-		races := []struct {
-			name   model.Race
-			prefix string
-		}{
-			{model.Human, "Human"},
-			{model.Elf, "Elf"},
-			{model.DarkElf, "Drow"},
-			{model.Gnome, "Gnome"},
-			{model.Dwarf, "Dwarf"},
-		}
-
-		for _, r := range races {
-			raceModifiers[r.name] = &model.RaceModifiers{
-				Strength:     toInt(modRace[r.prefix+"Strength"]),
-				Dexterity:    toInt(modRace[r.prefix+"Dexterity"]),
-				Intelligence: toInt(modRace[r.prefix+"Intelligence"]),
-				Charisma:     toInt(modRace[r.prefix+"Charisma"]),
-				Constitution: toInt(modRace[r.prefix+"Constitution"]),
+	for name, r := range raceMap {
+		if mods, ok := yb.Balance.Races[name]; ok {
+			raceModifiers[r] = &model.RaceModifiers{
+				Strength:     mods["strength"],
+				Dexterity:    mods["dexterity"],
+				Intelligence: mods["intelligence"],
+				Charisma:     mods["charisma"],
+				Constitution: mods["constitution"],
 			}
 		}
 	}
 
-	// Archetypes
-	archetypes := []struct {
-		id   model.UserArchetype
-		name string
-	}{
-		{model.Mage, "MAGO"},
-		{model.Cleric, "CLERIGO"},
-		{model.Warrior, "GUERRERO"},
-		{model.Assasin, "ASESINO"},
-		{model.Thief, "LADRON"},
-		{model.Bard, "BARDO"},
-		{model.Druid, "DRUIDA"},
-		{model.Bandit, "BANDIDO"},
-		{model.Paladin, "PALADIN"},
-		{model.Hunter, "CAZADOR"},
-		{model.Worker, "TRABAJADOR"},
-		{model.Pirate, "PIRATA"},
+	// Map YAML classes to model.UserArchetype
+	classMap := map[string]model.UserArchetype{
+		"mago":       model.Mage,
+		"clerigo":    model.Cleric,
+		"guerrero":   model.Warrior,
+		"asesino":    model.Assasin,
+		"ladron":     model.Thief,
+		"bardo":      model.Bard,
+		"druida":     model.Druid,
+		"bandido":    model.Bandit,
+		"paladin":    model.Paladin,
+		"cazador":    model.Hunter,
+		"trabajador": model.Worker,
+		"pirata":     model.Pirate,
 	}
 
-	for _, a := range archetypes {
-		mod := &model.ArchetypeModifiers{
-			Evasion:          1.0,
-			MeleeAttack:      1.0,
-			ProjectileAttack: 1.0,
-			WrestlingAttack:  1.0,
-			MeleeDamage:      1.0,
-			ProjectileDamage: 1.0,
-			WrestlingDamage:  1.0,
-			Shield:           1.0,
-			HP:               10.0,
-		}
-
-		if sec, ok := data["MODEVASION"]; ok {
-			if val, ok := sec[a.name]; ok {
-				mod.Evasion = toFloat32(val)
+	for name, a := range classMap {
+		if mods, ok := yb.Balance.Classes[name]; ok {
+			archetypeModifiers[a] = &model.ArchetypeModifiers{
+				Evasion:          mods["evasion"],
+				MeleeAttack:      mods["weapon_attack"],
+				ProjectileAttack: mods["ranged_attack"],
+				MeleeDamage:      mods["weapon_damage"],
+				ProjectileDamage: mods["ranged_damage"],
+				WrestlingDamage:  mods["wrestling_damage"],
+				Shield:           mods["shield"],
+				HP:               mods["hp"],
 			}
 		}
-		if sec, ok := data["MODWEAPONATTACK"]; ok {
-			if val, ok := sec[a.name]; ok {
-				mod.MeleeAttack = toFloat32(val)
-			}
-		}
-		if sec, ok := data["MODRANGEDATTACK"]; ok {
-			if val, ok := sec[a.name]; ok {
-				mod.ProjectileAttack = toFloat32(val)
-			}
-		}
-		if sec, ok := data["MODWEAPONDAMAGE"]; ok {
-			if val, ok := sec[a.name]; ok {
-				mod.MeleeDamage = toFloat32(val)
-			}
-		}
-		if sec, ok := data["MODRANGEDDAMAGE"]; ok {
-			if val, ok := sec[a.name]; ok {
-				mod.ProjectileDamage = toFloat32(val)
-			}
-		}
-		if sec, ok := data["MODWRESTLINGDAMAGE"]; ok {
-			if val, ok := sec[a.name]; ok {
-				mod.WrestlingDamage = toFloat32(val)
-			}
-		}
-		if sec, ok := data["MODSHIELD"]; ok {
-			if val, ok := sec[a.name]; ok {
-				mod.Shield = toFloat32(val)
-			}
-		}
-		if sec, ok := data["MODHP"]; ok {
-			if val, ok := sec[a.name]; ok {
-				mod.HP = toFloat32(val)
-			}
-		}
-
-		archetypeModifiers[a.id] = mod
 	}
 
 	return archetypeModifiers, raceModifiers, nil
-}
-
-func toFloat32(s string) float32 {
-	v, err := strconv.ParseFloat(s, 32)
-	if err != nil {
-		fmt.Printf("Error parsing float %s: %v\n", s, err)
-		return 1.0
-	}
-	return float32(v)
 }

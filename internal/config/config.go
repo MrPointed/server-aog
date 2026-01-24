@@ -1,10 +1,9 @@
 package config
 
 import (
-	"strconv"
-	"strings"
+	"os"
 
-	"github.com/ao-go-server/internal/persistence"
+	"gopkg.in/yaml.v3"
 )
 
 type Config struct {
@@ -26,6 +25,28 @@ type Config struct {
 	RoleMasters []string
 }
 
+type yamlConfig struct {
+	Server struct {
+		Init struct {
+			Version                  string `yaml:"version"`
+			MaxUsers                 int    `yaml:"max_users"`
+			AllowCharacterCreation bool   `yaml:"allow_character_creation"`
+			OnlyGMs                  bool   `yaml:"only_gms"`
+		} `yaml:"init"`
+		Gods        []string `yaml:"gods"`
+		SemiGods    []string `yaml:"semi_gods"`
+		Counselors  []string `yaml:"counselors"`
+		RoleMasters []string `yaml:"role_masters"`
+		Intervals   struct {
+			UserAttack int64 `yaml:"user_attack"`
+			CastSpell  int64 `yaml:"cast_spell"`
+			UserUse    int64 `yaml:"user_use"`
+			Work       int64 `yaml:"work"`
+			MagicHit   int64 `yaml:"magic_hit"`
+		} `yaml:"intervals"`
+	} `yaml:"server"`
+}
+
 func NewDefaultConfig() *Config {
 	return &Config{
 		Version:                  "0.13.0",
@@ -42,40 +63,32 @@ func NewDefaultConfig() *Config {
 }
 
 func Load(path string) (*Config, error) {
-	data, err := persistence.ReadINI(path)
+	data, err := os.ReadFile(path)
 	if err != nil {
 		return nil, err
 	}
 
-	cfg := NewDefaultConfig()
-	
-	init := data["INIT"]
-	if init != nil {
-		if v, ok := init["VERSION"]; ok { cfg.Version = v }
-		if v, ok := init["MAXUSERS"]; ok { cfg.MaxConcurrentUsers, _ = strconv.Atoi(v) }
-		// ... load other simple settings if needed
+	var yc yamlConfig
+	if err := yaml.Unmarshal(data, &yc); err != nil {
+		return nil, err
 	}
 
-	cfg.Gods = loadList(data["DIOSES"], "DIOS")
-	cfg.SemiGods = loadList(data["SEMIDIOSES"], "SEMIDIOS")
-	cfg.Counselors = loadList(data["CONSEJEROS"], "CONSEJERO")
-	cfg.RoleMasters = loadList(data["ROLESMASTERS"], "RM")
+	cfg := NewDefaultConfig()
+	cfg.Version = yc.Server.Init.Version
+	cfg.MaxConcurrentUsers = yc.Server.Init.MaxUsers
+	cfg.CharacterCreationEnabled = yc.Server.Init.AllowCharacterCreation
+	cfg.RestrictedToAdmins = yc.Server.Init.OnlyGMs
+
+	cfg.IntervalAttack = yc.Server.Intervals.UserAttack
+	cfg.IntervalSpell = yc.Server.Intervals.CastSpell
+	cfg.IntervalItem = yc.Server.Intervals.UserUse
+	cfg.IntervalWork = yc.Server.Intervals.Work
+	cfg.IntervalMagicHit = yc.Server.Intervals.MagicHit
+
+	cfg.Gods = yc.Server.Gods
+	cfg.SemiGods = yc.Server.SemiGods
+	cfg.Counselors = yc.Server.Counselors
+	cfg.RoleMasters = yc.Server.RoleMasters
 
 	return cfg, nil
-}
-
-func loadList(section map[string]string, prefix string) []string {
-	var list []string
-	if section == nil {
-		return list
-	}
-	
-	// Scan blindly for prefix + number? Or just iterate map since keys are DIOS1, DIOS2...
-	// Iterating map is easier but order is random (doesn't matter for containment check)
-	for k, v := range section {
-		if strings.HasPrefix(k, prefix) {
-			list = append(list, strings.ToUpper(v))
-		}
-	}
-	return list
 }

@@ -1,0 +1,120 @@
+server:
+  init:
+    ip: "127.0.0.1"
+    crc_sub_key: 12345
+    start_port: 7666
+    hide: true
+    allow_multi_logins: true
+    idle_limit: 5
+    version: "0.13.0"
+    start_from_backup: false
+    allow_character_creation: true
+    only_gms: false
+    testing: false
+    max_users: 550
+    record: 517
+  
+  staff_counts:
+    gods: 9
+    semi_gods: 17
+    counselors: 14
+    role_masters: 9
+
+  gods:
+    - TATO
+    - BRUNILDE
+    - RAMZA
+    - ALATARIEL
+    - EL PANDA
+    - MARAXUS
+    - STARVIN
+    - BENICIO
+    - PEPE
+
+  semi_gods:
+    - POTOTI
+    - KANDIMAN
+    - CHAST
+    - JUAN CARLOS
+    - CAYO MARIO
+    - CAMILLE
+    - VALENTINE
+    - ACCURSO
+    - WARREN SANCHEZ
+    - ZAURAK
+    - KANDIMAN
+    - DEMEX
+    - LEGL
+    - NIHIELOR
+    - SURICATAMIKE
+    - INTEGER
+    - NIGO
+
+  counselors:
+    - ELDASSIL
+    - BALZHUR
+    - LEONTINO
+    - BOLKOW
+    - CHARLOTTE
+    - EPAMINONDAS
+    - CARINYC FERNY
+    - NILZIGARAN
+    - THOR
+    - DAVID HUME
+    - INJU
+    - LATERNAL
+    - ELVIO GANNET
+    - RENSOKU
+
+  role_masters:
+    - STARVIN
+    - ELVIO GANNET
+    - LEGL
+    - DEMEX
+    - SURICATAMIKE
+    - LATERNAL
+    - NIHIELOR
+    - INJU
+    - RENSOKU
+
+  intervals:
+    hp_no_rest: 1600
+    stamina_no_rest: 10
+    hp_rest: 100
+    stamina_rest: 5
+    thirst: 6000
+    hunger: 6500
+    poison: 500
+    paralyzed: 500
+    invisible: 500
+    hidden: 500
+    cold: 15
+    wav_fx: 190
+    move: 200
+    cast_spell: 1400
+    npc_ai: 380
+    npc_attack: 1600
+    work: 700
+    user_attack: 1500
+    world_save: 180
+    invocation: 1001
+    rain_stamina_loss: 9999
+    connection: 3000
+    timer_exec: 50
+    close_connection: 5
+    user_use: 125
+    hunter_arrows: 1400
+    auto_restart: 100000
+    magic_hit: 1000
+    hit_magic: 1000
+
+  balance:
+    mana_recovery_percentage: 6
+
+  security:
+    md5_hush:
+      enabled: true
+      accepted_md5:
+        - "555656167382A654A5B7EB7B613CBA64"
+        - "1DA11E3F5BE3E075DB8A16E9831CC998"
+      check_critical_files: true

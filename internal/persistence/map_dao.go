@@ -1,7 +1,6 @@
 package persistence
 
 import (
-	"bufio"
 	"encoding/binary"
 	"fmt"
 	"os"
@@ -9,6 +8,7 @@ import (
 	"strings"
 
 	"github.com/ao-go-server/internal/model"
+	"gopkg.in/yaml.v3"
 )
 
 type MapDAO struct {
@@ -31,58 +31,52 @@ func (d *MapDAO) GetMapsAmount() int {
 	return d.mapsAmount
 }
 
+type yamlMaps struct {
+	Maps struct {
+		Tiles struct {
+			Water []string `yaml:"water"`
+			Lava  []string `yaml:"lava"`
+		} `yaml:"tiles"`
+	} `yaml:"maps"`
+}
+
 func (d *MapDAO) LoadProperties(path string) error {
-	file, err := os.Open(path)
+	data, err := os.ReadFile(path)
 	if err != nil {
 		return err
 	}
-	defer file.Close()
 
-	scanner := bufio.NewScanner(file)
-	for scanner.Scan() {
-		line := strings.TrimSpace(scanner.Text())
-		if line == "" || strings.HasPrefix(line, "#") {
-			continue
-		}
-
-		parts := strings.SplitN(line, "=", 2)
-		if len(parts) != 2 {
-			continue
-		}
-
-		key := strings.TrimSpace(parts[0])
-		value := strings.TrimSpace(parts[1])
-
-		if key == "maps.water" {
-			d.parseRanges(value, d.waterGrhs)
-		} else if key == "maps.lava" {
-			d.parseRanges(value, d.lavaGrhs)
-		}
+	var ym yamlMaps
+	if err := yaml.Unmarshal(data, &ym); err != nil {
+		return err
 	}
 
-	return scanner.Err()
+	for _, r := range ym.Maps.Tiles.Water {
+		d.parseRanges(r, d.waterGrhs)
+	}
+	for _, r := range ym.Maps.Tiles.Lava {
+		d.parseRanges(r, d.lavaGrhs)
+	}
+
+	return nil
 }
 
-func (d *MapDAO) parseRanges(value string, target map[int16]bool) {
-	// Format: 1505-1520,5665-5680
-	ranges := strings.Split(value, ",")
-	for _, r := range ranges {
-		r = strings.TrimSpace(r)
-		bounds := strings.Split(r, "-")
-		if len(bounds) == 2 {
-			start, err1 := strconv.Atoi(strings.TrimSpace(bounds[0]))
-			end, err2 := strconv.Atoi(strings.TrimSpace(bounds[1]))
-			if err1 == nil && err2 == nil {
-				for i := start; i <= end; i++ {
-					target[int16(i)] = true
-				}
+func (d *MapDAO) parseRanges(r string, target map[int16]bool) {
+	r = strings.TrimSpace(r)
+	bounds := strings.Split(r, "-")
+	if len(bounds) == 2 {
+		start, err1 := strconv.Atoi(strings.TrimSpace(bounds[0]))
+		end, err2 := strconv.Atoi(strings.TrimSpace(bounds[1]))
+		if err1 == nil && err2 == nil {
+			for i := start; i <= end; i++ {
+				target[int16(i)] = true
 			}
-		} else {
-			// Single value
-			val, err := strconv.Atoi(r)
-			if err == nil {
-				target[int16(val)] = true
-			}
+		}
+	} else {
+		// Single value
+		val, err := strconv.Atoi(r)
+		if err == nil {
+			target[int16(val)] = true
 		}
 	}
 }
