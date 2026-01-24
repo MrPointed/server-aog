@@ -82,7 +82,37 @@ var connBanCmd = &cobra.Command{
 	Use:   "ban",
 	Short: "Ban an account",
 	Run: func(cmd *cobra.Command, args []string) {
-		fmt.Printf("Banning account %s for %s...\n", kickAccount, banDuration)
+		if kickAccount == "" {
+			fmt.Println("Please specify account with --account or -a")
+			return
+		}
+		resp, err := http.Get(fmt.Sprintf("%s/conn/ban?nick=%s", AdminAPIAddrConn, kickAccount))
+		if err != nil {
+			fmt.Printf("Error banning: %v\n", err)
+			return
+		}
+		defer resp.Body.Close()
+		body, _ := io.ReadAll(resp.Body)
+		fmt.Println(string(body))
+	},
+}
+
+var connUnbanCmd = &cobra.Command{
+	Use:   "unban",
+	Short: "Unban an account",
+	Run: func(cmd *cobra.Command, args []string) {
+		if kickAccount == "" {
+			fmt.Println("Please specify account with --account or -a")
+			return
+		}
+		resp, err := http.Get(fmt.Sprintf("%s/conn/unban?nick=%s", AdminAPIAddrConn, kickAccount))
+		if err != nil {
+			fmt.Printf("Error unbanning: %v\n", err)
+			return
+		}
+		defer resp.Body.Close()
+		body, _ := io.ReadAll(resp.Body)
+		fmt.Println(string(body))
 	},
 }
 
@@ -95,9 +125,12 @@ func init() {
 	connBanCmd.Flags().StringVarP(&kickAccount, "account", "a", "", "Account ID")
 	connBanCmd.Flags().StringVarP(&banDuration, "duration", "d", "24h", "Ban duration")
 
+	connUnbanCmd.Flags().StringVarP(&kickAccount, "account", "a", "", "Account ID")
+
 	connCmd.AddCommand(connListCmd)
 	connCmd.AddCommand(connCountCmd)
 	connCmd.AddCommand(connKickCmd)
 	connCmd.AddCommand(connBanCmd)
+	connCmd.AddCommand(connUnbanCmd)
 	rootCmd.AddCommand(connCmd)
 }

@@ -84,10 +84,26 @@ var worldListCmd = &cobra.Command{
 	},
 }
 
+var worldSaveCmd = &cobra.Command{
+	Use:   "save",
+	Short: "Save world maps to cache",
+	Run: func(cmd *cobra.Command, args []string) {
+		resp, err := http.Get(fmt.Sprintf("%s/world/save", AdminAPIAddr))
+		if err != nil {
+			fmt.Printf("Error saving world: %v\n", err)
+			return
+		}
+		defer resp.Body.Close()
+		body, _ := io.ReadAll(resp.Body)
+		fmt.Println(string(body))
+	},
+}
+
 func init() {
 	worldCmd.AddCommand(worldLoadCmd)
 	worldCmd.AddCommand(worldUnloadCmd)
 	worldCmd.AddCommand(worldReloadCmd)
 	worldCmd.AddCommand(worldListCmd)
+	worldCmd.AddCommand(worldSaveCmd)
 	rootCmd.AddCommand(worldCmd)
 }

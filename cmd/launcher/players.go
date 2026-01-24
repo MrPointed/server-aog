@@ -111,6 +111,38 @@ var playerSaveCmd = &cobra.Command{
 	},
 }
 
+var playerInfoCmd = &cobra.Command{
+	Use:   "info [nick]",
+	Short: "Get online player information",
+	Args:  cobra.ExactArgs(1),
+	Run: func(cmd *cobra.Command, args []string) {
+		resp, err := http.Get(fmt.Sprintf("%s/player/info?nick=%s", AdminAPIAddrPlayer, args[0]))
+		if err != nil {
+			fmt.Printf("Error getting player info: %v\n", err)
+			return
+		}
+		defer resp.Body.Close()
+		body, _ := io.ReadAll(resp.Body)
+		fmt.Println(string(body))
+	},
+}
+
+var playerKickCmd = &cobra.Command{
+	Use:   "kick [nick]",
+	Short: "Kick an online player",
+	Args:  cobra.ExactArgs(1),
+	Run: func(cmd *cobra.Command, args []string) {
+		resp, err := http.Get(fmt.Sprintf("%s/conn/kick?name=%s", AdminAPIAddrPlayer, args[0]))
+		if err != nil {
+			fmt.Printf("Error kicking player: %v\n", err)
+			return
+		}
+		defer resp.Body.Close()
+		body, _ := io.ReadAll(resp.Body)
+		fmt.Println(string(body))
+	},
+}
+
 func init() {
 	playerSaveCmd.Flags().BoolVarP(&saveAll, "all", "", false, "Save all players")
 
@@ -120,6 +152,8 @@ func init() {
 	
 	playerCmd.AddCommand(playerTeleportCmd)
 	playerCmd.AddCommand(playerSaveCmd)
+	playerCmd.AddCommand(playerInfoCmd)
+	playerCmd.AddCommand(playerKickCmd)
 	
 	rootCmd.AddCommand(accountCmd)
 	rootCmd.AddCommand(playerCmd)

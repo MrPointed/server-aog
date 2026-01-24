@@ -38,10 +38,13 @@ func (a *AdminAPI) Start(addr string) error {
 	mux.HandleFunc("/world/load", a.handleWorldLoad)
 	mux.HandleFunc("/world/unload", a.handleWorldUnload)
 	mux.HandleFunc("/world/reload", a.handleWorldReload)
+	mux.HandleFunc("/world/save", a.handleWorldSave)
 
 	mux.HandleFunc("/conn/list", a.handleConnList)
 	mux.HandleFunc("/conn/count", a.handleConnCount)
 	mux.HandleFunc("/conn/kick", a.handleConnKick)
+	mux.HandleFunc("/conn/ban", a.handleConnBan)
+	mux.HandleFunc("/conn/unban", a.handleConnUnban)
 
 	mux.HandleFunc("/account/lock", a.handleAccountLock)
 	mux.HandleFunc("/account/unlock", a.handleAccountUnlock)
@@ -49,6 +52,7 @@ func (a *AdminAPI) Start(addr string) error {
 
 	mux.HandleFunc("/player/teleport", a.handlePlayerTeleport)
 	mux.HandleFunc("/player/save", a.handlePlayerSave)
+	mux.HandleFunc("/player/info", a.handlePlayerInfo)
 
 	mux.HandleFunc("/npc/reload", a.handleNpcReload)
 	mux.HandleFunc("/npc/disable", a.handleNpcDisable)
@@ -101,34 +105,39 @@ func (a *AdminAPI) handleConfigGet(w http.ResponseWriter, r *http.Request) {
 	fmt.Fprintf(w, "%v", val)
 }
 
-func (a *AdminAPI) handleConfigSet(w http.ResponseWriter, r *http.Request) {
-	key := r.URL.Query().Get("key")
-	val := r.URL.Query().Get("value")
-
-	switch key {
-	case "max_users":
-		if i, err := strconv.Atoi(val); err == nil {
-			a.config.MaxConcurrentUsers = i
-		}
-	case "creation_enabled":
-		a.config.CharacterCreationEnabled = val == "true"
-	case "admins_only":
-		a.config.RestrictedToAdmins = val == "true"
-	case "interval_attack":
-		if i, err := strconv.ParseInt(val, 10, 64); err == nil {
-			a.config.IntervalAttack = i
-		}
-	case "interval_spell":
-		if i, err := strconv.ParseInt(val, 10, 64); err == nil {
-			a.config.IntervalSpell = i
-		}
-	default:
-		http.Error(w, "Unknown or read-only config key", http.StatusBadRequest)
+func (a *AdminAPI) handleConnBan(w http.ResponseWriter, r *http.Request) {
+	nick := r.URL.Query().Get("nick")
+	if nick == "" {
+		http.Error(w, "Missing nick", http.StatusBadRequest)
 		return
 	}
 
-	fmt.Fprintf(w, "Config %s set to %s", key, val)
+	if err := a.loginService.LockAccount(nick); err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+
+	// Kick if online
+	a.userService.KickByName(nick)
+
+	fmt.Fprintf(w, "Account %s banned and kicked", nick)
 }
+
+func (a *AdminAPI) handleConnUnban(w http.ResponseWriter, r *http.Request) {
+	nick := r.URL.Query().Get("nick")
+	if nick == "" {
+		http.Error(w, "Missing nick", http.StatusBadRequest)
+		return
+	}
+
+	if err := a.loginService.UnlockAccount(nick); err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+
+	fmt.Fprintf(w, "Account %s unbanned", nick)
+}
+
 
 func (a *AdminAPI) handleNpcList(w http.ResponseWriter, r *http.Request) {
 	npcs := a.npcService.GetWorldNpcs()
@@ -208,6 +217,11 @@ func (a *AdminAPI) handleNpcRespawn(w http.ResponseWriter, r *http.Request) {
 	fmt.Fprintf(w, "NPCs respawned on map %d", mapID)
 }
 
+func (a *AdminAPI) handleWorldSave(w http.ResponseWriter, r *http.Request) {
+	a.mapService.SaveCache()
+	fmt.Fprintf(w, "World cache saved")
+}
+
 func (a *AdminAPI) handleAccountLock(w http.ResponseWriter, r *http.Request) {
 	nick := r.URL.Query().Get("nick")
 	if err := a.loginService.LockAccount(nick); err != nil {
@@ -250,6 +264,36 @@ func (a *AdminAPI) handlePlayerTeleport(w http.ResponseWriter, r *http.Request) 
 		return
 	}
 	fmt.Fprintf(w, "Player %s teleported to %d,%d,%d", nick, m, x, y)
+}
+
+func (a *AdminAPI) handlePlayerInfo(w http.ResponseWriter, r *http.Request) {
+	nick := r.URL.Query().Get("nick")
+	if nick == "" {
+		http.Error(w, "Missing nick", http.StatusBadRequest)
+		return
+	}
+
+	char := a.userService.GetCharacterByName(nick)
+	if char == nil {
+		http.Error(w, "Player not online", http.StatusNotFound)
+		return
+	}
+
+	info := map[string]interface{}{
+		"name":      char.Name,
+		"level":     char.Level,
+		"exp":       char.Exp,
+		"hp":        char.Hp,
+		"max_hp":    char.MaxHp,
+		"mana":      char.Mana,
+		"max_mana":  char.MaxMana,
+		"gold":      char.Gold,
+		"map":       char.Position.Map,
+		"x":         char.Position.X,
+		"y":         char.Position.Y,
+		"archetype": char.Archetype,
+	}
+	json.NewEncoder(w).Encode(info)
 }
 
 func (a *AdminAPI) handlePlayerSave(w http.ResponseWriter, r *http.Request) {
@@ -311,6 +355,35 @@ func (a *AdminAPI) handleConnKick(w http.ResponseWriter, r *http.Request) {
 	http.Error(w, "Missing name or ip parameter", http.StatusBadRequest)
 }
 
+func (a *AdminAPI) handleConfigSet(w http.ResponseWriter, r *http.Request) {
+	key := r.URL.Query().Get("key")
+	val := r.URL.Query().Get("value")
+
+	switch key {
+	case "max_users":
+		if i, err := strconv.Atoi(val); err == nil {
+			a.config.MaxConcurrentUsers = i
+		}
+	case "creation_enabled":
+		a.config.CharacterCreationEnabled = val == "true"
+	case "admins_only":
+		a.config.RestrictedToAdmins = val == "true"
+	case "interval_attack":
+		if i, err := strconv.ParseInt(val, 10, 64); err == nil {
+			a.config.IntervalAttack = i
+		}
+	case "interval_spell":
+		if i, err := strconv.ParseInt(val, 10, 64); err == nil {
+			a.config.IntervalSpell = i
+		}
+	default:
+		http.Error(w, "Unknown or read-only config key", http.StatusBadRequest)
+		return
+	}
+
+	fmt.Fprintf(w, "Config %s set to %s", key, val)
+}
+
 func (a *AdminAPI) handleWorldList(w http.ResponseWriter, r *http.Request) {
 	maps := a.mapService.GetLoadedMaps()
 	json.NewEncoder(w).Encode(maps)
@@ -357,3 +430,4 @@ func (a *AdminAPI) handleWorldReload(w http.ResponseWriter, r *http.Request) {
 	}
 	fmt.Fprintf(w, "Map %d reloaded", id)
 }
+
