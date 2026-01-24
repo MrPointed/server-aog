@@ -96,7 +96,7 @@ func (p *WalkPacket) Handle(buffer *network.DataBuffer, connection protocol.Conn
 
 		if oldAX != newAX || oldAY != newAY {
 			connection.Send(&outgoing.AreaChangedPacket{Position: char.Position})
-			p.AreaService.SendAreaState(char)
+			p.AreaService.SendAreaObjectsOnly(char)
 		}
 
 		p.AreaService.NotifyMovement(char, oldPos)

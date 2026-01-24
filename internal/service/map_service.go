@@ -270,6 +270,18 @@ func (s *MapService) ForEachCharacter(mapID int, f func(*model.Character)) {
 	}
 }
 
+func (s *MapService) ForEachNpc(mapID int, f func(*model.WorldNPC)) {
+	m := s.GetMap(mapID)
+	if m == nil {
+		return
+	}
+	m.RLock()
+	defer m.RUnlock()
+	for _, npc := range m.Npcs {
+		f(npc)
+	}
+}
+
 func (s *MapService) GetObjectAt(pos model.Position) *model.WorldObject {
 	m := s.GetMap(pos.Map)
 	if m == nil {

@@ -133,6 +133,23 @@ func (s *AreaService) NotifyMovement(char *model.Character, oldPos model.Positio
 			}
 		}
 	})
+
+	// Also check for NPCs entering/leaving view
+	connMe := s.userService.GetConnection(char)
+	if connMe != nil {
+		s.mapService.ForEachNpc(char.Position.Map, func(npc *model.WorldNPC) {
+			wasInRange := s.InRange(oldPos, npc.Position)
+			isInRange := s.InRange(char.Position, npc.Position)
+
+			if wasInRange && !isInRange {
+				// NPC disappeared for this player
+				connMe.Send(&outgoing.CharacterRemovePacket{CharIndex: npc.Index})
+			} else if !wasInRange && isInRange {
+				// NPC appeared for this player
+				connMe.Send(&outgoing.NpcCreatePacket{Npc: npc})
+			}
+		})
+	}
 }
 
 func (s *AreaService) SendAreaState(char *model.Character) {
@@ -200,4 +217,55 @@ func (s *AreaService) SendAreaState(char *model.Character) {
 			}
 		}
 	})
+}
+
+func (s *AreaService) SendAreaObjectsOnly(char *model.Character) {
+	conn := s.userService.GetConnection(char)
+	if conn == nil {
+		return
+	}
+
+	gameMap := s.mapService.GetMap(char.Position.Map)
+	if gameMap == nil {
+		return
+	}
+
+	gameMap.RLock()
+	defer gameMap.RUnlock()
+
+	for y := 0; y < 100; y++ {
+		for x := 0; x < 100; x++ {
+			tile := gameMap.GetTile(x, y)
+
+			// Objects
+			if tile.Object != nil {
+				objPos := model.Position{X: byte(x), Y: byte(y), Map: char.Position.Map}
+				if s.InRange(char.Position, objPos) {
+					conn.Send(&outgoing.ObjectCreatePacket{
+						X:            byte(x),
+						Y:            byte(y),
+						GraphicIndex: int16(tile.Object.Object.GraphicIndex),
+					})
+
+					// If it's a door, sync the blocking status as it might have changed from the static map file
+					if tile.Object.Object.Type == model.OTDoor {
+						conn.Send(&outgoing.BlockPositionPacket{
+							X:       byte(x),
+							Y:       byte(y),
+							Blocked: tile.Blocked,
+						})
+						// Also sync the left tile which is part of the same door
+						if x > 0 {
+							leftTile := gameMap.GetTile(x-1, y)
+							conn.Send(&outgoing.BlockPositionPacket{
+								X:       byte(x - 1),
+								Y:       byte(y),
+								Blocked: leftTile.Blocked,
+							})
+						}
+					}
+				}
+			}
+		}
+	}
 }
