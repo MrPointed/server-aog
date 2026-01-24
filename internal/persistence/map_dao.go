@@ -98,6 +98,12 @@ func (d *MapDAO) Load() ([]*model.Map, error) {
 func (d *MapDAO) loadMap(id int) (*model.Map, error) {
 	mapFileName := fmt.Sprintf("%s/Mapa%d.map", d.mapsPath, id)
 	infFileName := fmt.Sprintf("%s/Mapa%d.inf", d.mapsPath, id)
+	datFileName := fmt.Sprintf("%s/Mapa%d.dat", d.mapsPath, id)
+
+	// Check if .dat file exists with alternative casing (some files are mapa7.dat)
+	if _, err := os.Stat(datFileName); os.IsNotExist(err) {
+		datFileName = fmt.Sprintf("%s/mapa%d.dat", d.mapsPath, id)
+	}
 
 	mapFile, err := os.Open(mapFileName)
 	if err != nil {
@@ -110,6 +116,33 @@ func (d *MapDAO) loadMap(id int) (*model.Map, error) {
 		return nil, err
 	}
 	defer infFile.Close()
+
+	// Load properties from .dat
+	pkMap := true // Default to PK allowed
+	mapName := ""
+	if datProps, err := ReadINI(datFileName); err == nil {
+		sectionKey := fmt.Sprintf("MAPA%d", id)
+		if header, ok := datProps[sectionKey]; ok {
+			if pkVal, ok := header["PK"]; ok {
+				pkMap = pkVal == "0"
+			}
+			if nameVal, ok := header["NOMBRE"]; ok {
+				mapName = nameVal
+			}
+		} else if header, ok := datProps["MAPA"]; ok {
+			if pkVal, ok := header["PK"]; ok {
+				pkMap = pkVal == "0"
+			}
+			if nameVal, ok := header["NOMBRE"]; ok {
+				mapName = nameVal
+			}
+		} else if header, ok := datProps["MAIN"]; ok {
+			if pkVal, ok := header["PK"]; ok {
+				pkMap = pkVal == "0"
+			}
+		}
+	}
+	fmt.Printf("Map %d: Name='%s', PK_Allowed=%v\n", id, mapName, pkMap)
 
 	// Header Map
 	var version int16
@@ -220,7 +253,9 @@ func (d *MapDAO) loadMap(id int) (*model.Map, error) {
 
 	return &model.Map{
 		Id:      id,
+		Name:    mapName,
 		Version: version,
+		Pk:      pkMap,
 		Tiles:   tiles,
 	}, nil
 }

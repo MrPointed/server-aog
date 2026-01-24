@@ -28,14 +28,14 @@ func (s *AreaService) InRange(p1, p2 model.Position) bool {
 	if p1.Map != p2.Map {
 		return false
 	}
-	
+
 	// Traditional AO logic: check if p2 is in any of the 9 areas around p1's area
 	ax1, ay1 := s.GetArea(p1.X, p1.Y)
 	ax2, ay2 := s.GetArea(p2.X, p2.Y)
-	
+
 	dx := ax1 - ax2
 	dy := ay1 - ay2
-	
+
 	return dx >= -1 && dx <= 1 && dy >= -1 && dy <= 1
 }
 
@@ -114,7 +114,7 @@ func (s *AreaService) NotifyMovement(char *model.Character, oldPos model.Positio
 				})
 			}
 		} else if wasInRange && !isInRange {
-			// He was in range but now he's not. 
+			// He was in range but now he's not.
 			// I should see him disappear, and he should see me disappear.
 			if connOther != nil {
 				connOther.Send(&outgoing.CharacterRemovePacket{CharIndex: char.CharIndex})
@@ -152,7 +152,7 @@ func (s *AreaService) SendAreaState(char *model.Character) {
 	for y := 0; y < 100; y++ {
 		for x := 0; x < 100; x++ {
 			tile := gameMap.GetTile(x, y)
-			
+
 			// Objects
 			if tile.Object != nil {
 				objPos := model.Position{X: byte(x), Y: byte(y), Map: char.Position.Map}
@@ -182,7 +182,7 @@ func (s *AreaService) SendAreaState(char *model.Character) {
 					}
 				}
 			}
-			
+
 			// NPCs
 			if tile.NPC != nil {
 				if s.InRange(char.Position, tile.NPC.Position) {

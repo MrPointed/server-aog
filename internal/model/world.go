@@ -70,6 +70,7 @@ type Map struct {
 	Id      int
 	Name    string
 	Version int16
+	Pk      bool
 	Tiles   []Tile
 	Characters map[int16]*Character
 	Npcs       map[int16]*WorldNPC

@@ -328,6 +328,14 @@ func (s *MapService) IsSafeZone(pos model.Position) bool {
 	return tile.Trigger == model.TriggerSafeZone
 }
 
+func (s *MapService) IsPkMap(mapID int) bool {
+	m := s.GetMap(mapID)
+	if m == nil {
+		return false
+	}
+	return m.Pk
+}
+
 func (s *MapService) IsInvalidPosition(pos model.Position) bool {
 	m := s.GetMap(pos.Map)
 	if m == nil {

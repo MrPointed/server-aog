@@ -121,10 +121,10 @@ func (s *SpellService) CastSpell(caster *model.Character, spellID int, target an
 	case *model.Character:
 		fmt.Printf("CastSpell: Target is Character %s. Spell Type: %d\n", t.Name, spell.TargetType)
 		if spell.TargetType == model.TargetUser || spell.TargetType == model.TargetUserAndNpc {
-			// Safe zone check for offensive spells
 			isOffensive := spell.SubeHP == 2 || spell.Paralyzes || spell.Immobilizes || spell.Poison
 			if isOffensive {
-				if s.messageService.MapService.IsSafeZone(caster.Position) || s.messageService.MapService.IsSafeZone(t.Position) {
+				if s.messageService.MapService.IsSafeZone(caster.Position) || s.messageService.MapService.IsSafeZone(t.Position) ||
+					!s.messageService.MapService.IsPkMap(caster.Position.Map) || !s.messageService.MapService.IsPkMap(t.Position.Map) {
 					if conn != nil {
 						conn.Send(&outgoing.ConsoleMessagePacket{
 							Message: "No puedes combatir en zona segura.",
@@ -198,7 +198,8 @@ func (s *SpellService) NpcLanzaSpellSobreUser(npc *model.WorldNPC, target *model
 	// Safe zone check for offensive spells
 	isOffensive := spell.SubeHP == 2 || spell.Paralyzes || spell.Immobilizes || spell.Poison
 	if isOffensive {
-		if s.messageService.MapService.IsSafeZone(npc.Position) || s.messageService.MapService.IsSafeZone(target.Position) {
+		if s.messageService.MapService.IsSafeZone(npc.Position) || s.messageService.MapService.IsSafeZone(target.Position) ||
+			!s.messageService.MapService.IsPkMap(npc.Position.Map) || !s.messageService.MapService.IsPkMap(target.Position.Map) {
 			return false
 		}
 	}

@@ -67,12 +67,8 @@ func (s *CombatService) ResolveAttack(attacker *model.Character, target any) {
 }
 
 func (s *CombatService) resolvePVP(attacker *model.Character, victim *model.Character) {
-	if victim.Dead {
-		s.messageService.SendConsoleMessage(attacker, "No puedes atacar a un espíritu.", outgoing.INFO)
-		return
-	}
-
-	if s.mapService.IsSafeZone(attacker.Position) || s.mapService.IsSafeZone(victim.Position) {
+	if s.mapService.IsSafeZone(attacker.Position) || s.mapService.IsSafeZone(victim.Position) ||
+		!s.mapService.IsPkMap(attacker.Position.Map) || !s.mapService.IsPkMap(victim.Position.Map) {
 		s.messageService.SendConsoleMessage(attacker, "No puedes combatir en zona segura.", outgoing.INFO)
 		return
 	}
