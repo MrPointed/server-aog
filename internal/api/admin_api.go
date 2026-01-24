@@ -6,6 +6,7 @@ import (
 	"net/http"
 	"strconv"
 
+	"github.com/ao-go-server/internal/model"
 	"github.com/ao-go-server/internal/service"
 )
 
@@ -13,13 +14,17 @@ type AdminAPI struct {
 	mapService   *service.MapService
 	userService  *service.UserService
 	loginService *service.LoginService
+	npcService   *service.NpcService
+	aiService    *service.AIService
 }
 
-func NewAdminAPI(mapService *service.MapService, userService *service.UserService, loginService *service.LoginService) *AdminAPI {
+func NewAdminAPI(mapService *service.MapService, userService *service.UserService, loginService *service.LoginService, npcService *service.NpcService, aiService *service.AIService) *AdminAPI {
 	return &AdminAPI{
 		mapService:   mapService,
 		userService:  userService,
 		loginService: loginService,
+		npcService:   npcService,
+		aiService:    aiService,
 	}
 }
 
@@ -42,8 +47,92 @@ func (a *AdminAPI) Start(addr string) error {
 	mux.HandleFunc("/player/teleport", a.handlePlayerTeleport)
 	mux.HandleFunc("/player/save", a.handlePlayerSave)
 
+	mux.HandleFunc("/npc/reload", a.handleNpcReload)
+	mux.HandleFunc("/npc/disable", a.handleNpcDisable)
+	mux.HandleFunc("/npc/enable", a.handleNpcEnable)
+	mux.HandleFunc("/npc/respawn", a.handleNpcRespawn)
+	mux.HandleFunc("/npc/list", a.handleNpcList)
+
 	fmt.Printf("Admin API listening on %s\n", addr)
 	return http.ListenAndServe(addr, mux)
+}
+
+func (a *AdminAPI) handleNpcList(w http.ResponseWriter, r *http.Request) {
+	npcs := a.npcService.GetWorldNpcs()
+	list := make([]map[string]interface{}, 0, len(npcs))
+	for _, npc := range npcs {
+		list = append(list, map[string]interface{}{
+			"index": npc.Index,
+			"id":    npc.NPC.ID,
+			"name":  npc.NPC.Name,
+			"map":   npc.Position.Map,
+			"x":     npc.Position.X,
+			"y":     npc.Position.Y,
+			"hp":    npc.HP,
+		})
+	}
+	json.NewEncoder(w).Encode(list)
+}
+
+func (a *AdminAPI) handleNpcReload(w http.ResponseWriter, r *http.Request) {
+	if err := a.npcService.LoadNpcs(); err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+	fmt.Fprintf(w, "NPCs reloaded")
+}
+
+func (a *AdminAPI) handleNpcDisable(w http.ResponseWriter, r *http.Request) {
+	a.aiService.SetEnabled(false)
+	fmt.Fprintf(w, "AI disabled")
+}
+
+func (a *AdminAPI) handleNpcEnable(w http.ResponseWriter, r *http.Request) {
+	a.aiService.SetEnabled(true)
+	fmt.Fprintf(w, "AI enabled")
+}
+
+func (a *AdminAPI) handleNpcRespawn(w http.ResponseWriter, r *http.Request) {
+	mapIDStr := r.URL.Query().Get("map")
+	if mapIDStr == "" {
+		http.Error(w, "Missing map parameter", http.StatusBadRequest)
+		return
+	}
+
+	mapID, err := strconv.Atoi(mapIDStr)
+	if err != nil {
+		http.Error(w, "Invalid map ID", http.StatusBadRequest)
+		return
+	}
+
+	// Respawning NPCs on a map. 
+	// For simplicity, we just reload the map entities if it's loaded.
+	m := a.mapService.GetMap(mapID)
+	if m == nil {
+		http.Error(w, "Map not loaded", http.StatusNotFound)
+		return
+	}
+
+	// Remove all NPCs from map first
+	m.Lock()
+	npcsToRemove := make([]*model.WorldNPC, 0, len(m.Npcs))
+	for _, npc := range m.Npcs {
+		npcsToRemove = append(npcsToRemove, npc)
+	}
+	m.Unlock()
+
+	for _, npc := range npcsToRemove {
+		// We use a temporary flag to avoid auto-respawn during manual respawn command
+		oldRespawn := npc.Respawn
+		npc.Respawn = false
+		a.npcService.RemoveNPC(npc, a.mapService)
+		npc.Respawn = oldRespawn
+	}
+
+	// Re-resolve entities to spawn them back from map file
+	a.mapService.ReloadMap(mapID)
+
+	fmt.Fprintf(w, "NPCs respawned on map %d", mapID)
 }
 
 func (a *AdminAPI) handleAccountLock(w http.ResponseWriter, r *http.Request) {

@@ -18,6 +18,7 @@ type AIService struct {
 	spellService   *SpellService
 	stopChan       chan struct{}
 	ticks          uint64
+	enabled        bool
 }
 
 func NewAIService(npcService *NpcService, mapService *MapService, areaService *AreaService, userService *UserService, combatService *CombatService, messageService *MessageService, spellService *SpellService) *AIService {
@@ -30,15 +31,25 @@ func NewAIService(npcService *NpcService, mapService *MapService, areaService *A
 		messageService: messageService,
 		spellService:   spellService,
 		stopChan:       make(chan struct{}),
+		enabled:        true,
 	}
 }
 
 func (s *AIService) Start() {
+	s.enabled = true
 	go s.aiLoop()
 }
 
 func (s *AIService) Stop() {
 	close(s.stopChan)
+}
+
+func (s *AIService) SetEnabled(enabled bool) {
+	s.enabled = enabled
+}
+
+func (s *AIService) IsEnabled() bool {
+	return s.enabled
 }
 
 func (s *AIService) aiLoop() {
@@ -48,8 +59,10 @@ func (s *AIService) aiLoop() {
 	for {
 		select {
 		case <-ticker.C:
-			s.ticks++
-			s.processNpcs()
+			if s.enabled {
+				s.ticks++
+				s.processNpcs()
+			}
 		case <-s.stopChan:
 			return
 		}
