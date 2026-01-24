@@ -11,6 +11,7 @@ type Config struct {
 	CharacterCreationEnabled bool
 	RestrictedToAdmins       bool
 	MaxConcurrentUsers       int
+	XpMultiplier             float64
 
 	// Intervals in milliseconds
 	IntervalAttack   int64
@@ -37,6 +38,7 @@ type yamlConfig struct {
 			MaxUsers                 int    `yaml:"max_users"`
 			AllowCharacterCreation bool   `yaml:"allow_character_creation"`
 			OnlyGMs                  bool   `yaml:"only_gms"`
+			XpMultiplier             float64 `yaml:"xp_multiplier"`
 		} `yaml:"init"`
 		Gods        []string `yaml:"gods"`
 		SemiGods    []string `yaml:"semi_gods"`
@@ -90,6 +92,10 @@ func Load(path string) (*Config, error) {
 	cfg.MaxConcurrentUsers = yc.Server.Init.MaxUsers
 	cfg.CharacterCreationEnabled = yc.Server.Init.AllowCharacterCreation
 	cfg.RestrictedToAdmins = yc.Server.Init.OnlyGMs
+	cfg.XpMultiplier = yc.Server.Init.XpMultiplier
+	if cfg.XpMultiplier <= 0 {
+		cfg.XpMultiplier = 1.0
+	}
 
 	cfg.IntervalAttack = yc.Server.Intervals.UserAttack
 	cfg.IntervalSpell = yc.Server.Intervals.CastSpell

@@ -89,7 +89,7 @@ func NewServer(addr string, resourcesPath string) *Server {
 	resourceManager := service.NewResourceManager(objectService, npcService, mapService, spellService, cityService)
 	resourceManager.LoadAll()
 
-	combatService := service.NewCombatService(messageService, objectService, npcService, mapService, combatFormulas, intervalService, trainingService)
+	combatService := service.NewCombatService(messageService, objectService, npcService, mapService, combatFormulas, intervalService, trainingService, cfg)
 	timedEventsService := service.NewTimedEventsService(userService, messageService)
 	timedEventsService.Start()
 

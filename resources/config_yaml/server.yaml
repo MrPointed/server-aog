@@ -6,7 +6,9 @@ server:
     version: "0.13.0"
     allow_character_creation: true
     only_gms: false
+    max_users: 500
     record_online: 517
+    xp_multiplier: 1
   
   staff_counts:
     gods: 9

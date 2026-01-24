@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"math/rand"
 
+	"github.com/ao-go-server/internal/config"
 	"github.com/ao-go-server/internal/model"
 	"github.com/ao-go-server/internal/protocol/outgoing"
 	"github.com/ao-go-server/internal/utils"
@@ -17,9 +18,10 @@ type CombatService struct {
 	formulas        *CombatFormulas
 	intervals       *IntervalService
 	trainingService *TrainingService
+	config          *config.Config
 }
 
-func NewCombatService(messageService *MessageService, objectService *ObjectService, npcService *NpcService, mapService *MapService, formulas *CombatFormulas, intervals *IntervalService, trainingService *TrainingService) *CombatService {
+func NewCombatService(messageService *MessageService, objectService *ObjectService, npcService *NpcService, mapService *MapService, formulas *CombatFormulas, intervals *IntervalService, trainingService *TrainingService, cfg *config.Config) *CombatService {
 	return &CombatService{
 		messageService:  messageService,
 		objectService:   objectService,
@@ -28,6 +30,7 @@ func NewCombatService(messageService *MessageService, objectService *ObjectServi
 		formulas:        formulas,
 		intervals:       intervals,
 		trainingService: trainingService,
+		config:          cfg,
 	}
 }
 
@@ -317,7 +320,7 @@ func (s *CombatService) grantExperience(attacker *model.Character, victim *model
 		return
 	}
 
-	expToGive := int(float32(damage) * (float32(victim.NPC.Exp) / float32(victim.NPC.MaxHp)))
+	expToGive := int(float64(damage) * (float64(victim.NPC.Exp) / float64(victim.NPC.MaxHp)) * s.config.XpMultiplier)
 
 	// Ensure at least 1 exp if damage was dealt and there's exp left
 	if expToGive == 0 && damage > 0 && victim.RemainingExp > 0 {

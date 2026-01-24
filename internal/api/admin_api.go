@@ -64,8 +64,33 @@ func (a *AdminAPI) Start(addr string) error {
 	mux.HandleFunc("/config/set", a.handleConfigSet)
 	mux.HandleFunc("/config/list", a.handleConfigList)
 
+	mux.HandleFunc("/event/start", a.handleEventStart)
+	mux.HandleFunc("/event/stop", a.handleEventStop)
+
 	fmt.Printf("Admin API listening on %s\n", addr)
 	return http.ListenAndServe(addr, mux)
+}
+
+func (a *AdminAPI) handleEventStart(w http.ResponseWriter, r *http.Request) {
+	name := r.URL.Query().Get("name")
+	switch name {
+	case "weekend_xp":
+		a.config.XpMultiplier = 2.0
+		fmt.Fprintf(w, "Event %s started: XP Multiplier set to 2.0", name)
+	default:
+		fmt.Fprintf(w, "Event %s started (no specific logic defined)", name)
+	}
+}
+
+func (a *AdminAPI) handleEventStop(w http.ResponseWriter, r *http.Request) {
+	name := r.URL.Query().Get("name")
+	switch name {
+	case "weekend_xp":
+		a.config.XpMultiplier = 1.0
+		fmt.Fprintf(w, "Event %s stopped: XP Multiplier restored to 1.0", name)
+	default:
+		fmt.Fprintf(w, "Event %s stopped", name)
+	}
 }
 
 func (a *AdminAPI) handleConfigList(w http.ResponseWriter, r *http.Request) {

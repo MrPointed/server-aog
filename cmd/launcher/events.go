@@ -2,45 +2,55 @@ package main
 
 import (
 	"fmt"
+	"io"
+	"net/http"
 
 	"github.com/spf13/cobra"
 )
 
+const AdminAPIAddrEvent = "http://localhost:7667"
+
 var eventCmd = &cobra.Command{
 	Use:   "event",
-	Short: "Game events management",
+	Short: "Server events management",
 }
 
 var eventStartCmd = &cobra.Command{
 	Use:   "start [name]",
-	Short: "Start an event",
+	Short: "Start a server event",
 	Args:  cobra.ExactArgs(1),
 	Run: func(cmd *cobra.Command, args []string) {
-		fmt.Printf("Starting event %s...\n", args[0])
+		name := args[0]
+		resp, err := http.Get(fmt.Sprintf("%s/event/start?name=%s", AdminAPIAddrEvent, name))
+		if err != nil {
+			fmt.Printf("Error starting event: %v\n", err)
+			return
+		}
+		defer resp.Body.Close()
+		body, _ := io.ReadAll(resp.Body)
+		fmt.Println(string(body))
 	},
 }
 
 var eventStopCmd = &cobra.Command{
 	Use:   "stop [name]",
-	Short: "Stop an event",
+	Short: "Stop a server event",
 	Args:  cobra.ExactArgs(1),
 	Run: func(cmd *cobra.Command, args []string) {
-		fmt.Printf("Stopping event %s...\n", args[0])
-	},
-}
-
-var eventStatusCmd = &cobra.Command{
-	Use:   "status",
-	Short: "Check active events",
-	Run: func(cmd *cobra.Command, args []string) {
-		fmt.Println("No active events.")
+		name := args[0]
+		resp, err := http.Get(fmt.Sprintf("%s/event/stop?name=%s", AdminAPIAddrEvent, name))
+		if err != nil {
+			fmt.Printf("Error stopping event: %v\n", err)
+			return
+		}
+		defer resp.Body.Close()
+		body, _ := io.ReadAll(resp.Body)
+		fmt.Println(string(body))
 	},
 }
 
 func init() {
 	eventCmd.AddCommand(eventStartCmd)
 	eventCmd.AddCommand(eventStopCmd)
-	eventCmd.AddCommand(eventStatusCmd)
 	rootCmd.AddCommand(eventCmd)
 }
-
