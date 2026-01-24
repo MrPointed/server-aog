@@ -1,12 +1,17 @@
 package service
 
 import (
+	"encoding/gob"
 	"fmt"
 	"math/rand"
+	"os"
+	"sync"
 
 	"github.com/ao-go-server/internal/model"
 	"github.com/ao-go-server/internal/persistence"
 )
+
+const MapCacheFile = "../../resources/maps.cache"
 
 type MapService struct {
 	mapDAO        *persistence.MapDAO
@@ -16,6 +21,8 @@ type MapService struct {
 }
 
 func NewMapService(mapDAO *persistence.MapDAO, objectService *ObjectService, npcService *NpcService) *MapService {
+	// Register types for gob
+	gob.Register(model.Position{})
 	return &MapService{
 		mapDAO:        mapDAO,
 		objectService: objectService,
@@ -34,56 +41,148 @@ func (s *MapService) LoadMaps() {
 	for _, m := range maps {
 		m.Characters = make(map[int16]*model.Character)
 		m.Npcs = make(map[int16]*model.WorldNPC)
-
-		objectsFound := 0
-		npcsFound := 0
-		// Resolve objects and NPCs from map file
-		for i := range m.Tiles {
-			tile := &m.Tiles[i]
-			x := i % model.MapWidth
-			y := i / model.MapWidth
-
-			if tile.ObjectID > 0 {
-				obj := s.objectService.GetObject(tile.ObjectID)
-				if obj != nil {
-					tile.Object = &model.WorldObject{
-						Object: obj,
-						Amount: tile.ObjectAmount,
-					}
-					objectsFound++
-
-					// Ensure door blocking is synchronized with object state
-					if obj.Type == model.OTDoor {
-						isClosed := obj.OpenIndex != 0
-						tile.Blocked = isClosed
-						if x > 0 {
-							m.GetTile(x-1, y).Blocked = isClosed
-						}
-					}
-				} else {
-					fmt.Printf("Map %d: Could not resolve object ID %d at tile %d\n", m.Id, tile.ObjectID, i)
-				}
-			}
-
-			if tile.NPCID > 0 {
-				pos := model.Position{X: byte(x), Y: byte(y), Map: m.Id}
-				worldNpc := s.npcService.SpawnNpc(tile.NPCID, pos)
-				if worldNpc != nil {
-					tile.NPC = worldNpc
-					m.Npcs[worldNpc.Index] = worldNpc
-					npcsFound++
-				} else {
-					fmt.Printf("Map %d: Could not resolve NPC ID %d at tile %d\n", m.Id, tile.NPCID, i)
-				}
-			}
-		}
-
+		s.resolveMapEntities(m)
 		s.maps[m.Id] = m
-		if objectsFound > 0 || npcsFound > 0 {
-			fmt.Printf("Map %d: Resolved %d objects and %d NPCs on ground.\n", m.Id, objectsFound, npcsFound)
-		}
 	}
 	fmt.Printf("Loaded %d maps\n", len(s.maps))
+}
+
+func (s *MapService) LoadMapsConcurrent() {
+	if s.LoadCache() {
+		// We still need to resolve entities because pointers to Object/NPC definitions
+		// are not cached and depend on the current objects.dat/npcs.dat
+		for _, m := range s.maps {
+			s.resolveMapEntities(m)
+		}
+
+		fmt.Println("Successfully loaded maps.")
+		return
+	}
+
+	amount := s.mapDAO.GetMapsAmount()
+	var wg sync.WaitGroup
+	var mu sync.Mutex
+
+	for i := 1; i <= amount; i++ {
+		wg.Add(1)
+		go func(id int) {
+			defer wg.Done()
+			m, err := s.mapDAO.LoadMap(id)
+			if err != nil {
+				fmt.Printf("Error loading map %d: %v\n", id, err)
+				return
+			}
+			m.Characters = make(map[int16]*model.Character)
+			m.Npcs = make(map[int16]*model.WorldNPC)
+
+			mu.Lock()
+			s.maps[m.Id] = m
+			mu.Unlock()
+		}(i)
+	}
+	wg.Wait()
+
+	// After loading all, we save the cache (before resolving entities to keep it clean)
+	s.SaveCache()
+
+	// Now resolve entities
+	for _, m := range s.maps {
+		s.resolveMapEntities(m)
+	}
+
+	fmt.Printf("Loaded %d maps\n", len(s.maps))
+}
+
+func (s *MapService) SaveCache() {
+	file, err := os.Create(MapCacheFile)
+	if err != nil {
+		fmt.Printf("Could not create cache file: %v\n", err)
+		return
+	}
+	defer file.Close()
+
+	encoder := gob.NewEncoder(file)
+	if err := encoder.Encode(s.maps); err != nil {
+		fmt.Printf("Error encoding maps cache: %v\n", err)
+	} else {
+		fmt.Println("Maps cache saved successfully.")
+	}
+}
+
+func (s *MapService) LoadCache() bool {
+	if _, err := os.Stat(MapCacheFile); os.IsNotExist(err) {
+		return false
+	}
+
+	file, err := os.Open(MapCacheFile)
+	if err != nil {
+		return false
+	}
+	defer file.Close()
+
+	decoder := gob.NewDecoder(file)
+	if err := decoder.Decode(&s.maps); err != nil {
+		fmt.Printf("Error decoding maps cache: %v\n", err)
+		s.maps = make(map[int]*model.Map)
+		return false
+	}
+
+	// Re-initialize non-exported or non-cached fields
+	for _, m := range s.maps {
+		m.Characters = make(map[int16]*model.Character)
+		m.Npcs = make(map[int16]*model.WorldNPC)
+	}
+
+	return true
+}
+
+func (s *MapService) resolveMapEntities(m *model.Map) {
+	objectsFound := 0
+	npcsFound := 0
+	// Resolve objects and NPCs from map file
+	for i := range m.Tiles {
+		tile := &m.Tiles[i]
+		x := i % model.MapWidth
+		y := i / model.MapWidth
+
+		if tile.ObjectID > 0 {
+			obj := s.objectService.GetObject(tile.ObjectID)
+			if obj != nil {
+				tile.Object = &model.WorldObject{
+					Object: obj,
+					Amount: tile.ObjectAmount,
+				}
+				objectsFound++
+
+				// Ensure door blocking is synchronized with object state
+				if obj.Type == model.OTDoor {
+					isClosed := obj.OpenIndex != 0
+					tile.Blocked = isClosed
+					if x > 0 {
+						m.GetTile(x-1, y).Blocked = isClosed
+					}
+				}
+			} else {
+				fmt.Printf("Map %d: Could not resolve object ID %d at tile %d\n", m.Id, tile.ObjectID, i)
+			}
+		}
+
+		if tile.NPCID > 0 {
+			pos := model.Position{X: byte(x), Y: byte(y), Map: m.Id}
+			worldNpc := s.npcService.SpawnNpc(tile.NPCID, pos)
+			if worldNpc != nil {
+				tile.NPC = worldNpc
+				m.Npcs[worldNpc.Index] = worldNpc
+				npcsFound++
+			} else {
+				fmt.Printf("Map %d: Could not resolve NPC ID %d at tile %d\n", m.Id, tile.NPCID, i)
+			}
+		}
+	}
+
+	if objectsFound > 0 || npcsFound > 0 {
+		// fmt.Printf("Map %d: Resolved %d objects and %d NPCs on ground.\n", m.Id, objectsFound, npcsFound)
+	}
 }
 
 func (s *MapService) GetMap(id int) *model.Map {
@@ -99,9 +198,9 @@ func (s *MapService) PutCharacterAtPos(char *model.Character, pos model.Position
 	if m == nil {
 		return
 	}
-	
-	m.Mu.Lock()
-	defer m.Mu.Unlock()
+
+	m.Lock()
+	defer m.Unlock()
 
 	tile := m.GetTile(int(pos.X), int(pos.Y))
 	if tile.Character != nil && tile.Character != char {
@@ -120,13 +219,13 @@ func (s *MapService) PutCharacterAtPos(char *model.Character, pos model.Position
 func (s *MapService) RemoveCharacter(char *model.Character) {
 	m := s.GetMap(char.Position.Map)
 	if m != nil {
-		m.Mu.Lock()
+		m.Lock()
 		delete(m.Characters, char.CharIndex)
 		tile := m.GetTile(int(char.Position.X), int(char.Position.Y))
 		if tile.Character == char {
 			tile.Character = nil
 		}
-		m.Mu.Unlock()
+		m.Unlock()
 	}
 }
 
@@ -135,8 +234,8 @@ func (s *MapService) ForEachCharacter(mapID int, f func(*model.Character)) {
 	if m == nil {
 		return
 	}
-	m.Mu.RLock()
-	defer m.Mu.RUnlock()
+	m.RLock()
+	defer m.RUnlock()
 	for _, char := range m.Characters {
 		f(char)
 	}
@@ -177,13 +276,13 @@ func (s *MapService) GetNPCAt(pos model.Position) *model.WorldNPC {
 func (s *MapService) RemoveNPC(npc *model.WorldNPC) {
 	m := s.GetMap(npc.Position.Map)
 	if m != nil {
-		m.Mu.Lock()
+		m.Lock()
 		delete(m.Npcs, npc.Index)
 		tile := m.GetTile(int(npc.Position.X), int(npc.Position.Y))
 		if tile.NPC == npc {
 			tile.NPC = nil
 		}
-		m.Mu.Unlock()
+		m.Unlock()
 	}
 }
 
@@ -198,8 +297,8 @@ func (s *MapService) MoveNpc(npc *model.WorldNPC, newPos model.Position) bool {
 
 	// Same map movement
 	if mOld == mNew {
-		mOld.Mu.Lock()
-		defer mOld.Mu.Unlock()
+		mOld.Lock()
+		defer mOld.Unlock()
 
 		targetTile := mOld.GetTile(int(newPos.X), int(newPos.Y))
 		if targetTile.Blocked || targetTile.NPC != nil || targetTile.Character != nil {
@@ -224,10 +323,10 @@ func (s *MapService) MoveNpc(npc *model.WorldNPC, newPos model.Position) bool {
 		first, second = mNew, mOld
 	}
 
-	first.Mu.Lock()
-	second.Mu.Lock()
-	defer first.Mu.Unlock()
-	defer second.Mu.Unlock()
+	first.Lock()
+	second.Lock()
+	defer first.Unlock()
+	defer second.Unlock()
 
 	targetTile := mNew.GetTile(int(newPos.X), int(newPos.Y))
 	if targetTile.Blocked || targetTile.NPC != nil || targetTile.Character != nil {
@@ -273,8 +372,8 @@ func (s *MapService) MoveCharacterTo(char *model.Character, heading model.Headin
 		return char.Position, false
 	}
 
-	gameMap.Mu.Lock()
-	defer gameMap.Mu.Unlock()
+	gameMap.Lock()
+	defer gameMap.Unlock()
 
 	tile := gameMap.GetTile(int(newPos.X), int(newPos.Y))
 
@@ -309,13 +408,13 @@ func (s *MapService) MoveCharacterTo(char *model.Character, heading model.Headin
 
 	// 2. Add to new tile
 	tile.Character = char
-	
+
 	char.Heading = heading
 	char.Position = newPos
-	
+
 	// Ensure it's in the map's characters list (should already be there if same map)
 	gameMap.Characters[char.CharIndex] = char
-	
+
 	return newPos, true
 }
 
@@ -372,9 +471,9 @@ func (s *MapService) SpawnNpcInMap(npcID int, mapID int) *model.WorldNPC {
 			pos := model.Position{X: byte(x), Y: byte(y), Map: mapID}
 			worldNpc := s.npcService.SpawnNpc(npcID, pos)
 			if worldNpc != nil {
-				m.Mu.Lock()
+				m.Lock()
 				m.Npcs[worldNpc.Index] = worldNpc
-				m.Mu.Unlock()
+				m.Unlock()
 				m.GetTile(x, y).NPC = worldNpc
 				return worldNpc
 			}

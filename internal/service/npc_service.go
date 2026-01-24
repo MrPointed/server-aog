@@ -3,6 +3,7 @@ package service
 import (
 	"fmt"
 	"sync"
+
 	"github.com/ao-go-server/internal/model"
 	"github.com/ao-go-server/internal/persistence"
 	"github.com/ao-go-server/internal/protocol/outgoing"
@@ -26,13 +27,12 @@ func NewNpcService(dao *persistence.NpcDAO, indexManager *CharacterIndexManager)
 }
 
 func (s *NpcService) LoadNpcs() error {
-	fmt.Println("Loading NPCs from data file...")
 	defs, err := s.dao.Load()
 	if err != nil {
 		return err
 	}
 	s.npcDefs = defs
-	fmt.Printf("Successfully loaded %d NPC definitions.\n", len(s.npcDefs))
+	fmt.Printf("Successfully loaded %d NPC.\n", len(s.npcDefs))
 	return nil
 }
 
@@ -66,7 +66,7 @@ func (s *NpcService) RemoveNPC(npc *model.WorldNPC, mapService *MapService) {
 	s.mu.Lock()
 	delete(s.worldNpcs, npc.Index)
 	s.mu.Unlock()
-	
+
 	s.indexManager.FreeIndex(npc.Index)
 
 	// Remove from map
@@ -81,7 +81,7 @@ func (s *NpcService) RemoveNPC(npc *model.WorldNPC, mapService *MapService) {
 func (s *NpcService) GetWorldNpcs() []*model.WorldNPC {
 	s.mu.RLock()
 	defer s.mu.RUnlock()
-	
+
 	npcs := make([]*model.WorldNPC, 0, len(s.worldNpcs))
 	for _, npc := range s.worldNpcs {
 		npcs = append(npcs, npc)
@@ -102,7 +102,7 @@ func (s *NpcService) ChangeNpcHeading(npc *model.WorldNPC, heading model.Heading
 
 func (s *NpcService) MoveNpc(npc *model.WorldNPC, newPos model.Position, heading model.Heading, mapService *MapService, areaService *AreaService) bool {
 	oldPos := npc.Position
-	
+
 	if !mapService.MoveNpc(npc, newPos) {
 		return false
 	}

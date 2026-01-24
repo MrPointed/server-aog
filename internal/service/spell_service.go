@@ -34,13 +34,12 @@ func NewSpellService(dao *persistence.SpellDAO, userService *UserService, npcSer
 }
 
 func (s *SpellService) LoadSpells() error {
-	fmt.Println("Loading spells from data file...")
 	defs, err := s.dao.Load()
 	if err != nil {
 		return err
 	}
 	s.spells = defs
-	fmt.Printf("Successfully loaded %d spell definitions.\n", len(s.spells))
+	fmt.Printf("Successfully loaded %d spells.\n", len(s.spells))
 	return nil
 }
 

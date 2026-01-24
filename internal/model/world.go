@@ -74,7 +74,23 @@ type Map struct {
 	Tiles   []Tile
 	Characters map[int16]*Character
 	Npcs       map[int16]*WorldNPC
-	Mu         sync.RWMutex
+	mu         sync.RWMutex
+}
+
+func (m *Map) Lock() {
+	m.mu.Lock()
+}
+
+func (m *Map) Unlock() {
+	m.mu.Unlock()
+}
+
+func (m *Map) RLock() {
+	m.mu.RLock()
+}
+
+func (m *Map) RUnlock() {
+	m.mu.RUnlock()
 }
 
 func (m *Map) GetTile(x, y int) *Tile {

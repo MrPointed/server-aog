@@ -1,0 +1,159 @@
+Cobra
+
+Estructura tipica:
+
+cmd/
+  launcher/
+    main.go
+    root.go
+    start.go
+    stop.go
+    status.go
+    monitor.go
+    config.go
+
+
+1. Controlar el ciclo de vida del servidor.
+
+launcher start --env prod
+launcher stop --graceful
+launcher restart --rolling
+launcher status
+launcher uptime
+launcher monitor -> TUI
+launcher config set max_players=500 onlyadmin
+
+launcher restart --graceful && launcher monitor
+
+
+2. Gestión de mapas / mundos
+Comandos
+launcher world load map_12
+launcher world unload map_7
+launcher world reload map_5
+launcher world list
+
+Scripts
+for map in map_1 map_2 map_3; do
+  launcher world reload $map
+done
+
+
+Uso:
+Actualizar contenido
+Hot reload de mapas
+Liberar memoria
+
+3. Conexiones y sesiones
+Comandos
+launcher conn list
+launcher conn count
+launcher conn kick --account=1234
+launcher conn kick --ip=192.168.1.10
+launcher conn ban --account=1234 --duration=24h
+
+Scripts
+launcher conn kick --inactive --since=30m
+
+Uso:
+Moderación
+Anti-abuse
+Limpieza de sesiones zombies
+
+4. Cuentas y jugadores
+Comandos
+launcher account lock 1234
+launcher account unlock 1234
+launcher account reset-password 1234
+launcher player teleport 5678 map_3 10 22
+launcher player save 5678
+
+Scripts
+launcher player save --all
+
+
+Uso:
+
+Soporte técnico
+GM tools
+Intervenciones en vivo
+
+
+5. Configuración (hot & cold)
+Comandos
+launcher config get combat.attack_delay
+launcher config set combat.attack_delay=350
+launcher config reload
+
+Scripts
+launcher config set rate.exp=2.0
+launcher config reload
+
+
+Uso:
+
+Eventos (doble XP)
+Ajustes sin reinicio
+Feature flags
+
+6. IA / NPCs / simulación
+Comandos
+launcher npc reload
+launcher npc disable ai_group_3
+launcher npc enable ai_group_3
+launcher npc respawn --map=map_8
+
+Scripts
+launcher npc disable ai --all
+
+
+Uso:
+
+Debug de pathfinding
+Eventos
+Emergencias de carga
+
+7. Seguridad y anti-cheat
+Comandos
+launcher anticheat status
+launcher anticheat reload
+launcher anticheat ban --hwid=ABC123
+
+Scripts
+launcher anticheat scan --online
+
+
+Uso:
+
+Incidentes en vivo
+Actualización de reglas
+
+8. Eventos del juego
+Comandos
+launcher event start halloween
+launcher event stop halloween
+launcher event status
+
+Scripts
+launcher event start weekend_xp
+sleep 48h
+launcher event stop weekend_xp
+
+
+Uso:
+
+Eventos temporales
+Automatización
+
+9.. Comandos internos (no públicos)
+launcher debug heap
+launcher debug goroutines
+launcher debug deadlocks
+launcher debug dump-state
+
+
+Uso:
+
+Emergencias
+Bugs críticos
+Análisis post-falla

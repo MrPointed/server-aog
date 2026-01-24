@@ -32,22 +32,13 @@ func NewServer(addr string) *Server {
 
 	objectDAO := persistence.NewObjectDAO("../../resources/data/objects.dat")
 	objectService := service.NewObjectService(objectDAO)
-	if err := objectService.LoadObjects(); err != nil {
-		fmt.Printf("Critical error loading objects: %v\n", err)
-	}
 
 	indexManager := service.NewCharacterIndexManager()
 	npcDAO := persistence.NewNpcDAO("../../resources/data/npcs.dat")
 	npcService := service.NewNpcService(npcDAO, indexManager)
-	if err := npcService.LoadNpcs(); err != nil {
-		fmt.Printf("Critical error loading NPCs: %v\n", err)
-	}
 
 	cityDAO := persistence.NewCityDAO("../../resources/data/cities.dat")
 	cityService := service.NewCityService(cityDAO)
-	if err := cityService.LoadCities(); err != nil {
-		fmt.Printf("Critical error loading cities: %v\n", err)
-	}
 
 	balanceDAO := persistence.NewBalanceDAO("../../resources/data/balances.dat")
 	archetypeMods, _, err := balanceDAO.Load()
@@ -65,7 +56,6 @@ func NewServer(addr string) *Server {
 		fmt.Printf("Warning: could not load maps.properties: %v\n", err)
 	}
 	mapService := service.NewMapService(mapDAO, objectService, npcService)
-	mapService.LoadMaps()
 
 	executor := actions.NewActionExecutor[*service.MapService](mapService)
 	executor.Start()
@@ -73,15 +63,16 @@ func NewServer(addr string) *Server {
 	areaService := service.NewAreaService(mapService, userService)
 	messageService := service.NewMessageService(userService, areaService, mapService, objectService)
 	trainingService := service.NewTrainingService(messageService, userService, archetypeMods)
-	combatService := service.NewCombatService(messageService, objectService, npcService, mapService, combatFormulas, intervalService, trainingService)
-	timedEventsService := service.NewTimedEventsService(userService, messageService)
-	timedEventsService.Start()
 
 	spellDAO := persistence.NewSpellDAO("../../resources/data/hechizos.dat")
 	spellService := service.NewSpellService(spellDAO, userService, npcService, messageService, objectService, intervalService, trainingService)
-	if err := spellService.LoadSpells(); err != nil {
-		fmt.Printf("Critical error loading spells: %v\n", err)
-	}
+
+	resourceManager := service.NewResourceManager(objectService, npcService, mapService, spellService, cityService)
+	resourceManager.LoadAll()
+
+	combatService := service.NewCombatService(messageService, objectService, npcService, mapService, combatFormulas, intervalService, trainingService)
+	timedEventsService := service.NewTimedEventsService(userService, messageService)
+	timedEventsService.Start()
 
 	aiService := service.NewAIService(npcService, mapService, areaService, userService, combatService, messageService, spellService)
 	aiService.Start()

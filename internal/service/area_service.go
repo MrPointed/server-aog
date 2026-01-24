@@ -146,8 +146,8 @@ func (s *AreaService) SendAreaState(char *model.Character) {
 		return
 	}
 
-	gameMap.Mu.RLock()
-	defer gameMap.Mu.RUnlock()
+	gameMap.RLock()
+	defer gameMap.RUnlock()
 
 	for y := 0; y < 100; y++ {
 		for x := 0; x < 100; x++ {

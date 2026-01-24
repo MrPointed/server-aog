@@ -12,10 +12,10 @@ import (
 )
 
 type MapDAO struct {
-	mapsPath    string
-	mapsAmount  int
-	waterGrhs   map[int16]bool
-	lavaGrhs    map[int16]bool
+	mapsPath   string
+	mapsAmount int
+	waterGrhs  map[int16]bool
+	lavaGrhs   map[int16]bool
 }
 
 func NewMapDAO(mapsPath string, mapsAmount int) *MapDAO {
@@ -25,6 +25,10 @@ func NewMapDAO(mapsPath string, mapsAmount int) *MapDAO {
 		waterGrhs:  make(map[int16]bool),
 		lavaGrhs:   make(map[int16]bool),
 	}
+}
+
+func (d *MapDAO) GetMapsAmount() int {
+	return d.mapsAmount
 }
 
 func (d *MapDAO) LoadProperties(path string) error {
@@ -86,7 +90,7 @@ func (d *MapDAO) parseRanges(value string, target map[int16]bool) {
 func (d *MapDAO) Load() ([]*model.Map, error) {
 	maps := make([]*model.Map, d.mapsAmount)
 	for i := 1; i <= d.mapsAmount; i++ {
-		m, err := d.loadMap(i)
+		m, err := d.LoadMap(i)
 		if err != nil {
 			return nil, err
 		}
@@ -95,7 +99,7 @@ func (d *MapDAO) Load() ([]*model.Map, error) {
 	return maps, nil
 }
 
-func (d *MapDAO) loadMap(id int) (*model.Map, error) {
+func (d *MapDAO) LoadMap(id int) (*model.Map, error) {
 	mapFileName := fmt.Sprintf("%s/Mapa%d.map", d.mapsPath, id)
 	infFileName := fmt.Sprintf("%s/Mapa%d.inf", d.mapsPath, id)
 	datFileName := fmt.Sprintf("%s/Mapa%d.dat", d.mapsPath, id)
@@ -142,20 +146,19 @@ func (d *MapDAO) loadMap(id int) (*model.Map, error) {
 			}
 		}
 	}
-	fmt.Printf("Map %d: Name='%s', PK_Allowed=%v\n", id, mapName, pkMap)
 
 	// Header Map
 	var version int16
 	binary.Read(mapFile, binary.LittleEndian, &version)
-	
+
 	description := make([]byte, 255)
 	mapFile.Read(description)
-	
+
 	var crc int32
 	binary.Read(mapFile, binary.LittleEndian, &crc)
 	var magic int32
 	binary.Read(mapFile, binary.LittleEndian, &magic)
-	
+
 	var unusedLong int64
 	binary.Read(mapFile, binary.LittleEndian, &unusedLong)
 
@@ -184,10 +187,10 @@ func (d *MapDAO) loadMap(id int) (*model.Map, error) {
 			binary.Read(mapFile, binary.LittleEndian, &flag)
 
 			blocked := (flag & BitflagBlocked) == BitflagBlocked
-			
+
 			var floor int16
 			binary.Read(mapFile, binary.LittleEndian, &floor)
-			
+
 			isWater := d.waterGrhs[floor]
 			isLava := d.lavaGrhs[floor]
 
