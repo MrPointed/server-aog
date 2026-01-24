@@ -136,6 +136,35 @@ func (s *MapService) LoadCache() bool {
 	return true
 }
 
+func (s *MapService) GetLoadedMaps() []int {
+	ids := make([]int, 0, len(s.maps))
+	for id := range s.maps {
+		ids = append(ids, id)
+	}
+	return ids
+}
+
+func (s *MapService) LoadMap(id int) error {
+	m, err := s.mapDAO.LoadMap(id)
+	if err != nil {
+		return err
+	}
+	m.Characters = make(map[int16]*model.Character)
+	m.Npcs = make(map[int16]*model.WorldNPC)
+	s.resolveMapEntities(m)
+	s.maps[m.Id] = m
+	return nil
+}
+
+func (s *MapService) UnloadMap(id int) {
+	delete(s.maps, id)
+}
+
+func (s *MapService) ReloadMap(id int) error {
+	s.UnloadMap(id)
+	return s.LoadMap(id)
+}
+
 func (s *MapService) resolveMapEntities(m *model.Map) {
 	objectsFound := 0
 	npcsFound := 0

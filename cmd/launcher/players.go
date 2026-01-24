@@ -2,9 +2,13 @@ package main
 
 import (
 	"fmt"
+	"io"
+	"net/http"
 
 	"github.com/spf13/cobra"
 )
+
+const AdminAPIAddrPlayer = "http://localhost:7667"
 
 var playerCmd = &cobra.Command{
 	Use:   "player",
@@ -21,7 +25,14 @@ var accountLockCmd = &cobra.Command{
 	Short: "Lock an account",
 	Args:  cobra.ExactArgs(1),
 	Run: func(cmd *cobra.Command, args []string) {
-		fmt.Printf("Locking account %s...\n", args[0])
+		resp, err := http.Get(fmt.Sprintf("%s/account/lock?nick=%s", AdminAPIAddrPlayer, args[0]))
+		if err != nil {
+			fmt.Printf("Error locking account: %v\n", err)
+			return
+		}
+		body, _ := io.ReadAll(resp.Body)
+		resp.Body.Close()
+		fmt.Println(string(body))
 	},
 }
 
@@ -30,7 +41,14 @@ var accountUnlockCmd = &cobra.Command{
 	Short: "Unlock an account",
 	Args:  cobra.ExactArgs(1),
 	Run: func(cmd *cobra.Command, args []string) {
-		fmt.Printf("Unlocking account %s...\n", args[0])
+		resp, err := http.Get(fmt.Sprintf("%s/account/unlock?nick=%s", AdminAPIAddrPlayer, args[0]))
+		if err != nil {
+			fmt.Printf("Error unlocking account: %v\n", err)
+			return
+		}
+		body, _ := io.ReadAll(resp.Body)
+		resp.Body.Close()
+		fmt.Println(string(body))
 	},
 }
 
@@ -39,7 +57,14 @@ var accountResetPasswordCmd = &cobra.Command{
 	Short: "Reset account password",
 	Args:  cobra.ExactArgs(1),
 	Run: func(cmd *cobra.Command, args []string) {
-		fmt.Printf("Resetting password for account %s...\n", args[0])
+		resp, err := http.Get(fmt.Sprintf("%s/account/reset-password?nick=%s", AdminAPIAddrPlayer, args[0]))
+		if err != nil {
+			fmt.Printf("Error resetting password: %v\n", err)
+			return
+		}
+		body, _ := io.ReadAll(resp.Body)
+		resp.Body.Close()
+		fmt.Println(string(body))
 	},
 }
 
@@ -48,7 +73,15 @@ var playerTeleportCmd = &cobra.Command{
 	Short: "Teleport a player",
 	Args:  cobra.ExactArgs(4),
 	Run: func(cmd *cobra.Command, args []string) {
-		fmt.Printf("Teleporting player %s to map %s (%s, %s)...\n", args[0], args[1], args[2], args[3])
+		url := fmt.Sprintf("%s/player/teleport?nick=%s&map=%s&x=%s&y=%s", AdminAPIAddrPlayer, args[0], args[1], args[2], args[3])
+		resp, err := http.Get(url)
+		if err != nil {
+			fmt.Printf("Error teleporting player: %v\n", err)
+			return
+		}
+		body, _ := io.ReadAll(resp.Body)
+		resp.Body.Close()
+		fmt.Println(string(body))
 	},
 }
 
@@ -57,13 +90,24 @@ var playerSaveCmd = &cobra.Command{
 	Use:   "save [id]",
 	Short: "Save player data",
 	Run: func(cmd *cobra.Command, args []string) {
+		var url string
 		if saveAll {
-			fmt.Println("Saving all players...")
+			url = fmt.Sprintf("%s/player/save?all=true", AdminAPIAddrPlayer)
 		} else if len(args) > 0 {
-			fmt.Printf("Saving player %s...\n", args[0])
+			url = fmt.Sprintf("%s/player/save?nick=%s", AdminAPIAddrPlayer, args[0])
 		} else {
 			fmt.Println("Please specify player ID or --all")
+			return
 		}
+
+		resp, err := http.Get(url)
+		if err != nil {
+			fmt.Printf("Error saving: %v\n", err)
+			return
+		}
+		body, _ := io.ReadAll(resp.Body)
+		resp.Body.Close()
+		fmt.Println(string(body))
 	},
 }
 

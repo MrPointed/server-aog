@@ -23,14 +23,16 @@ var configGetCmd = &cobra.Command{
 }
 
 var configSetCmd = &cobra.Command{
-	Use:   "set [key=value]",
-	Short: "Set a configuration value",
+	Use:   "set [key=value] [flags...]",
+	Short: "Set configuration values",
 	Args:  cobra.MinimumNArgs(1),
 	Run: func(cmd *cobra.Command, args []string) {
 		for _, arg := range args {
-			parts := strings.Split(arg, "=")
-			if len(parts) == 2 {
+			if strings.Contains(arg, "=") {
+				parts := strings.Split(arg, "=")
 				fmt.Printf("Setting %s to %s\n", parts[0], parts[1])
+			} else {
+				fmt.Printf("Applying flag/option: %s\n", arg)
 			}
 		}
 	},

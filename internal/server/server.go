@@ -11,6 +11,7 @@ import (
 	"syscall"
 
 	"github.com/ao-go-server/internal/actions"
+	"github.com/ao-go-server/internal/api"
 	"github.com/ao-go-server/internal/config"
 	"github.com/ao-go-server/internal/model"
 	"github.com/ao-go-server/internal/network"
@@ -152,6 +153,10 @@ func (s *Server) Start() error {
 	}
 	defer listener.Close()
 
+	// Start Admin API
+	adminAPI := api.NewAdminAPI(s.mapService, s.userService, s.loginService)
+	go adminAPI.Start(":7667")
+
 	if err := os.WriteFile("server.pid", []byte(fmt.Sprintf("%d", os.Getpid())), 0644); err != nil {
 		fmt.Printf("Warning: could not write server.pid: %v\n", err)
 	}
@@ -226,6 +231,10 @@ func (c *connection) GetUser() *model.Character {
 
 func (c *connection) SetUser(user *model.Character) {
 	c.user = user
+}
+
+func (c *connection) GetRemoteAddr() string {
+	return c.conn.RemoteAddr().String()
 }
 
 func (s *Server) handleConnection(conn net.Conn) {

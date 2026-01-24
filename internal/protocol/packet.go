@@ -20,4 +20,5 @@ type Connection interface {
 	GetAttribute(attr int) byte
 	GetUser() *model.Character
 	SetUser(user *model.Character)
+	GetRemoteAddr() string
 }

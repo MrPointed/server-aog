@@ -94,3 +94,39 @@ func (s *UserService) GetLoggedCharacters() []*model.Character {
 	}
 	return chars
 }
+
+func (s *UserService) GetLoggedConnections() []protocol.Connection {
+	s.mu.RLock()
+	defer s.mu.RUnlock()
+	conns := make([]protocol.Connection, 0, len(s.loggedUsers))
+	for conn := range s.loggedUsers {
+		conns = append(conns, conn)
+	}
+	return conns
+}
+
+func (s *UserService) KickByName(name string) bool {
+	char := s.GetCharacterByName(name)
+	if char == nil {
+		return false
+	}
+	conn := s.GetConnection(char)
+	if conn == nil {
+		return false
+	}
+	conn.Disconnect()
+	return true
+}
+
+func (s *UserService) KickByIP(ip string) int {
+	s.mu.RLock()
+	defer s.mu.RUnlock()
+	kicked := 0
+	for conn := range s.loggedUsers {
+		if conn.GetRemoteAddr() == ip {
+			conn.Disconnect()
+			kicked++
+		}
+	}
+	return kicked
+}

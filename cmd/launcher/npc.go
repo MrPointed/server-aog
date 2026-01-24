@@ -19,21 +19,33 @@ var npcReloadCmd = &cobra.Command{
 	},
 }
 
+var disableAll bool
 var npcDisableCmd = &cobra.Command{
 	Use:   "disable [group]",
 	Short: "Disable AI group",
-	Args:  cobra.ExactArgs(1),
 	Run: func(cmd *cobra.Command, args []string) {
-		fmt.Printf("Disabling AI group %s...\n", args[0])
+		if disableAll {
+			fmt.Println("Disabling all AI groups...")
+		} else if len(args) > 0 {
+			fmt.Printf("Disabling AI group %s...\n", args[0])
+		} else {
+			fmt.Println("Please specify group or --all")
+		}
 	},
 }
 
+var enableAll bool
 var npcEnableCmd = &cobra.Command{
 	Use:   "enable [group]",
 	Short: "Enable AI group",
-	Args:  cobra.ExactArgs(1),
 	Run: func(cmd *cobra.Command, args []string) {
-		fmt.Printf("Enabling AI group %s...\n", args[0])
+		if enableAll {
+			fmt.Println("Enabling all AI groups...")
+		} else if len(args) > 0 {
+			fmt.Printf("Enabling AI group %s...\n", args[0])
+		} else {
+			fmt.Println("Please specify group or --all")
+		}
 	},
 }
 
@@ -47,6 +59,8 @@ var npcRespawnCmd = &cobra.Command{
 }
 
 func init() {
+	npcDisableCmd.Flags().BoolVarP(&disableAll, "all", "", false, "Disable all AI")
+	npcEnableCmd.Flags().BoolVarP(&enableAll, "all", "", false, "Enable all AI")
 	npcRespawnCmd.Flags().StringVarP(&respawnMap, "map", "m", "", "Map ID")
 
 	npcCmd.AddCommand(npcReloadCmd)

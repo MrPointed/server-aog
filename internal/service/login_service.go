@@ -374,3 +374,68 @@ func (s *LoginService) OnUserDisconnect(conn protocol.Connection) {
 		})
 	}
 }
+
+func (s *LoginService) LockAccount(nick string) error {
+	acc, err := s.accDAO.Get(nick)
+	if err != nil {
+		return err
+	}
+	acc.Banned = true
+	return s.accDAO.SaveAccount(acc)
+}
+
+func (s *LoginService) UnlockAccount(nick string) error {
+	acc, err := s.accDAO.Get(nick)
+	if err != nil {
+		return err
+	}
+	acc.Banned = false
+	return s.accDAO.SaveAccount(acc)
+}
+
+func (s *LoginService) ResetPassword(nick string, newPassword string) error {
+	acc, err := s.accDAO.Get(nick)
+	if err != nil {
+		return err
+	}
+	acc.Password = newPassword
+	return s.accDAO.SaveAccount(acc)
+}
+
+func (s *LoginService) TeleportPlayer(nick string, mapID, x, y int) error {
+	char := s.userService.GetCharacterByName(nick)
+	if char == nil {
+		// If not online, we could theoretically modify the saved file, 
+		// but usually teleport is for online players.
+		return fmt.Errorf("player not online")
+	}
+
+	newPos := model.Position{Map: mapID, X: byte(x), Y: byte(y)}
+	s.executor.Dispatch(func(m *MapService) {
+		m.PutCharacterAtPos(char, newPos)
+		// Notify the client and surrounding areas
+		s.messageService.SendToAreaButUser(&outgoing.CharacterRemovePacket{CharIndex: char.CharIndex}, char.Position, char)
+		conn := s.userService.GetConnection(char)
+		if conn != nil {
+			conn.Send(&outgoing.AreaChangedPacket{Position: newPos})
+		}
+		s.messageService.SendToAreaButUser(&outgoing.CharacterCreatePacket{Character: char}, newPos, char)
+	})
+	return nil
+}
+
+func (s *LoginService) SavePlayer(nick string) error {
+	char := s.userService.GetCharacterByName(nick)
+	if char != nil {
+		return s.charDAO.SaveCharacter(char)
+	}
+	return fmt.Errorf("player not found or not online")
+}
+
+func (s *LoginService) SaveAllPlayers() {
+	chars := s.userService.GetLoggedCharacters()
+	for _, char := range chars {
+		s.charDAO.SaveCharacter(char)
+	}
+}
+
