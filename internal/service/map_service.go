@@ -11,7 +11,7 @@ import (
 	"github.com/ao-go-server/internal/persistence"
 )
 
-const MapCacheFile = "../../resources/maps.cache"
+const MapCacheFile = "resources/maps.cache"
 
 type MapService struct {
 	mapDAO        *persistence.MapDAO
