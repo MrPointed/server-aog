@@ -12,6 +12,7 @@ type Config struct {
 	RestrictedToAdmins       bool
 	MaxConcurrentUsers       int
 	XpMultiplier             float64
+	GoldMultiplier           float64
 
 	// Intervals in milliseconds
 	IntervalAttack   int64
@@ -39,6 +40,7 @@ type yamlConfig struct {
 			AllowCharacterCreation bool   `yaml:"allow_character_creation"`
 			OnlyGMs                  bool   `yaml:"only_gms"`
 			XpMultiplier             float64 `yaml:"xp_multiplier"`
+			GoldMultiplier           float64 `yaml:"gold_multiplier"`
 		} `yaml:"init"`
 		Gods        []string `yaml:"gods"`
 		SemiGods    []string `yaml:"semi_gods"`
@@ -67,6 +69,8 @@ func NewDefaultConfig() *Config {
 		CharacterCreationEnabled: true,
 		RestrictedToAdmins:       false,
 		MaxConcurrentUsers:       500,
+		XpMultiplier:             1.0,
+		GoldMultiplier:           1.0,
 
 		IntervalAttack:   1500,
 		IntervalSpell:    1400,
@@ -92,9 +96,12 @@ func Load(path string) (*Config, error) {
 	cfg.MaxConcurrentUsers = yc.Server.Init.MaxUsers
 	cfg.CharacterCreationEnabled = yc.Server.Init.AllowCharacterCreation
 	cfg.RestrictedToAdmins = yc.Server.Init.OnlyGMs
-	cfg.XpMultiplier = yc.Server.Init.XpMultiplier
-	if cfg.XpMultiplier <= 0 {
-		cfg.XpMultiplier = 1.0
+	
+	if yc.Server.Init.XpMultiplier > 0 {
+		cfg.XpMultiplier = yc.Server.Init.XpMultiplier
+	}
+	if yc.Server.Init.GoldMultiplier > 0 {
+		cfg.GoldMultiplier = yc.Server.Init.GoldMultiplier
 	}
 
 	cfg.IntervalAttack = yc.Server.Intervals.UserAttack

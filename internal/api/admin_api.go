@@ -66,9 +66,18 @@ func (a *AdminAPI) Start(addr string) error {
 
 	mux.HandleFunc("/event/start", a.handleEventStart)
 	mux.HandleFunc("/event/stop", a.handleEventStop)
+	mux.HandleFunc("/event/list", a.handleEventList)
 
 	fmt.Printf("Admin API listening on %s\n", addr)
 	return http.ListenAndServe(addr, mux)
+}
+
+func (a *AdminAPI) handleEventList(w http.ResponseWriter, r *http.Request) {
+	events := []map[string]string{
+		{"name": "weekend_xp", "description": "Double XP for all players"},
+		{"name": "gold_rush", "description": "Double gold drops from NPCs"},
+	}
+	json.NewEncoder(w).Encode(events)
 }
 
 func (a *AdminAPI) handleEventStart(w http.ResponseWriter, r *http.Request) {
@@ -77,6 +86,9 @@ func (a *AdminAPI) handleEventStart(w http.ResponseWriter, r *http.Request) {
 	case "weekend_xp":
 		a.config.XpMultiplier = 2.0
 		fmt.Fprintf(w, "Event %s started: XP Multiplier set to 2.0", name)
+	case "gold_rush":
+		a.config.GoldMultiplier = 2.0
+		fmt.Fprintf(w, "Event %s started: Gold Multiplier set to 2.0", name)
 	default:
 		fmt.Fprintf(w, "Event %s started (no specific logic defined)", name)
 	}
@@ -88,6 +100,9 @@ func (a *AdminAPI) handleEventStop(w http.ResponseWriter, r *http.Request) {
 	case "weekend_xp":
 		a.config.XpMultiplier = 1.0
 		fmt.Fprintf(w, "Event %s stopped: XP Multiplier restored to 1.0", name)
+	case "gold_rush":
+		a.config.GoldMultiplier = 1.0
+		fmt.Fprintf(w, "Event %s stopped: Gold Multiplier restored to 1.0", name)
 	default:
 		fmt.Fprintf(w, "Event %s stopped", name)
 	}

@@ -49,8 +49,25 @@ var eventStopCmd = &cobra.Command{
 	},
 }
 
+var eventListCmd = &cobra.Command{
+	Use:   "list",
+	Short: "List available server events",
+	Run: func(cmd *cobra.Command, args []string) {
+		resp, err := http.Get(fmt.Sprintf("%s/event/list", AdminAPIAddrEvent))
+		if err != nil {
+			fmt.Printf("Error listing events: %v\n", err)
+			return
+		}
+		defer resp.Body.Close()
+		body, _ := io.ReadAll(resp.Body)
+		fmt.Println("Available server events:")
+		fmt.Println(string(body))
+	},
+}
+
 func init() {
 	eventCmd.AddCommand(eventStartCmd)
 	eventCmd.AddCommand(eventStopCmd)
+	eventCmd.AddCommand(eventListCmd)
 	rootCmd.AddCommand(eventCmd)
 }

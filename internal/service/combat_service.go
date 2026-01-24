@@ -353,9 +353,13 @@ func (s *CombatService) handleNpcDeath(killer *model.Character, npc *model.World
 	for _, drop := range npc.NPC.Drops {
 		obj := s.objectService.GetObject(drop.ObjectID)
 		if obj != nil {
+			amount := drop.Amount
+			if obj.Type == model.OTMoney {
+				amount = int(float64(amount) * s.config.GoldMultiplier)
+			}
 			worldObj := &model.WorldObject{
 				Object: obj,
-				Amount: drop.Amount,
+				Amount: amount,
 			}
 			if s.mapService.GetObjectAt(npc.Position) == nil {
 				s.mapService.PutObject(npc.Position, worldObj)
