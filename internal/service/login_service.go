@@ -291,6 +291,10 @@ func (s *LoginService) sendInitialGameState(conn protocol.Connection, char *mode
 	conn.Send(&outgoing.UserCharIndexInServerPacket{UserIndex: char.CharIndex})
 	conn.Send(&outgoing.AreaChangedPacket{Position: char.Position})
 
+	if char.Sailing {
+		conn.Send(&outgoing.NavigateTogglePacket{})
+	}
+
 	// Inventory & Spells
 	s.sendInventory(conn, char)
 	s.sendSpells(conn, char)

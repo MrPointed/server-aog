@@ -102,6 +102,7 @@ func (d *FileDAO) Load(nick string) (*model.Character, error) {
 	char.Dead = toInt(flags["MUERTO"]) == 1
 	char.Invisible = toInt(flags["ESCONDIDO"]) == 1
 	char.Paralyzed = toInt(flags["PARALIZADO"]) == 1
+	char.Sailing = toInt(flags["NAVEGANDO"]) == 1
 
 	// Skills
 	if skills != nil {
@@ -234,6 +235,7 @@ func (d *FileDAO) SaveCharacter(char *model.Character) error {
 	flags["MUERTO"] = boolToIntString(char.Dead)
 	flags["ESCONDIDO"] = boolToIntString(char.Invisible)
 	flags["PARALIZADO"] = boolToIntString(char.Paralyzed)
+	flags["NAVEGANDO"] = boolToIntString(char.Sailing)
 
 	attrs := data["ATRIBUTOS"]
 	attrs["AT1"] = strconv.Itoa(int(char.Attributes[model.Strength]))

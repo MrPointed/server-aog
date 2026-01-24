@@ -1,10 +1,10 @@
 package incoming
 
 import (
+	"github.com/ao-go-server/internal/model"
 	"github.com/ao-go-server/internal/network"
 	"github.com/ao-go-server/internal/protocol"
 	"github.com/ao-go-server/internal/protocol/outgoing"
-	"github.com/ao-go-server/internal/model"
 	"github.com/ao-go-server/internal/service"
 )
 
@@ -40,7 +40,7 @@ func (p *WalkPacket) Handle(buffer *network.DataBuffer, connection protocol.Conn
 	} else {
 		oldPos := char.Position
 		newPos, success := p.MapService.MoveCharacterTo(char, heading)
-		
+
 		if !success {
 			// Send PosUpdate to sync client if move failed
 			connection.Send(&outgoing.PosUpdatePacket{
@@ -75,19 +75,14 @@ func (p *WalkPacket) Handle(buffer *network.DataBuffer, connection protocol.Conn
 				// 4. Send ChangeMap to client
 				connection.Send(&outgoing.ChangeMapPacket{MapId: targetMap, Version: 0})
 
-				// 4.5 Resync sailing state if needed
-				if char.Sailing {
-					connection.Send(&outgoing.NavigateTogglePacket{})
-				}
-
 				// 5. Force Client Position Update
 				connection.Send(&outgoing.PosUpdatePacket{
 					X: char.Position.X,
 					Y: char.Position.Y,
 				})
 
-				// 6. Send PlayMidi (TODO: Fetch correct MIDI)
-				connection.Send(&outgoing.PlayWavePacket{Wave: 0}) // Placeholder
+				// 6. Play WAV
+				connection.Send(&outgoing.PlayWavePacket{Wave: 0})
 
 				// 7. Update Area
 				connection.Send(&outgoing.AreaChangedPacket{Position: char.Position})
@@ -108,7 +103,7 @@ func (p *WalkPacket) Handle(buffer *network.DataBuffer, connection protocol.Conn
 		}
 
 		p.AreaService.NotifyMovement(char, oldPos)
-		
+
 		// Confirm to client
 		connection.Send(&outgoing.PosUpdatePacket{
 			X: char.Position.X,
