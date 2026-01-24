@@ -6,6 +6,7 @@ import (
 	"net/http"
 	"strconv"
 
+	"github.com/ao-go-server/internal/config"
 	"github.com/ao-go-server/internal/model"
 	"github.com/ao-go-server/internal/service"
 )
@@ -16,15 +17,17 @@ type AdminAPI struct {
 	loginService *service.LoginService
 	npcService   *service.NpcService
 	aiService    *service.AIService
+	config       *config.Config
 }
 
-func NewAdminAPI(mapService *service.MapService, userService *service.UserService, loginService *service.LoginService, npcService *service.NpcService, aiService *service.AIService) *AdminAPI {
+func NewAdminAPI(mapService *service.MapService, userService *service.UserService, loginService *service.LoginService, npcService *service.NpcService, aiService *service.AIService, cfg *config.Config) *AdminAPI {
 	return &AdminAPI{
 		mapService:   mapService,
 		userService:  userService,
 		loginService: loginService,
 		npcService:   npcService,
 		aiService:    aiService,
+		config:       cfg,
 	}
 }
 
@@ -53,8 +56,78 @@ func (a *AdminAPI) Start(addr string) error {
 	mux.HandleFunc("/npc/respawn", a.handleNpcRespawn)
 	mux.HandleFunc("/npc/list", a.handleNpcList)
 
+	mux.HandleFunc("/config/get", a.handleConfigGet)
+	mux.HandleFunc("/config/set", a.handleConfigSet)
+	mux.HandleFunc("/config/list", a.handleConfigList)
+
 	fmt.Printf("Admin API listening on %s\n", addr)
 	return http.ListenAndServe(addr, mux)
+}
+
+func (a *AdminAPI) handleConfigList(w http.ResponseWriter, r *http.Request) {
+	keys := []map[string]string{
+		{"key": "version", "description": "Server version (read-only)", "type": "string"},
+		{"key": "max_users", "description": "Maximum concurrent users", "type": "int"},
+		{"key": "creation_enabled", "description": "Allow new character creation", "type": "bool"},
+		{"key": "admins_only", "description": "Restrict access to admins only", "type": "bool"},
+		{"key": "interval_attack", "description": "Interval between attacks (ms)", "type": "int64"},
+		{"key": "interval_spell", "description": "Interval between spells (ms)", "type": "int64"},
+	}
+	json.NewEncoder(w).Encode(keys)
+}
+
+func (a *AdminAPI) handleConfigGet(w http.ResponseWriter, r *http.Request) {
+	key := r.URL.Query().Get("key")
+	var val interface{}
+
+	switch key {
+	case "version":
+		val = a.config.Version
+	case "max_users":
+		val = a.config.MaxConcurrentUsers
+	case "creation_enabled":
+		val = a.config.CharacterCreationEnabled
+	case "admins_only":
+		val = a.config.RestrictedToAdmins
+	case "interval_attack":
+		val = a.config.IntervalAttack
+	case "interval_spell":
+		val = a.config.IntervalSpell
+	default:
+		http.Error(w, "Unknown config key", http.StatusNotFound)
+		return
+	}
+
+	fmt.Fprintf(w, "%v", val)
+}
+
+func (a *AdminAPI) handleConfigSet(w http.ResponseWriter, r *http.Request) {
+	key := r.URL.Query().Get("key")
+	val := r.URL.Query().Get("value")
+
+	switch key {
+	case "max_users":
+		if i, err := strconv.Atoi(val); err == nil {
+			a.config.MaxConcurrentUsers = i
+		}
+	case "creation_enabled":
+		a.config.CharacterCreationEnabled = val == "true"
+	case "admins_only":
+		a.config.RestrictedToAdmins = val == "true"
+	case "interval_attack":
+		if i, err := strconv.ParseInt(val, 10, 64); err == nil {
+			a.config.IntervalAttack = i
+		}
+	case "interval_spell":
+		if i, err := strconv.ParseInt(val, 10, 64); err == nil {
+			a.config.IntervalSpell = i
+		}
+	default:
+		http.Error(w, "Unknown or read-only config key", http.StatusBadRequest)
+		return
+	}
+
+	fmt.Fprintf(w, "Config %s set to %s", key, val)
 }
 
 func (a *AdminAPI) handleNpcList(w http.ResponseWriter, r *http.Request) {

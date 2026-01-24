@@ -29,6 +29,7 @@ type Server struct {
 	loginService   *service.LoginService
 	npcService     *service.NpcService
 	aiService      *service.AIService
+	config         *config.Config
 	resourcesPath  string
 }
 
@@ -153,6 +154,7 @@ func NewServer(addr string, resourcesPath string) *Server {
 		loginService:   loginService,
 		npcService:     npcService,
 		aiService:      aiService,
+		config:         cfg,
 		resourcesPath:  res,
 	}
 }
@@ -166,7 +168,7 @@ func (s *Server) Start() error {
 	defer listener.Close()
 
 	// Start Admin API
-	adminAPI := api.NewAdminAPI(s.mapService, s.userService, s.loginService, s.npcService, s.aiService)
+	adminAPI := api.NewAdminAPI(s.mapService, s.userService, s.loginService, s.npcService, s.aiService, s.config)
 	go adminAPI.Start(":7667")
 
 	if err := os.WriteFile("server.pid", []byte(fmt.Sprintf("%d", os.Getpid())), 0644); err != nil {
