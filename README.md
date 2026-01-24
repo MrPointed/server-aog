@@ -1,8 +1,12 @@
-# ⚔️ Argentum Online Go Server - Launcher CLI
+# ⚔️ Argentum Online Go Server
 
 Bienvenido al servidor de Argentum Online desarrollado en Go.
 
-Este proyecto incluye una interfaz de línea de comandos (CLI) llamada `launcher` para gestionar el servidor.
+---
+
+## 💻 Compatibilidad
+El `servidor` es multiplataforma (windows, linux, mac)
+
 ---
 
 ## 🚀 Guía de Inicio Rápido
@@ -74,8 +78,4 @@ Gestiona a los usuarios conectados:
 
 ---
 
-## 💻 Compatibilidad
-El `servidor` es multiplataforma (windows, linux, mac)
-
----
 
