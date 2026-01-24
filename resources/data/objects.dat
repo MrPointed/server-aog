@@ -363,7 +363,7 @@ object_type = 11
 potion_type = 1
 max_modifier = 5
 min_modifier = 3
-effect_duration = 1000
+effect_duration = 30
 value = 120
 
 [OBJ37]
@@ -391,7 +391,7 @@ object_type = 11
 potion_type = 2
 max_modifier = 6
 min_modifier = 2
-effect_duration = 1000
+effect_duration = 30
 value = 180
 
 [OBJ40]
@@ -4619,7 +4619,7 @@ newbie = 1
 potion_type = 2
 max_modifier = 5
 min_modifier = 1
-effect_duration = 1000
+effect_duration = 30
 respawnable = 0
 
 [OBJ463]
@@ -8677,7 +8677,7 @@ object_type = 11
 potion_type = 1
 max_modifier = 5
 min_modifier = 3
-effect_duration = 1000
+effect_duration = 30
 value = 4
 newbie = 1
 
@@ -8708,7 +8708,7 @@ object_type = 11
 potion_type = 2
 max_modifier = 6
 min_modifier = 2
-effect_duration = 1000
+effect_duration = 30
 value = 8
 newbie = 1
 

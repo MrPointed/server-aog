@@ -34,9 +34,10 @@ func (d *FileDAO) Load(nick string) (*model.Character, error) {
 	}
 	
 	char := &model.Character{
-		Name: nick,
-		Attributes: make(map[model.Attribute]byte),
-		Skills:     make(map[model.Skill]int),
+		Name:               nick,
+		Attributes:         make(map[model.Attribute]byte),
+		OriginalAttributes: make(map[model.Attribute]byte),
+		Skills:             make(map[model.Skill]int),
 	}
 
 	init := data["INIT"]
@@ -98,6 +99,11 @@ func (d *FileDAO) Load(nick string) (*model.Character, error) {
 	char.Attributes[model.Intelligence] = byte(toInt(attrs["AT3"]))
 	char.Attributes[model.Charisma] = byte(toInt(attrs["AT4"]))
 	char.Attributes[model.Constitution] = byte(toInt(attrs["AT5"]))
+
+	// Copy to OriginalAttributes to have a clean base
+	for k, v := range char.Attributes {
+		char.OriginalAttributes[k] = v
+	}
 
 	char.Dead = toInt(flags["MUERTO"]) == 1
 	char.Invisible = toInt(flags["ESCONDIDO"]) == 1
@@ -238,11 +244,11 @@ func (d *FileDAO) SaveCharacter(char *model.Character) error {
 	flags["NAVEGANDO"] = boolToIntString(char.Sailing)
 
 	attrs := data["ATRIBUTOS"]
-	attrs["AT1"] = strconv.Itoa(int(char.Attributes[model.Strength]))
-	attrs["AT2"] = strconv.Itoa(int(char.Attributes[model.Dexterity]))
-	attrs["AT3"] = strconv.Itoa(int(char.Attributes[model.Intelligence]))
-	attrs["AT4"] = strconv.Itoa(int(char.Attributes[model.Charisma]))
-	attrs["AT5"] = strconv.Itoa(int(char.Attributes[model.Constitution]))
+	attrs["AT1"] = strconv.Itoa(int(char.OriginalAttributes[model.Strength]))
+	attrs["AT2"] = strconv.Itoa(int(char.OriginalAttributes[model.Dexterity]))
+	attrs["AT3"] = strconv.Itoa(int(char.OriginalAttributes[model.Intelligence]))
+	attrs["AT4"] = strconv.Itoa(int(char.OriginalAttributes[model.Charisma]))
+	attrs["AT5"] = strconv.Itoa(int(char.OriginalAttributes[model.Constitution]))
 
 	stats := data["STATS"]
 	stats["ELV"] = strconv.Itoa(int(char.Level))
@@ -329,6 +335,9 @@ func (d *FileDAO) CreateAccountAndCharacter(nick, password, mail string, race mo
 	char.Head = head
 	char.Position = model.Position{X: city.X, Y: city.Y, Map: city.Map}
 	char.Attributes = attributes
+	for k, v := range attributes {
+		char.OriginalAttributes[k] = v
+	}
 	char.MinHit = 1
 	char.MaxHit = 2
 	char.MaxHp = 20

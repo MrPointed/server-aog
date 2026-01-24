@@ -13,7 +13,6 @@ import (
 	"github.com/ao-go-server/internal/actions"
 	"github.com/ao-go-server/internal/api"
 	"github.com/ao-go-server/internal/config"
-	"github.com/ao-go-server/internal/model"
 	"github.com/ao-go-server/internal/network"
 	"github.com/ao-go-server/internal/persistence"
 	"github.com/ao-go-server/internal/protocol"
@@ -36,7 +35,7 @@ type Server struct {
 func NewServer(addr string, resourcesPath string) *Server {
 	res := resourcesPath
 	cfgPath := filepath.Join(res, "config_yaml")
-	
+
 	cfg, err := config.Load(filepath.Join(cfgPath, "server.yaml"))
 	if err != nil {
 		fmt.Printf("Warning: could not load server.yaml: %v. Using defaults.\n", err)
@@ -90,7 +89,7 @@ func NewServer(addr string, resourcesPath string) *Server {
 	resourceManager.LoadAll()
 
 	combatService := service.NewCombatService(messageService, objectService, npcService, mapService, combatFormulas, intervalService, trainingService, cfg)
-	timedEventsService := service.NewTimedEventsService(userService, messageService)
+	timedEventsService := service.NewTimedEventsService(userService, messageService, cfg)
 	timedEventsService.Start()
 
 	aiService := service.NewAIService(npcService, mapService, areaService, userService, combatService, messageService, spellService)
@@ -197,9 +196,7 @@ func (s *Server) Start() error {
 }
 
 type connection struct {
-	conn       net.Conn
-	attributes map[int]byte
-	user       *model.Character
+	*network.Connection
 }
 
 func (c *connection) Send(packet protocol.OutgoingPacket) error {
@@ -216,45 +213,10 @@ func (c *connection) Send(packet protocol.OutgoingPacket) error {
 	return c.SendBytes(buf.Bytes())
 }
 
-func (c *connection) SendBytes(data []byte) error {
-	_, err := c.conn.Write(data)
-	return err
-}
-
-func (c *connection) Disconnect() {
-	c.conn.Close()
-}
-
-func (c *connection) SetAttribute(attr int, value byte) {
-	if c.attributes == nil {
-		c.attributes = make(map[int]byte)
-	}
-	c.attributes[attr] = value
-}
-
-func (c *connection) GetAttribute(attr int) byte {
-	if c.attributes == nil {
-		return 0
-	}
-	return c.attributes[attr]
-}
-
-func (c *connection) GetUser() *model.Character {
-	return c.user
-}
-
-func (c *connection) SetUser(user *model.Character) {
-	c.user = user
-}
-
-func (c *connection) GetRemoteAddr() string {
-	return c.conn.RemoteAddr().String()
-}
-
 func (s *Server) handleConnection(conn net.Conn) {
 	defer conn.Close()
 
-	c := &connection{conn: conn}
+	c := &connection{network.NewConnection(conn)}
 	defer s.loginService.OnUserDisconnect(c)
 
 	received := make([]byte, 0)

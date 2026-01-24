@@ -109,7 +109,7 @@ server:
 
   security:
     md5_hush:
-      enabled: true
+      enabled: false
       accepted_md5:
         - "555656167382A654A5B7EB7B613CBA64"
         - "1DA11E3F5BE3E075DB8A16E9831CC998"

@@ -57,9 +57,10 @@ type Character struct {
 	Gold        int
 	BankGold    int
 
-	SkillPoints int
-	Attributes  map[Attribute]byte
-	Skills     map[Skill]int
+	SkillPoints        int
+	Attributes         map[Attribute]byte
+	OriginalAttributes map[Attribute]byte
+	Skills             map[Skill]int
 
 	Position Position
 	Heading  Heading
@@ -107,6 +108,12 @@ type Character struct {
 	LastSpell  time.Time
 	LastItem   time.Time
 	LastWork   time.Time
+	LastHungerUpdate time.Time
+	LastThirstUpdate time.Time
+
+	// Effect Timers
+	StrengthEffectEnd time.Time
+	AgilityEffectEnd  time.Time
 }
 
 type InventorySlot struct {
@@ -156,14 +163,15 @@ func (inv *Inventory) AddItem(objectID int, amount int) bool {
 
 func NewCharacter(name string, race Race, gender Gender, archetype UserArchetype) *Character {
 	return &Character{
-		Name:        name,
-		Race:        race,
-		Gender:      gender,
-		Archetype:   archetype,
-		Level:       1,
-		ExpToNext:   300,
-		SkillPoints: 10,
-		Attributes:  make(map[Attribute]byte),
-		Skills:      make(map[Skill]int),
+		Name:               name,
+		Race:               race,
+		Gender:             gender,
+		Archetype:          archetype,
+		Level:              1,
+		ExpToNext:          300,
+		SkillPoints:        10,
+		Attributes:         make(map[Attribute]byte),
+		OriginalAttributes: make(map[Attribute]byte),
+		Skills:             make(map[Skill]int),
 	}
 }

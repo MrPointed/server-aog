@@ -59,6 +59,9 @@ func (d *MemoryDAO) CreateAccountAndCharacter(nick, password, mail string, race 
 	char.Head = head
 	char.Position = model.Position{X: city.X, Y: city.Y, Map: city.Map}
 	char.Attributes = attributes
+	for k, v := range attributes {
+		char.OriginalAttributes[k] = v
+	}
 	char.MaxHp = 20 // Default values
 	char.Hp = 20
 	char.MaxMana = 100

@@ -20,6 +20,8 @@ type Config struct {
 	IntervalItem     int64
 	IntervalWork     int64
 	IntervalMagicHit int64
+	IntervalHunger   int64
+	IntervalThirst   int64
 
 	Gods        []string
 	SemiGods    []string
@@ -52,6 +54,8 @@ type yamlConfig struct {
 			UserUse    int64 `yaml:"user_use"`
 			Work       int64 `yaml:"work"`
 			MagicHit   int64 `yaml:"magic_hit"`
+			Hunger     int64 `yaml:"hunger"`
+			Thirst     int64 `yaml:"thirst"`
 		} `yaml:"intervals"`
 		Security struct {
 			MD5Hush struct {
@@ -109,6 +113,8 @@ func Load(path string) (*Config, error) {
 	cfg.IntervalItem = yc.Server.Intervals.UserUse
 	cfg.IntervalWork = yc.Server.Intervals.Work
 	cfg.IntervalMagicHit = yc.Server.Intervals.MagicHit
+	cfg.IntervalHunger = yc.Server.Intervals.Hunger
+	cfg.IntervalThirst = yc.Server.Intervals.Thirst
 
 	cfg.Gods = yc.Server.Gods
 	cfg.SemiGods = yc.Server.SemiGods
