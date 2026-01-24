@@ -27,13 +27,15 @@ type TrainingService struct {
 	messageService *MessageService
 	userService    *UserService
 	archetypeMods  map[model.UserArchetype]*model.ArchetypeModifiers
+	globalBalance  *model.GlobalBalanceConfig
 }
 
-func NewTrainingService(messageService *MessageService, userService *UserService, archetypeMods map[model.UserArchetype]*model.ArchetypeModifiers) *TrainingService {
+func NewTrainingService(messageService *MessageService, userService *UserService, archetypeMods map[model.UserArchetype]*model.ArchetypeModifiers, globalBalance *model.GlobalBalanceConfig) *TrainingService {
 	return &TrainingService{
 		messageService: messageService,
 		userService:    userService,
 		archetypeMods:  archetypeMods,
+		globalBalance:  globalBalance,
 	}
 }
 
@@ -144,31 +146,36 @@ func (s *TrainingService) calculateHPGain(char *model.Character) int {
 	
 	random := utils.RandomNumber(0, 100)
 	
-	// Implementation of AO HP gain distribution
 	if math.Mod(promedio, 1.0) == 0.5 {
-		// Semientera distribution (20, 30, 30, 20)
-		if random <= 20 {
-			return int(promedio + 1.5)
-		} else if random <= 50 {
-			return int(promedio + 0.5)
-		} else if random <= 80 {
-			return int(promedio - 0.5)
-		} else {
-			return int(promedio - 1.5)
+		// Semientera distribution
+		dist := s.globalBalance.SemienteraDist
+		if len(dist) < 4 {
+			return int(promedio) // Fallback
 		}
+		
+		sum := 0
+		for i, p := range dist {
+			sum += p
+			if random <= sum {
+				return int(promedio + 1.5 - float64(i))
+			}
+		}
+		return int(promedio - 1.5)
 	} else {
-		// Entera distribution (9, 23, 36, 23, 9)
-		if random <= 9 {
-			return int(promedio + 2)
-		} else if random <= 32 {
-			return int(promedio + 1)
-		} else if random <= 68 {
-			return int(promedio)
-		} else if random <= 91 {
-			return int(promedio - 1)
-		} else {
-			return int(promedio - 2)
+		// Entera distribution
+		dist := s.globalBalance.EnteraDist
+		if len(dist) < 5 {
+			return int(promedio) // Fallback
 		}
+
+		sum := 0
+		for i, p := range dist {
+			sum += p
+			if random <= sum {
+				return int(promedio + 2 - float64(i))
+			}
+		}
+		return int(promedio - 2)
 	}
 }
 

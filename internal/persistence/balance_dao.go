@@ -17,26 +17,43 @@ func NewBalanceDAO(path string) *BalanceDAO {
 
 type yamlBalance struct {
 	Balance struct {
-		Races   map[string]map[string]int     `yaml:"races"`
-		Classes map[string]map[string]float32 `yaml:"classes"`
+		Races        map[string]map[string]int     `yaml:"races"`
+		Classes      map[string]map[string]float32 `yaml:"classes"`
+		Distribution struct {
+			E []int `yaml:"e"`
+			S []int `yaml:"s"`
+		} `yaml:"distribution"`
+		Party struct {
+			LevelExponent float64 `yaml:"level_exponent"`
+		} `yaml:"party"`
+		Extra struct {
+			ManaRecoveryPercentage int `yaml:"mana_recovery_percentage"`
+		} `yaml:"extra"`
 	} `yaml:"balance"`
 }
 
-func (d *BalanceDAO) Load() (map[model.UserArchetype]*model.ArchetypeModifiers, map[model.Race]*model.RaceModifiers, error) {
+func (d *BalanceDAO) Load() (map[model.UserArchetype]*model.ArchetypeModifiers, map[model.Race]*model.RaceModifiers, *model.GlobalBalanceConfig, error) {
 	data, err := os.ReadFile(d.path)
 	if err != nil {
-		return nil, nil, err
+		return nil, nil, nil, err
 	}
 
 	var yb yamlBalance
 	if err := yaml.Unmarshal(data, &yb); err != nil {
-		return nil, nil, err
+		return nil, nil, nil, err
 	}
 
 	archetypeModifiers := make(map[model.UserArchetype]*model.ArchetypeModifiers)
 	raceModifiers := make(map[model.Race]*model.RaceModifiers)
 
-	// Map YAML races to model.Race
+	globalConfig := &model.GlobalBalanceConfig{
+		EnteraDist:      yb.Balance.Distribution.E,
+		SemienteraDist:  yb.Balance.Distribution.S,
+		LevelExponent:   yb.Balance.Party.LevelExponent,
+		ManaRecoveryPct: yb.Balance.Extra.ManaRecoveryPercentage,
+	}
+
+	// ... (Races and Classes mapping)
 	raceMap := map[string]model.Race{
 		"human":    model.Human,
 		"elf":      model.Elf,
@@ -57,7 +74,6 @@ func (d *BalanceDAO) Load() (map[model.UserArchetype]*model.ArchetypeModifiers, 
 		}
 	}
 
-	// Map YAML classes to model.UserArchetype
 	classMap := map[string]model.UserArchetype{
 		"mago":       model.Mage,
 		"clerigo":    model.Cleric,
@@ -88,5 +104,5 @@ func (d *BalanceDAO) Load() (map[model.UserArchetype]*model.ArchetypeModifiers, 
 		}
 	}
 
-	return archetypeModifiers, raceModifiers, nil
+	return archetypeModifiers, raceModifiers, globalConfig, nil
 }

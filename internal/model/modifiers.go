@@ -19,3 +19,10 @@ type RaceModifiers struct {
 	Charisma     int
 	Constitution int
 }
+
+type GlobalBalanceConfig struct {
+	EnteraDist      []int
+	SemienteraDist  []int
+	LevelExponent   float64
+	ManaRecoveryPct int
+}

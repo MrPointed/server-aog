@@ -1,53 +1,66 @@
 package service
 
 import (
+	"strconv"
+	"strings"
+
+	"github.com/ao-go-server/internal/config"
 	"github.com/ao-go-server/internal/model"
 )
 
 type CharacterBodyService struct {
 	// Simple maps for validation
-	validHeads map[model.Race]map[model.Gender][]int
+	validHeads    map[model.Race]map[model.Gender][]int
 	defaultBodies map[model.Race]map[model.Gender]int
 }
 
-func NewCharacterBodyService() *CharacterBodyService {
+func NewCharacterBodyService(cfg *config.ProjectConfig) *CharacterBodyService {
 	s := &CharacterBodyService{
-		validHeads: make(map[model.Race]map[model.Gender][]int),
+		validHeads:    make(map[model.Race]map[model.Gender][]int),
 		defaultBodies: make(map[model.Race]map[model.Gender]int),
 	}
-	s.setupDefaults()
+	s.setupFromConfig(cfg)
 	return s
 }
 
-func (s *CharacterBodyService) setupDefaults() {
-	races := []model.Race{model.Human, model.Elf, model.DarkElf, model.Gnome, model.Dwarf}
-	genders := []model.Gender{model.Male, model.Female}
-
-	for _, r := range races {
-		s.validHeads[r] = make(map[model.Gender][]int)
-		s.defaultBodies[r] = make(map[model.Gender]int)
-		for _, g := range genders {
-			// Placeholder: allow heads 1-1000 for everyone for now
-			heads := make([]int, 1000)
-			for i := 0; i < 1000; i++ {
-				heads[i] = i + 1
-			}
-			s.validHeads[r][g] = heads
-		}
+func (s *CharacterBodyService) setupFromConfig(cfg *config.ProjectConfig) {
+	raceMap := map[string]model.Race{
+		"human":   model.Human,
+		"elf":     model.Elf,
+		"darkelf": model.DarkElf,
+		"gnome":   model.Gnome,
+		"dwarf":   model.Dwarf,
 	}
 
-	// Constants from client
-	s.defaultBodies[model.Human][model.Male] = 21
-	s.defaultBodies[model.Elf][model.Male] = 210
-	s.defaultBodies[model.DarkElf][model.Male] = 32
-	s.defaultBodies[model.Dwarf][model.Male] = 53
-	s.defaultBodies[model.Gnome][model.Male] = 222
+	for name, r := range raceMap {
+		s.validHeads[r] = make(map[model.Gender][]int)
+		s.defaultBodies[r] = make(map[model.Gender]int)
 
-	s.defaultBodies[model.Human][model.Female] = 39
-	s.defaultBodies[model.Elf][model.Female] = 259
-	s.defaultBodies[model.DarkElf][model.Female] = 40
-	s.defaultBodies[model.Dwarf][model.Female] = 60
-	s.defaultBodies[model.Gnome][model.Female] = 260
+		if raceCfg, ok := cfg.Project.Races[name]; ok {
+			// Heads
+			s.validHeads[r][model.Male] = s.parseHeadRange(raceCfg.Heads.Male)
+			s.validHeads[r][model.Female] = s.parseHeadRange(raceCfg.Heads.Female)
+
+			// Bodies
+			s.defaultBodies[r][model.Male] = raceCfg.Bodies.Male
+			s.defaultBodies[r][model.Female] = raceCfg.Bodies.Female
+		}
+	}
+}
+
+func (s *CharacterBodyService) parseHeadRange(r string) []int {
+	var heads []int
+	parts := strings.Split(r, "-")
+	if len(parts) == 2 {
+		start, _ := strconv.Atoi(parts[0])
+		end, _ := strconv.Atoi(parts[1])
+		for i := start; i <= end; i++ {
+			heads = append(heads, i)
+		}
+	} else if val, err := strconv.Atoi(r); err == nil {
+		heads = append(heads, val)
+	}
+	return heads
 }
 
 func (s *CharacterBodyService) IsValidHead(head int, race model.Race, gender model.Gender) bool {

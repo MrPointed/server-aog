@@ -5,6 +5,17 @@ import (
 	"gopkg.in/yaml.v3"
 )
 
+type RaceConfig struct {
+	Heads struct {
+		Male   string `yaml:"male"`
+		Female string `yaml:"female"`
+	} `yaml:"heads"`
+	Bodies struct {
+		Male   int `yaml:"male"`
+		Female int `yaml:"female"`
+	} `yaml:"bodies"`
+}
+
 type ProjectConfig struct {
 	Project struct {
 		Paths struct {
@@ -14,7 +25,14 @@ type ProjectConfig struct {
 			ObjectsDat  string `yaml:"objects_dat"`
 			Maps        string `yaml:"maps"`
 		} `yaml:"paths"`
-		MapsCount int `yaml:"maps_count"`
+		MapsCount   int `yaml:"maps_count"`
+		LoginService struct {
+			InitialAvailableSkills int `yaml:"initial_available_skills"`
+		} `yaml:"login_service"`
+		Inventory struct {
+			ItemsPerRow int `yaml:"items_per_row"`
+		} `yaml:"inventory"`
+		Races map[string]RaceConfig `yaml:"races"`
 	} `yaml:"project"`
 }
 

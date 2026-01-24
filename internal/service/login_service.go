@@ -16,6 +16,7 @@ type LoginService struct {
 	accDAO         persistence.AccountDAO
 	charDAO        persistence.UserCharacterDAO
 	config         *config.Config
+	projectConfig  *config.ProjectConfig
 	userService    *UserService
 	mapService     *MapService
 	bodyService    *CharacterBodyService
@@ -28,7 +29,7 @@ type LoginService struct {
 }
 
 func NewLoginService(accDAO persistence.AccountDAO, charDAO persistence.UserCharacterDAO,
-	cfg *config.Config, userService *UserService, mapService *MapService,
+	cfg *config.Config, projectCfg *config.ProjectConfig, userService *UserService, mapService *MapService,
 	bodyService *CharacterBodyService, indexManager *CharacterIndexManager,
 	messageService *MessageService, objectService *ObjectService, cityService *CityService,
 	spellService *SpellService, executor *actions.ActionExecutor[*MapService]) *LoginService {
@@ -36,6 +37,7 @@ func NewLoginService(accDAO persistence.AccountDAO, charDAO persistence.UserChar
 		accDAO:         accDAO,
 		charDAO:        charDAO,
 		config:         cfg,
+		projectConfig:  projectCfg,
 		userService:    userService,
 		mapService:     mapService,
 		bodyService:    bodyService,
@@ -53,7 +55,7 @@ func (s *LoginService) ConnectNewCharacter(conn protocol.Connection, nick, passw
 	raceId, genderId, archetypeId, headId, cityId byte, clientHash, version string) error {
 	fmt.Printf("Connecting new character: %s\n", nick)
 
-	if err := s.validateLoginRequest(nick, version); err != nil {
+	if err := s.validateLoginRequest(nick, version, clientHash); err != nil {
 		return err
 	}
 
@@ -112,7 +114,7 @@ func (s *LoginService) ConnectExistingCharacter(conn protocol.Connection, nick, 
 	fmt.Printf("Connecting existing character: %s\n", nick)
 
 	// 1. Basic Validation (Version & Name)
-	if err := s.validateLoginRequest(nick, version); err != nil {
+	if err := s.validateLoginRequest(nick, version, clientHash); err != nil {
 		return err
 	}
 
@@ -152,18 +154,31 @@ func (s *LoginService) ConnectExistingCharacter(conn protocol.Connection, nick, 
 	return nil
 }
 
-// validateLoginRequest checks version and name validity.
-func (s *LoginService) validateLoginRequest(nick, version string) error {
+// validateLoginRequest checks version, name validity and MD5 hash.
+func (s *LoginService) validateLoginRequest(nick, version, clientHash string) error {
 	if s.config.Version != version {
 		return fmt.Errorf("versión obsoleta, por favor actualice el juego")
 	}
 	if nick == "" {
 		return fmt.Errorf("nombre inválido")
 	}
+
+	if s.config.MD5Enabled {
+		valid := false
+		for _, h := range s.config.AcceptedMD5s {
+			if h == clientHash {
+				valid = true
+				break
+			}
+		}
+		if !valid {
+			return fmt.Errorf("cliente no autorizado (hash inválido)")
+		}
+	}
+
 	return nil
 }
 
-// checkServerCapacity checks if the server is full.
 func (s *LoginService) checkServerCapacity() error {
 	currentUsers := len(s.userService.GetLoggedCharacters())
 	if currentUsers >= s.config.MaxConcurrentUsers {
@@ -219,6 +234,11 @@ func (s *LoginService) finalizeLogin(conn protocol.Connection, acc *model.Accoun
 
 	// Assign Index
 	char.CharIndex = s.indexManager.AssignIndex()
+
+	// Initial skills if new character
+	if char.Level == 1 && char.Exp == 0 {
+		char.SkillPoints = s.projectConfig.Project.LoginService.InitialAvailableSkills
+	}
 
 	// Bind to connection and service
 	conn.SetUser(char)

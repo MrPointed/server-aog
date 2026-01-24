@@ -23,6 +23,11 @@ type Config struct {
 	SemiGods    []string
 	Counselors  []string
 	RoleMasters []string
+
+	// Security
+	MD5Enabled      bool
+	AcceptedMD5s    []string
+	CheckCriticalFiles bool
 }
 
 type yamlConfig struct {
@@ -44,6 +49,13 @@ type yamlConfig struct {
 			Work       int64 `yaml:"work"`
 			MagicHit   int64 `yaml:"magic_hit"`
 		} `yaml:"intervals"`
+		Security struct {
+			MD5Hush struct {
+				Enabled           bool     `yaml:"enabled"`
+				AcceptedMD5      []string `yaml:"accepted_md5"`
+				CheckCriticalFiles bool     `yaml:"check_critical_files"`
+			} `yaml:"md5_hush"`
+		} `yaml:"security"`
 	} `yaml:"server"`
 }
 
@@ -89,6 +101,10 @@ func Load(path string) (*Config, error) {
 	cfg.SemiGods = yc.Server.SemiGods
 	cfg.Counselors = yc.Server.Counselors
 	cfg.RoleMasters = yc.Server.RoleMasters
+
+	cfg.MD5Enabled = yc.Server.Security.MD5Hush.Enabled
+	cfg.AcceptedMD5s = yc.Server.Security.MD5Hush.AcceptedMD5
+	cfg.CheckCriticalFiles = yc.Server.Security.MD5Hush.CheckCriticalFiles
 
 	return cfg, nil
 }

@@ -3,16 +3,10 @@ server:
     ip: "127.0.0.1"
     crc_sub_key: 12345
     start_port: 7666
-    hide: true
-    allow_multi_logins: true
-    idle_limit: 5
     version: "0.13.0"
-    start_from_backup: false
     allow_character_creation: true
     only_gms: false
-    testing: false
-    max_users: 550
-    record: 517
+    record_online: 517
   
   staff_counts:
     gods: 9

@@ -57,14 +57,14 @@ func NewServer(addr string, resourcesPath string) *Server {
 	cityService := service.NewCityService(cityDAO)
 
 	balanceDAO := persistence.NewBalanceDAO(filepath.Join(cfgPath, "balances.yaml"))
-	archetypeMods, _, err := balanceDAO.Load()
+	archetypeMods, _, globalBalance, err := balanceDAO.Load()
 	if err != nil {
 		fmt.Printf("Critical error loading balances: %v\n", err)
 	}
 	combatFormulas := service.NewCombatFormulas(archetypeMods)
 	intervalService := service.NewIntervalService(cfg)
 
-	bodyService := service.NewCharacterBodyService()
+	bodyService := service.NewCharacterBodyService(projectCfg)
 	userService := service.NewUserService(bodyService)
 
 	mapDAO := persistence.NewMapDAO(filepath.Join(res, projectCfg.Project.Paths.Maps), projectCfg.Project.MapsCount)
@@ -78,7 +78,7 @@ func NewServer(addr string, resourcesPath string) *Server {
 
 	areaService := service.NewAreaService(mapService, userService)
 	messageService := service.NewMessageService(userService, areaService, mapService, objectService)
-	trainingService := service.NewTrainingService(messageService, userService, archetypeMods)
+	trainingService := service.NewTrainingService(messageService, userService, archetypeMods, globalBalance)
 
 	spellDAO := persistence.NewSpellDAO(filepath.Join(res, "data/hechizos.dat"))
 	spellService := service.NewSpellService(spellDAO, userService, npcService, messageService, objectService, intervalService, trainingService)
@@ -97,7 +97,7 @@ func NewServer(addr string, resourcesPath string) *Server {
 	bankService := service.NewBankService(objectService, messageService, userService)
 
 	fileDAO := persistence.NewFileDAO(filepath.Join(res, projectCfg.Project.Paths.Charfiles))
-	loginService := service.NewLoginService(fileDAO, fileDAO, cfg, userService, mapService, bodyService, indexManager, messageService, objectService, cityService, spellService, executor)
+	loginService := service.NewLoginService(fileDAO, fileDAO, cfg, projectCfg, userService, mapService, bodyService, indexManager, messageService, objectService, cityService, spellService, executor)
 
 	itemActionService := service.NewItemActionService(objectService, messageService, intervalService, bodyService)
 
