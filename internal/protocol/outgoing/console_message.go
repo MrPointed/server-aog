@@ -26,6 +26,7 @@ const (
 	GMMSG
 	GM
 	CITIZEN
+	CRIMINAL
 	CONSE
 	GOD
 )

@@ -128,6 +128,10 @@ func (b *PotionBehavior) Use(char *model.Character, slot int, obj *model.Object,
 			Message: "Te has curado del envenenamiento.",
 			Font:    outgoing.INFO,
 		})
+	case 6: // Black Potion (Suicide)
+		b.svc.messageService.HandleDeath(char, "¡La poción negra te ha matado!")
+		b.svc.RemoveOne(char, slot, connection)
+		return
 	default:
 		connection.Send(&outgoing.ConsoleMessagePacket{
 			Message: "Esta poción no tiene efecto.",
