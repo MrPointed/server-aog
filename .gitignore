@@ -1,0 +1,11 @@
+# Binaries
+server
+launcher
+main
+
+# Logs
+*.log
+TUI_monitor.txt
+
+# Character files
+resources/charfiles/
