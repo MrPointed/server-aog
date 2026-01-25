@@ -64,6 +64,12 @@ type Model struct {
 	mapActionMenuOpen  bool
 	mapActionCursor    int
 	selectedMapID      int
+	
+	// Config State
+	configItems      []ConfigItem
+	configListCursor int
+	configEditing    bool
+	configInput      textinput.Model
 }
 
 func InitialModel() Model {
@@ -71,6 +77,11 @@ func InitialModel() Model {
 	ti.Placeholder = "Filter users... (Press / to focus)"
 	ti.CharLimit = 156
 	ti.Width = 30
+
+	ci := textinput.New()
+	ci.Placeholder = "Enter new value..."
+	ci.CharLimit = 100
+	ci.Width = 40
 
 	return Model{
 		tabs: []string{
@@ -93,6 +104,7 @@ func InitialModel() Model {
 		
 		logAutoScroll: true,
 		userFilter:    ti,
+		configInput:   ci,
 	}
 }
 
@@ -107,17 +119,23 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	case tea.KeyMsg:
 		switch msg.String() {
 		case "ctrl+c", "q":
-			m.quitting = true
-			return m, tea.Quit
+			if !m.configEditing {
+				m.quitting = true
+				return m, tea.Quit
+			}
 		case "tab":
-			m.activeTab++
-			if m.activeTab >= len(m.tabs) {
-				m.activeTab = 0
+			if !m.configEditing {
+				m.activeTab++
+				if m.activeTab >= len(m.tabs) {
+					m.activeTab = 0
+				}
 			}
 		case "shift+tab":
-			m.activeTab--
-			if m.activeTab < 0 {
-				m.activeTab = len(m.tabs) - 1
+			if !m.configEditing {
+				m.activeTab--
+				if m.activeTab < 0 {
+					m.activeTab = len(m.tabs) - 1
+				}
 			}
 		}
 	case tea.WindowSizeMsg:
@@ -139,6 +157,11 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		}
 		if m.activeTab == 4 { // Maps Tab
 			cmds = append(cmds, fetchMapsCmd())
+		}
+		if m.activeTab == 5 { // Config Tab
+			if !m.configEditing {
+				cmds = append(cmds, fetchConfigListCmd())
+			}
 		}
 	
 	case ServerStatusMsg:
@@ -177,6 +200,11 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		if msg.Err == nil {
 			m.loadedMaps = msg.Maps
 		}
+
+	case ConfigListMsg:
+		if msg.Err == nil {
+			m.configItems = msg.Items
+		}
 	}
 
 	// Dispatch to active tab logic if needed (e.g. navigation)
@@ -192,6 +220,8 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		m, cmd = m.updateUsers(msg)
 	case 4:
 		m, cmd = m.updateMaps(msg)
+	case 5:
+		m, cmd = m.updateConfig(msg)
 	default:
 		// Other tabs not implemented yet
 	}
@@ -276,6 +306,8 @@ func (m Model) View() string {
 		content = m.viewUsers()
 	case 4:
 		content = m.viewMaps()
+	case 5:
+		content = m.viewConfig()
 	default:
 		content = fmt.Sprintf("View for %s not implemented yet.", m.tabs[m.activeTab])
 	}

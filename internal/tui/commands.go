@@ -310,3 +310,43 @@ func unloadMapCmd(id int) tea.Cmd {
 		return ActionMsg{Output: string(body)}
 	}
 }
+
+type ConfigItem struct {
+	Key         string      `json:"key"`
+	Description string      `json:"description"`
+	Type        string      `json:"type"`
+	Value       interface{} `json:"value"`
+}
+
+type ConfigListMsg struct {
+	Items []ConfigItem
+	Err   error
+}
+
+func fetchConfigListCmd() tea.Cmd {
+	return func() tea.Msg {
+		resp, err := http.Get("http://localhost:7667/config/list")
+		if err != nil {
+			return ConfigListMsg{Err: err}
+		}
+		defer resp.Body.Close()
+
+		var items []ConfigItem
+		if err := json.NewDecoder(resp.Body).Decode(&items); err != nil {
+			return ConfigListMsg{Err: err}
+		}
+		return ConfigListMsg{Items: items}
+	}
+}
+
+func setConfigCmd(key string, value string) tea.Cmd {
+	return func() tea.Msg {
+		resp, err := http.Get(fmt.Sprintf("http://localhost:7667/config/set?key=%s&value=%s", url.QueryEscape(key), url.QueryEscape(value)))
+		if err != nil {
+			return ActionMsg{Err: err}
+		}
+		defer resp.Body.Close()
+		body, _ := io.ReadAll(resp.Body)
+		return ActionMsg{Output: string(body)}
+	}
+}

@@ -129,13 +129,20 @@ func (a *AdminAPI) handleEventStop(w http.ResponseWriter, r *http.Request) {
 }
 
 func (a *AdminAPI) handleConfigList(w http.ResponseWriter, r *http.Request) {
-	keys := []map[string]string{
-		{"key": "version", "description": "Server version (read-only)", "type": "string"},
-		{"key": "max_users", "description": "Maximum concurrent users", "type": "int"},
-		{"key": "creation_enabled", "description": "Allow new character creation", "type": "bool"},
-		{"key": "admins_only", "description": "Restrict access to admins only", "type": "bool"},
-		{"key": "interval_attack", "description": "Interval between attacks (ms)", "type": "int64"},
-		{"key": "interval_spell", "description": "Interval between spells (ms)", "type": "int64"},
+	keys := []map[string]interface{}{
+		{"key": "version", "description": "Server version (read-only)", "type": "string", "value": a.config.Version},
+		{"key": "max_users", "description": "Maximum concurrent users", "type": "int", "value": a.config.MaxConcurrentUsers},
+		{"key": "creation_enabled", "description": "Allow new character creation", "type": "bool", "value": a.config.CharacterCreationEnabled},
+		{"key": "admins_only", "description": "Restrict access to admins only", "type": "bool", "value": a.config.RestrictedToAdmins},
+		{"key": "xp_multiplier", "description": "Global XP Multiplier", "type": "float", "value": a.config.XpMultiplier},
+		{"key": "gold_multiplier", "description": "Global Gold Multiplier", "type": "float", "value": a.config.GoldMultiplier},
+		{"key": "interval_attack", "description": "Interval between attacks (ms)", "type": "int64", "value": a.config.IntervalAttack},
+		{"key": "interval_spell", "description": "Interval between spells (ms)", "type": "int64", "value": a.config.IntervalSpell},
+		{"key": "interval_item", "description": "Interval to use items (ms)", "type": "int64", "value": a.config.IntervalItem},
+		{"key": "interval_work", "description": "Interval to work (ms)", "type": "int64", "value": a.config.IntervalWork},
+		{"key": "interval_magic_hit", "description": "Interval magic-hit (ms)", "type": "int64", "value": a.config.IntervalMagicHit},
+		{"key": "md5_enabled", "description": "Enable MD5 client validation", "type": "bool", "value": a.config.MD5Enabled},
+		{"key": "check_critical_files", "description": "Check critical files integrity", "type": "bool", "value": a.config.CheckCriticalFiles},
 	}
 	json.NewEncoder(w).Encode(keys)
 }
@@ -153,10 +160,24 @@ func (a *AdminAPI) handleConfigGet(w http.ResponseWriter, r *http.Request) {
 		val = a.config.CharacterCreationEnabled
 	case "admins_only":
 		val = a.config.RestrictedToAdmins
+	case "xp_multiplier":
+		val = a.config.XpMultiplier
+	case "gold_multiplier":
+		val = a.config.GoldMultiplier
 	case "interval_attack":
 		val = a.config.IntervalAttack
 	case "interval_spell":
 		val = a.config.IntervalSpell
+	case "interval_item":
+		val = a.config.IntervalItem
+	case "interval_work":
+		val = a.config.IntervalWork
+	case "interval_magic_hit":
+		val = a.config.IntervalMagicHit
+	case "md5_enabled":
+		val = a.config.MD5Enabled
+	case "check_critical_files":
+		val = a.config.CheckCriticalFiles
 	default:
 		http.Error(w, "Unknown config key", http.StatusNotFound)
 		return
@@ -428,6 +449,14 @@ func (a *AdminAPI) handleConfigSet(w http.ResponseWriter, r *http.Request) {
 		a.config.CharacterCreationEnabled = val == "true"
 	case "admins_only":
 		a.config.RestrictedToAdmins = val == "true"
+	case "xp_multiplier":
+		if f, err := strconv.ParseFloat(val, 64); err == nil {
+			a.config.XpMultiplier = f
+		}
+	case "gold_multiplier":
+		if f, err := strconv.ParseFloat(val, 64); err == nil {
+			a.config.GoldMultiplier = f
+		}
 	case "interval_attack":
 		if i, err := strconv.ParseInt(val, 10, 64); err == nil {
 			a.config.IntervalAttack = i
@@ -436,6 +465,22 @@ func (a *AdminAPI) handleConfigSet(w http.ResponseWriter, r *http.Request) {
 		if i, err := strconv.ParseInt(val, 10, 64); err == nil {
 			a.config.IntervalSpell = i
 		}
+	case "interval_item":
+		if i, err := strconv.ParseInt(val, 10, 64); err == nil {
+			a.config.IntervalItem = i
+		}
+	case "interval_work":
+		if i, err := strconv.ParseInt(val, 10, 64); err == nil {
+			a.config.IntervalWork = i
+		}
+	case "interval_magic_hit":
+		if i, err := strconv.ParseInt(val, 10, 64); err == nil {
+			a.config.IntervalMagicHit = i
+		}
+	case "md5_enabled":
+		a.config.MD5Enabled = val == "true"
+	case "check_critical_files":
+		a.config.CheckCriticalFiles = val == "true"
 	default:
 		http.Error(w, "Unknown or read-only config key", http.StatusBadRequest)
 		return
