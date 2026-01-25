@@ -55,9 +55,10 @@ func (s *TimedEventsService) processRegen() {
 		}
 
 		changed := false
+		canRegen := char.Hunger > 0 && char.Thirstiness > 0
 
 		// HP Regen (base on Constitution)
-		if char.Hp < char.MaxHp {
+		if canRegen && char.Hp < char.MaxHp {
 			regen := int(char.Attributes[model.Constitution] / 5)
 			if regen < 1 {
 				regen = 1
@@ -67,7 +68,7 @@ func (s *TimedEventsService) processRegen() {
 		}
 
 		// Mana Regen (base on Intelligence)
-		if char.Mana < char.MaxMana {
+		if canRegen && char.Mana < char.MaxMana {
 			regen := int(char.Attributes[model.Intelligence] / 3)
 			if regen < 1 {
 				regen = 1
@@ -82,7 +83,7 @@ func (s *TimedEventsService) processRegen() {
 		}
 
 		// Stamina Regen
-		if char.Stamina < char.MaxStamina {
+		if canRegen && char.Stamina < char.MaxStamina {
 			regen := 5
 			char.Stamina = utils.Min(char.MaxStamina, char.Stamina+regen)
 			changed = true
