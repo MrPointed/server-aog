@@ -23,7 +23,6 @@ func (p *MeditatePacket) Handle(buffer *network.DataBuffer, connection protocol.
 	
 	// Notify the user about meditation toggle
 	connection.Send(&outgoing.MeditateTogglePacket{})
-	p.AreaService.BroadcastToArea(char.Position, &outgoing.MeditateTogglePacket{})
 
 	if char.Meditating {
 		char.MeditatingSince = time.Now()

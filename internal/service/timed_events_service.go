@@ -75,23 +75,20 @@ func (s *TimedEventsService) processRegen() {
 		// Mana Regen
 		if canRegen && char.Mana < char.MaxMana {
 			if char.Meditating {
+
+				fxPacket := &outgoing.CreateFxPacket{
+					CharIndex: char.CharIndex,
+					FxID:      4,
+					Loops:     -1,
+				}
+				if conn := s.userService.GetConnection(char); conn != nil {
+					conn.Send(fxPacket)
+				}
+				s.messageService.AreaService.BroadcastNearby(char, fxPacket)
 				// Check if meditation start delay has passed
 				if now.Sub(char.MeditatingSince).Milliseconds() >= s.globalBalance.IntervalStartMeditating {
 					// Check meditation interval
 					if now.Sub(char.LastMeditationRegen).Milliseconds() >= s.globalBalance.IntervalMeditation {
-						// If this is the first regen, start the FX
-						if char.LastMeditationRegen.IsZero() {
-							fxPacket := &outgoing.CreateFxPacket{
-								CharIndex: char.CharIndex,
-								FxID:      4,
-								Loops:     -1,
-							}
-							if conn := s.userService.GetConnection(char); conn != nil {
-								conn.Send(fxPacket)
-							}
-							s.messageService.AreaService.BroadcastNearby(char, fxPacket)
-						}
-
 						regen := int(float64(char.MaxMana+char.Skills[model.Meditate]) * s.globalBalance.ManaRecoveryPct)
 						char.Mana = utils.Min(char.MaxMana, char.Mana+regen)
 						char.LastMeditationRegen = now

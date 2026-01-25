@@ -27,7 +27,6 @@ func (p *AttackPacket) Handle(buffer *network.DataBuffer, connection protocol.Co
 	if char.Meditating {
 		char.Meditating = false
 		connection.Send(&outgoing.MeditateTogglePacket{})
-		p.AreaService.BroadcastToArea(char.Position, &outgoing.MeditateTogglePacket{})
 		connection.Send(&outgoing.ConsoleMessagePacket{
 			Message: "Dejas de meditar.",
 			Font:    outgoing.INFO,

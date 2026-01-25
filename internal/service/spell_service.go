@@ -18,10 +18,11 @@ type SpellService struct {
 	objectService   *ObjectService
 	intervals       *IntervalService
 	trainingService *TrainingService
+	areaService     *AreaService
 	spells          map[int]*model.Spell
 }
 
-func NewSpellService(dao *persistence.SpellDAO, userService *UserService, npcService *NpcService, messageService *MessageService, objectService *ObjectService, intervals *IntervalService, trainingService *TrainingService) *SpellService {
+func NewSpellService(dao *persistence.SpellDAO, userService *UserService, npcService *NpcService, messageService *MessageService, objectService *ObjectService, intervals *IntervalService, trainingService *TrainingService, areaService *AreaService) *SpellService {
 	return &SpellService{
 		dao:             dao,
 		userService:     userService,
@@ -30,6 +31,7 @@ func NewSpellService(dao *persistence.SpellDAO, userService *UserService, npcSer
 		objectService:   objectService,
 		intervals:       intervals,
 		trainingService: trainingService,
+		areaService:     areaService,
 		spells:          make(map[int]*model.Spell),
 	}
 }
@@ -63,29 +65,43 @@ func (s *SpellService) CastSpell(caster *model.Character, spellID int, target an
 		return
 	}
 
-	if caster.Meditating {
-		caster.Meditating = false
-		if conn != nil {
-			conn.Send(&outgoing.MeditateTogglePacket{})
-			conn.Send(&outgoing.ConsoleMessagePacket{
-				Message: "Dejas de meditar.",
-				Font:    outgoing.INFO,
-			})
-			// Stop FX
-			fxPacket := &outgoing.CreateFxPacket{
-				CharIndex: caster.CharIndex,
-				FxID:      0,
-				Loops:     0,
+			if caster.Meditating {
+
+				caster.Meditating = false
+
+				
+
+				conn.Send(&outgoing.MeditateTogglePacket{})
+
+				s.messageService.SendConsoleMessage(caster, "Dejas de meditar.", outgoing.INFO)
+
+		
+
+				// Stop meditation FX
+
+				fxPacket := &outgoing.CreateFxPacket{
+
+					CharIndex: caster.CharIndex,
+
+					FxID:      0,
+
+					Loops:     0,
+
+				}
+
+				if conn != nil {
+
+					conn.Send(fxPacket)
+
+				}
+
+				s.areaService.BroadcastNearby(caster, fxPacket)
+
 			}
-			conn.Send(fxPacket)
-		}
-		s.messageService.SendToArea(&outgoing.MeditateTogglePacket{}, caster.Position)
-		s.messageService.SendToArea(&outgoing.CreateFxPacket{
-			CharIndex: caster.CharIndex,
-			FxID:      0,
-			Loops:     0,
-		}, caster.Position)
-	}
+
+		
+
+	
 
 	// Validations
 	if caster.Mana < spell.ManaRequired {

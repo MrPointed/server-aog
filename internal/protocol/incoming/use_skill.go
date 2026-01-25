@@ -33,10 +33,10 @@ func (p *UseSkillPacket) Handle(buffer *network.DataBuffer, connection protocol.
 
 		case model.Meditate:
 			if !user.Dead {
-				user.Meditating = !user.Meditating
-				connection.Send(&outgoing.MeditateTogglePacket{})
-				p.AreaService.BroadcastToArea(user.Position, &outgoing.MeditateTogglePacket{})
-				if user.Meditating {
+						user.Meditating = !user.Meditating
+						connection.Send(&outgoing.MeditateTogglePacket{})
+						if user.Meditating {
+				
 					user.MeditatingSince = time.Now()
 					user.LastMeditationRegen = time.Time{}
 					connection.Send(&outgoing.ConsoleMessagePacket{Message: "Te concentras...", Font: outgoing.INFO})
