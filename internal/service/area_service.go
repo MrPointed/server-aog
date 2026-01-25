@@ -21,7 +21,7 @@ func NewAreaService(mapService *MapService, userService *UserService) *AreaServi
 // In AO, areas are 9x9 tiles for the client, though server can use 18x18.
 // We'll use 9 to stay in sync with the client's cleanup logic.
 func (s *AreaService) GetArea(x, y byte) (int, int) {
-	return int(x) / 9, int(y) / 9
+	return int(x+1) / 9, int(y+1) / 9
 }
 
 func (s *AreaService) InRange(p1, p2 model.Position) bool {
