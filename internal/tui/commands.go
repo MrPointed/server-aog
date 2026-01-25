@@ -115,9 +115,22 @@ type MonitorStatsMsg struct {
 		HeapSys    uint64 `json:"heap_sys"`
 	} `json:"system"`
 	Connections int `json:"connections"`
-	Maps        []struct {
+	Network     struct {
+		Connections []struct {
+			User     string `json:"user"`
+			BytesIn  uint64 `json:"bytes_in"`
+			BytesOut uint64 `json:"bytes_out"`
+			PktsIn   uint64 `json:"pkts_in"`
+			PktsOut  uint64 `json:"pkts_out"`
+			Age      int64  `json:"age_seconds"`
+		} `json:"connections"`
+		TotalIn  uint64 `json:"total_in"`
+		TotalOut uint64 `json:"total_out"`
+	} `json:"network"`
+	Maps []struct {
 		ID    int `json:"id"`
 		Users int `json:"users"`
+		NPCs  int `json:"npcs"`
 	} `json:"maps"`
 	Err error
 }

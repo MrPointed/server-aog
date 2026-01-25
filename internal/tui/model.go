@@ -28,7 +28,11 @@ type Model struct {
 	lastActionMsg  string
 
 	// Monitor State
-	monitorStats MonitorStatsMsg
+	monitorStats  MonitorStatsMsg
+	netInHistory  []uint64
+	netOutHistory []uint64
+	lastTotalIn   uint64
+	lastTotalOut  uint64
 
 	// Log State
 	logLines      []string
@@ -179,6 +183,34 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	
 	case MonitorStatsMsg:
 		m.monitorStats = msg
+		
+		currIn := msg.Network.TotalIn
+		currOut := msg.Network.TotalOut
+
+		deltaIn := currIn - m.lastTotalIn
+		deltaOut := currOut - m.lastTotalOut
+
+		// Ignore huge jump on first run/restart or if stats reset
+		if m.lastTotalIn == 0 || currIn < m.lastTotalIn {
+			deltaIn = 0
+		}
+		if m.lastTotalOut == 0 || currOut < m.lastTotalOut {
+			deltaOut = 0
+		}
+
+		m.lastTotalIn = currIn
+		m.lastTotalOut = currOut
+
+		m.netInHistory = append(m.netInHistory, deltaIn)
+		m.netOutHistory = append(m.netOutHistory, deltaOut)
+
+		maxHistory := 30
+		if len(m.netInHistory) > maxHistory {
+			m.netInHistory = m.netInHistory[1:]
+		}
+		if len(m.netOutHistory) > maxHistory {
+			m.netOutHistory = m.netOutHistory[1:]
+		}
 
 	case LogMsg:
 		if len(msg.Lines) > 0 {

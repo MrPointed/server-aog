@@ -231,6 +231,8 @@ func (s *Server) handleConnection(conn net.Conn) {
 			}
 			return
 		}
+		
+		c.UpdateStats(n, true)
 
 		received = append(received, tmp[:n]...)
 

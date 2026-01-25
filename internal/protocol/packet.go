@@ -1,6 +1,8 @@
 package protocol
 
 import (
+	"time"
+
 	"github.com/ao-go-server/internal/network"
 	"github.com/ao-go-server/internal/model"
 )
@@ -21,4 +23,5 @@ type Connection interface {
 	GetUser() *model.Character
 	SetUser(user *model.Character)
 	GetRemoteAddr() string
+	GetStats() (in uint64, out uint64, pIn uint64, pOut uint64, start time.Time)
 }

@@ -7,6 +7,7 @@ import (
 	"runtime"
 	"sort"
 	"strconv"
+	"time"
 
 	"github.com/ao-go-server/internal/config"
 	"github.com/ao-go-server/internal/model"
@@ -565,7 +566,46 @@ func (a *AdminAPI) handleMonitorStats(w http.ResponseWriter, r *http.Request) {
 			"heap_sys":   m.HeapSys,
 		},
 		"connections": len(a.userService.GetLoggedConnections()),
-		// "packets_sec": 0, // Placeholder, needs implementation in PacketsManager
+	}
+
+	// Network Stats
+	conns := a.userService.GetLoggedConnections()
+	type UserNetStat struct {
+		User     string `json:"user"`
+		BytesIn  uint64 `json:"bytes_in"`
+		BytesOut uint64 `json:"bytes_out"`
+		PktsIn   uint64 `json:"pkts_in"`
+		PktsOut  uint64 `json:"pkts_out"`
+		Age      int64  `json:"age_seconds"`
+	}
+
+	var netUsers []UserNetStat
+	var totalIn, totalOut uint64
+
+	for _, c := range conns {
+		in, out, pIn, pOut, start := c.GetStats()
+		totalIn += in
+		totalOut += out
+
+		name := "Unknown"
+		if u := c.GetUser(); u != nil {
+			name = u.Name
+		}
+
+		netUsers = append(netUsers, UserNetStat{
+			User:     name,
+			BytesIn:  in,
+			BytesOut: out,
+			PktsIn:   pIn,
+			PktsOut:  pOut,
+			Age:      int64(time.Since(start).Seconds()),
+		})
+	}
+
+	stats["network"] = map[string]interface{}{
+		"connections": netUsers,
+		"total_in":    totalIn,
+		"total_out":   totalOut,
 	}
 
 	// Map stats

@@ -7,68 +7,26 @@ Loading cities from data file...
 Successfully loaded 7 cities.
 Successfully loaded 50 spells.
 Successfully loaded maps.
-All resources loaded in 231.704886ms
-AO Go Server listening on :7666 (Press Ctrl+C to stop)
+All resources loaded in 239.442879ms
 Admin API listening on :7667
+AO Go Server listening on :7666 (Press Ctrl+C to stop)
 Connecting existing character: abel
-User abel logged in at {X:55 Y:48 Map:1} (Privs: 0)
-DoubleClick from abel at 52,50 (Raw: 53,51)
-NPC LeftClick: User abel clicked NPC 5 (Sacerdote)
-NPC LeftClick: Sending description: ¡Hola, hijo mío! Soy el Sacerdote de estas tierras. Si quieres que te resucite escribe /RESUCITAR, o haz doble click sobre mí.
-DoubleClick from abel at 76,68 (Raw: 77,69)
-NPC LeftClick: User abel clicked NPC 5 (Sacerdote)
-NPC LeftClick: Sending description: ¡Hola, hijo mío! Soy el Sacerdote de estas tierras. Si quieres que te resucite escribe /RESUCITAR, o haz doble click sobre mí.
-NPC LeftClick: User abel clicked NPC 5 (Sacerdote)
-NPC LeftClick: Sending description: ¡Hola, hijo mío! Soy el Sacerdote de estas tierras. Si quieres que te resucite escribe /RESUCITAR, o haz doble click sobre mí.
-DoubleClick from abel at 76,62 (Raw: 77,63)
-NPC DoubleClick: Sending description for NPC 5: ¡Hola, hijo mío! Soy el Sacerdote de estas tierras. Si quieres que te resucite escribe /RESUCITAR, o haz doble click sobre mí.
-User abel disconnected, saving...
-Connecting existing character: abel
-User abel logged in at {X:71 Y:70 Map:1} (Privs: 0)
-DoubleClick from abel at 73,67 (Raw: 74,68)
-User abel disconnected, saving...
-Connecting existing character: abel
-User abel logged in at {X:71 Y:70 Map:1} (Privs: 0)
-User abel disconnected, saving...
-Connecting existing character: abel
-User abel logged in at {X:68 Y:64 Map:1} (Privs: 0)
-Read error: read tcp 127.0.0.1:7666->127.0.0.1:48402: use of closed network connection
+User abel logged in at {X:47 Y:13 Map:40} (Privs: 0)
 User abel disconnected, saving...
 Connecting existing character: pepe
-User pepe logged in at {X:54 Y:48 Map:1} (Privs: 3)
-DoubleClick from pepe at 52,48 (Raw: 53,49)
-DoubleClick from pepe at 45,14 (Raw: 46,15)
-NPC LeftClick: User pepe clicked NPC 523 (Orco)
-DoubleClick from pepe at 68,21 (Raw: 69,22)
-DoubleClick from pepe at 51,33 (Raw: 52,34)
-NPC LeftClick: User pepe clicked NPC 5 (Sacerdote)
-NPC LeftClick: Sending description: ¡Hola, hijo mío! Soy el Sacerdote de estas tierras. Si quieres que te resucite escribe /RESUCITAR, o haz doble click sobre mí.
-NPC LeftClick: User pepe clicked NPC 5 (Sacerdote)
-NPC LeftClick: Sending description: ¡Hola, hijo mío! Soy el Sacerdote de estas tierras. Si quieres que te resucite escribe /RESUCITAR, o haz doble click sobre mí.
-DoubleClick from pepe at 76,62 (Raw: 77,63)
-NPC DoubleClick: Sending description for NPC 5: ¡Hola, hijo mío! Soy el Sacerdote de estas tierras. Si quieres que te resucite escribe /RESUCITAR, o haz doble click sobre mí.
-DoubleClick from pepe at 61,62 (Raw: 62,63)
-NPC DoubleClick: Sending description for NPC 46: Bienvenido a mi pequeña tienda de Ullathorpe... Tengo algunos hechizos que podrían interesarte.
-DoubleClick from pepe at 45,55 (Raw: 46,56)
-DoubleClick from pepe at 57,32 (Raw: 58,33)
-DoubleClick from pepe at 67,36 (Raw: 68,37)
-DoubleClick from pepe at 71,26 (Raw: 72,27)
-DoubleClick from pepe at 56,28 (Raw: 57,29)
-DoubleClick from pepe at 43,51 (Raw: 44,52)
-NPC LeftClick: User pepe clicked NPC 535 (Hormiga Marabunta)
-DoubleClick from pepe at 24,63 (Raw: 25,64)
-NPC LeftClick: User pepe clicked NPC 535 (Hormiga Marabunta)
-DoubleClick from pepe at 63,51 (Raw: 64,52)
-NPC LeftClick: User pepe clicked NPC 5 (Sacerdote)
-NPC LeftClick: Sending description: ¡Hola, hijo mío! Soy el Sacerdote de estas tierras. Si quieres que te resucite escribe /RESUCITAR, o haz doble click sobre mí.
-NPC LeftClick: User pepe clicked NPC 5 (Sacerdote)
-NPC LeftClick: Sending description: ¡Hola, hijo mío! Soy el Sacerdote de estas tierras. Si quieres que te resucite escribe /RESUCITAR, o haz doble click sobre mí.
-DoubleClick from pepe at 76,62 (Raw: 77,63)
-NPC DoubleClick: Sending description for NPC 5: ¡Hola, hijo mío! Soy el Sacerdote de estas tierras. Si quieres que te resucite escribe /RESUCITAR, o haz doble click sobre mí.
-NPC LeftClick: User pepe clicked NPC 5 (Sacerdote)
-NPC LeftClick: Sending description: ¡Hola, hijo mío! Soy el Sacerdote de estas tierras. Si quieres que te resucite escribe /RESUCITAR, o haz doble click sobre mí.
-Read error: read tcp 127.0.0.1:7666->127.0.0.1:41666: use of closed network connection
+User pepe logged in at {X:74 Y:63 Map:1} (Privs: 3)
+DoubleClick from pepe at 77,67 (Raw: 78,68)
+DoubleClick from pepe at 72,70 (Raw: 73,71)
+DoubleClick from pepe at 36,55 (Raw: 37,56)
+DoubleClick from pepe at 33,55 (Raw: 34,56)
+DoubleClick from pepe at 35,55 (Raw: 36,56)
+DoubleClick from pepe at 37,55 (Raw: 38,56)
+DoubleClick from pepe at 39,55 (Raw: 40,56)
+DoubleClick from pepe at 41,55 (Raw: 42,56)
+DoubleClick from pepe at 43,55 (Raw: 44,56)
+DoubleClick from pepe at 49,54 (Raw: 50,55)
+DoubleClick from pepe at 69,67 (Raw: 70,68)
+DoubleClick from pepe at 57,45 (Raw: 58,46)
 User pepe disconnected, saving...
-Connecting existing character: buffy
-User buffy logged in at {X:56 Y:45 Map:1} (Privs: 0)
-User buffy disconnected, saving...
+
+Shutting down server...
