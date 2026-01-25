@@ -186,7 +186,11 @@ func (s *AIService) guardiasAI(npc *model.WorldNPC, delCaos bool) {
 			continue
 		}
 
-		tile := s.mapService.GetMap(targetPos.Map).GetTile(int(targetPos.X), int(targetPos.Y))
+		gameMap := s.mapService.GetMap(targetPos.Map)
+		if gameMap == nil {
+			continue
+		}
+		tile := gameMap.GetTile(int(targetPos.X), int(targetPos.Y))
 		if tile.Character != nil {
 			victim := tile.Character
 			if !victim.Dead {
@@ -227,7 +231,11 @@ func (s *AIService) hostilMalvadoAI(npc *model.WorldNPC) {
 			continue
 		}
 
-		tile := s.mapService.GetMap(targetPos.Map).GetTile(int(targetPos.X), int(targetPos.Y))
+		gameMap := s.mapService.GetMap(targetPos.Map)
+		if gameMap == nil {
+			continue
+		}
+		tile := gameMap.GetTile(int(targetPos.X), int(targetPos.Y))
 		if tile.Character != nil {
 			victim := tile.Character
 			if !victim.Dead {

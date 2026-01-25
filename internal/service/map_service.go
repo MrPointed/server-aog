@@ -157,6 +157,24 @@ func (s *MapService) LoadMap(id int) error {
 }
 
 func (s *MapService) UnloadMap(id int) {
+	m := s.GetMap(id)
+	if m == nil {
+		return
+	}
+
+	// Remove all NPCs associated with this map
+	m.RLock()
+	var npcsToRemove []*model.WorldNPC
+	for _, npc := range m.Npcs {
+		npcsToRemove = append(npcsToRemove, npc)
+	}
+	m.RUnlock()
+
+	for _, npc := range npcsToRemove {
+		npc.Respawn = false
+		s.npcService.RemoveNPC(npc, s)
+	}
+
 	delete(s.maps, id)
 }
 
