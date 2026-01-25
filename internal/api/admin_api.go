@@ -445,8 +445,26 @@ func (a *AdminAPI) handleConfigSet(w http.ResponseWriter, r *http.Request) {
 }
 
 func (a *AdminAPI) handleWorldList(w http.ResponseWriter, r *http.Request) {
-	maps := a.mapService.GetLoadedMaps()
-	json.NewEncoder(w).Encode(maps)
+	loadedIDs := a.mapService.GetLoadedMaps()
+	type MapInfo struct {
+		ID    int `json:"id"`
+		Users int `json:"users"`
+		NPCs  int `json:"npcs"`
+	}
+	var list []MapInfo
+	
+	for _, id := range loadedIDs {
+		users := 0
+		a.mapService.ForEachCharacter(id, func(c *model.Character) { users++ })
+		npcs := 0
+		a.mapService.ForEachNpc(id, func(n *model.WorldNPC) { npcs++ })
+		
+		list = append(list, MapInfo{ID: id, Users: users, NPCs: npcs})
+	}
+	
+	sort.Slice(list, func(i, j int) bool { return list[i].ID < list[j].ID })
+	
+	json.NewEncoder(w).Encode(list)
 }
 
 func (a *AdminAPI) handleWorldLoad(w http.ResponseWriter, r *http.Request) {

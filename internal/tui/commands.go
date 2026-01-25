@@ -257,3 +257,56 @@ func inspectUserCmd(name string) tea.Cmd {
 		return ActionMsg{Output: string(formatted)}
 	}
 }
+
+type MapListMsg struct {
+	Maps []struct {
+		ID    int `json:"id"`
+		Users int `json:"users"`
+		NPCs  int `json:"npcs"`
+	}
+	Err error
+}
+
+func fetchMapsCmd() tea.Cmd {
+	return func() tea.Msg {
+		resp, err := http.Get("http://localhost:7667/world/list")
+		if err != nil {
+			return MapListMsg{Err: err}
+		}
+		defer resp.Body.Close()
+
+		var maps []struct {
+			ID    int `json:"id"`
+			Users int `json:"users"`
+			NPCs  int `json:"npcs"`
+		}
+		if err := json.NewDecoder(resp.Body).Decode(&maps); err != nil {
+			return MapListMsg{Err: err}
+		}
+		return MapListMsg{Maps: maps}
+	}
+}
+
+func reloadMapCmd(id int) tea.Cmd {
+	return func() tea.Msg {
+		resp, err := http.Get(fmt.Sprintf("http://localhost:7667/world/reload?id=%d", id))
+		if err != nil {
+			return ActionMsg{Err: err}
+		}
+		defer resp.Body.Close()
+		body, _ := io.ReadAll(resp.Body)
+		return ActionMsg{Output: string(body)}
+	}
+}
+
+func unloadMapCmd(id int) tea.Cmd {
+	return func() tea.Msg {
+		resp, err := http.Get(fmt.Sprintf("http://localhost:7667/world/unload?id=%d", id))
+		if err != nil {
+			return ActionMsg{Err: err}
+		}
+		defer resp.Body.Close()
+		body, _ := io.ReadAll(resp.Body)
+		return ActionMsg{Output: string(body)}
+	}
+}

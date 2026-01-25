@@ -99,6 +99,10 @@ func (m Model) viewUsers() string {
 	if maxItems < 5 {
 		maxItems = 5
 	}
+	// Cap at 20 items to avoid overwhelming list
+	if maxItems > 20 {
+		maxItems = 20
+	}
 
 	start := 0
 	end := len(m.filteredUsers)

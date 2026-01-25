@@ -53,6 +53,17 @@ type Model struct {
 		User string
 	}
 	userFilter textinput.Model
+
+	// Maps State
+	loadedMaps []struct {
+		ID    int `json:"id"`
+		Users int `json:"users"`
+		NPCs  int `json:"npcs"`
+	}
+	mapListCursor      int
+	mapActionMenuOpen  bool
+	mapActionCursor    int
+	selectedMapID      int
 }
 
 func InitialModel() Model {
@@ -64,7 +75,7 @@ func InitialModel() Model {
 	return Model{
 		tabs: []string{
 			"Control", "Monitor", "Logs", "Users", "Maps", 
-			"Config", "Econ", "Debug", "Events", "Mod", "Sim",
+			"Config", "Econ", "Events", "Mod", "Sim",
 		},
 		activeTab: 0,
 		
@@ -126,6 +137,9 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		if m.activeTab == 3 { // Users Tab
 			cmds = append(cmds, fetchUserListCmd())
 		}
+		if m.activeTab == 4 { // Maps Tab
+			cmds = append(cmds, fetchMapsCmd())
+		}
 	
 	case ServerStatusMsg:
 		m.serverStatus = msg.Status
@@ -158,6 +172,11 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 			m.connectedUsers = msg.Users
 			m.filterUsers()
 		}
+		
+	case MapListMsg:
+		if msg.Err == nil {
+			m.loadedMaps = msg.Maps
+		}
 	}
 
 	// Dispatch to active tab logic if needed (e.g. navigation)
@@ -171,6 +190,8 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		m, cmd = m.updateLogs(msg)
 	case 3:
 		m, cmd = m.updateUsers(msg)
+	case 4:
+		m, cmd = m.updateMaps(msg)
 	default:
 		// Other tabs not implemented yet
 	}
@@ -253,6 +274,8 @@ func (m Model) View() string {
 		content = m.viewLogs()
 	case 3:
 		content = m.viewUsers()
+	case 4:
+		content = m.viewMaps()
 	default:
 		content = fmt.Sprintf("View for %s not implemented yet.", m.tabs[m.activeTab])
 	}

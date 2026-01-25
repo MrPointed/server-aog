@@ -46,6 +46,10 @@ func (m Model) viewLogs() string {
 	if maxLines < 5 {
 		maxLines = 5
 	}
+	// Cap at 20 lines
+	if maxLines > 20 {
+		maxLines = 20
+	}
 
 	totalLines := len(m.logLines)
 	if totalLines == 0 {
