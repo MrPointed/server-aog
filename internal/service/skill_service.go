@@ -179,242 +179,47 @@ func (s *SkillService) HandleUseSkillClick(user *model.Character, skill model.Sk
 }
 
 func (s *SkillService) handleMagic(user *model.Character, x, y byte) {
-
 	slog.Debug("handleMagic", "user", user.Name, "spell", user.SelectedSpell, "x", x, "y", y)
-
 	if user.SelectedSpell == 0 {
-
 		return
-
 	}
 
+	m := s.mapService.GetMap(user.Position.Map)
+	if m == nil {
+		slog.Debug("handleMagic: Map not found")
+		return
+	}
 
-
-
-
-		m := s.mapService.GetMap(user.Position.Map)
-
-
-
-
-
+	// 2-tile hitbox logic: check Y+1 first (head overlap), then Y.
+	var target any
 	
-
-
-
-
-
-		if m == nil {
-
-
-
-
-
-	
-
-
-
-
-
-			slog.Debug("handleMagic: Map not found")
-
-
-
-
-
-	
-
-
-
-
-
-			return
-
-
-
-
-
-	
-
-
-
-
-
-		}
-
-
-
-
-
-	
-
-
-
-
-
-	
-
-
-
-
-
-	
-
-
-
-
-
-		tile := m.GetTile(int(x), int(y))
-
-
-
-
-
-	
-
-
-
-
-
-	
-
-
-
-
-
-	
-
-
-
-
-
+	// Check Y+1
+	if int(y)+1 < model.MapHeight {
+		tile := m.GetTile(int(x), int(y)+1)
 		if tile.Character != nil {
-
-
-
-
-
-	
-
-
-
-
-
-			slog.Debug("handleMagic: Found Character target", "name", tile.Character.Name)
-
-
-
-
-
-	
-
-
-
-
-
-			s.spellService.CastSpell(user, user.SelectedSpell, tile.Character)
-
-
-
-
-
-	
-
-
-
-
-
+			target = tile.Character
 		} else if tile.NPC != nil {
-
-
-
-
-
-	
-
-
-
-
-
-			slog.Debug("handleMagic: Found NPC target", "name", tile.NPC.NPC.Name)
-
-
-
-
-
-	
-
-
-
-
-
-			s.spellService.CastSpell(user, user.SelectedSpell, tile.NPC)
-
-
-
-
-
-	
-
-
-
-
-
-		} else {
-
-
-
-
-
-	
-
-
-
-
-
-			slog.Debug("handleMagic: No entity found, using position as target")
-
-
-
-
-
-	
-
-
-
-
-
-			targetPos := model.Position{X: x, Y: y, Map: user.Position.Map}
-
-
-
-
-
-	
-
-
-
-
-
-			s.spellService.CastSpell(user, user.SelectedSpell, targetPos)
-
-
-
-
-
-	
-
-
-
-
-
+			target = tile.NPC
 		}
-
-
-
-
-
 	}
+
+	// If not found, check clicked tile Y
+	if target == nil {
+		tile := m.GetTile(int(x), int(y))
+		if tile.Character != nil {
+			target = tile.Character
+		} else if tile.NPC != nil {
+			target = tile.NPC
+		}
+	}
+
+	if target != nil {
+		s.spellService.CastSpell(user, user.SelectedSpell, target)
+	} else {
+		slog.Debug("handleMagic: No valid entity target found (NPC or Character)")
+		s.messageService.SendConsoleMessage(user, "Objetivo inválido.", outgoing.INFO)
+	}
+}
 
 func (s *SkillService) handleFishing(user *model.Character, x, y byte) {
 	// 1. Check Tool
