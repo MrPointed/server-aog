@@ -47,6 +47,7 @@ type Object struct {
 	// Requirements
 	MinLevel int
 	Newbie   bool
+	NoDrop   bool
 	OnlyMen  bool
 	OnlyWomen bool
 	DwarfOnly bool

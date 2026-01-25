@@ -27,6 +27,10 @@ func (s *MessageService) HandleDeath(char *model.Character, message string) {
 		return
 	}
 
+	isSafe := s.MapService.IsSafeZone(char.Position)
+	isPkMap := s.MapService.IsPkMap(char.Position.Map)
+	shouldDropItems := !isSafe && isPkMap
+
 	char.Dead = true
 	char.Hp = 0
 	char.Poisoned = false
@@ -35,15 +39,50 @@ func (s *MessageService) HandleDeath(char *model.Character, message string) {
 	char.Body = 8   // Ghost
 	char.Head = 500 // Ghost head
 
-	// Unequip all items on death
+	conn := s.userService.GetConnection(char)
+
+	// Process inventory
 	for i := 0; i < model.InventorySlots; i++ {
 		slot := char.Inventory.GetSlot(i)
-		if slot.Equipped {
+		if slot.ObjectID == 0 {
+			continue
+		}
+
+		obj := s.ObjectService.GetObject(slot.ObjectID)
+		if obj == nil {
+			continue
+		}
+
+		// Drop logic
+		if shouldDropItems && !obj.Newbie && !obj.NoDrop {
+			// Try to drop on current position if empty, or nearby
+			if s.MapService.GetObjectAt(char.Position) == nil {
+				worldObj := &model.WorldObject{
+					Object: obj,
+					Amount: slot.Amount,
+				}
+				s.MapService.PutObject(char.Position, worldObj)
+				
+				// Notify nearby players about the new object on ground
+				s.SendToArea(&outgoing.ObjectCreatePacket{
+					X:            char.Position.X,
+					Y:            char.Position.Y,
+					GraphicIndex: int16(obj.GraphicIndex),
+				}, char.Position)
+			}
+			
+			// Remove from inventory
+			slot.ObjectID = 0
+			slot.Amount = 0
 			slot.Equipped = false
+		} else {
+			// Keep item but unequip it
+			if slot.Equipped {
+				slot.Equipped = false
+			}
 		}
 	}
 
-	conn := s.userService.GetConnection(char)
 	if conn != nil {
 		conn.Send(outgoing.NewUpdateUserStatsPacket(char))
 		if message != "" {
@@ -57,22 +96,24 @@ func (s *MessageService) HandleDeath(char *model.Character, message string) {
 				Font:    outgoing.INFO,
 			})
 		}
-		// Sync inventory
+		// Sync full inventory to reflect dropped items
 		for i := 0; i < model.InventorySlots; i++ {
 			slot := char.Inventory.GetSlot(i)
+			var obj *model.Object
 			if slot.ObjectID > 0 {
-				obj := s.ObjectService.GetObject(slot.ObjectID)
-				conn.Send(&outgoing.ChangeInventorySlotPacket{
-					Slot:     byte(i + 1),
-					Object:   obj,
-					Amount:   slot.Amount,
-					Equipped: slot.Equipped,
-				})
+				obj = s.ObjectService.GetObject(slot.ObjectID)
 			}
+			
+			conn.Send(&outgoing.ChangeInventorySlotPacket{
+				Slot:     byte(i + 1),
+				Object:   obj,
+				Amount:   slot.Amount,
+				Equipped: slot.Equipped,
+			})
 		}
 	}
 
-	// Broadcast change
+	// Broadcast character appearance change (ghost)
 	s.SendToArea(&outgoing.CharacterChangePacket{Character: char}, char.Position)
 }
 

@@ -68,6 +68,13 @@ func (d *ObjectDAO) Load() (map[int]*model.Object, error) {
 			obj.MinLevel = toInt(props["MINLEVEL"])
 		}
 		obj.Newbie = props["NEWBIE"] == "1"
+		obj.NoDrop = props["NODROP"] == "1"
+
+		// Boats never drop
+		if obj.Type == model.OTBoat {
+			obj.NoDrop = true
+		}
+
 		obj.OnlyMen = props["HOMBRE"] == "1"
 		obj.OnlyWomen = props["MUJER"] == "1"
 		obj.DwarfOnly = props["DWARF"] == "1"
