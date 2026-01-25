@@ -2,6 +2,7 @@ package incoming
 
 import (
 	"fmt"
+	"time"
 
 	"github.com/ao-go-server/internal/model"
 	"github.com/ao-go-server/internal/network"
@@ -36,14 +37,9 @@ func (p *UseSkillPacket) Handle(buffer *network.DataBuffer, connection protocol.
 				connection.Send(&outgoing.MeditateTogglePacket{})
 				p.AreaService.BroadcastToArea(user.Position, &outgoing.MeditateTogglePacket{})
 				if user.Meditating {
+					user.MeditatingSince = time.Now()
+					user.LastMeditationRegen = time.Time{}
 					connection.Send(&outgoing.ConsoleMessagePacket{Message: "Te concentras...", Font: outgoing.INFO})
-					fxPacket := &outgoing.CreateFxPacket{
-						CharIndex: user.CharIndex,
-						FxID:      4,
-						Loops:     -1,
-					}
-					connection.Send(fxPacket)
-					p.AreaService.BroadcastNearby(user, fxPacket)
 				} else {
 					connection.Send(&outgoing.ConsoleMessagePacket{Message: "Dejas de meditar.", Font: outgoing.INFO})
 					fxPacket := &outgoing.CreateFxPacket{

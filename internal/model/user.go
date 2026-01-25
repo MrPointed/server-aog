@@ -110,6 +110,11 @@ type Character struct {
 	LastWork   time.Time
 	LastHungerUpdate time.Time
 	LastThirstUpdate time.Time
+	LastHPRegen      time.Time
+	LastManaRegen    time.Time
+	LastStaminaRegen time.Time
+	LastMeditationRegen time.Time
+	MeditatingSince     time.Time
 
 	// Effect Timers
 	StrengthEffectEnd time.Time

@@ -34,4 +34,6 @@ type GlobalBalanceConfig struct {
 	IntervalMagicHit int64
 	IntervalHunger   int64
 	IntervalThirst   int64
+	IntervalStartMeditating int64
+	IntervalMeditation      int64
 }

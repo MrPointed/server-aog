@@ -148,6 +148,8 @@ func (a *AdminAPI) handleConfigList(w http.ResponseWriter, r *http.Request) {
 		{"key": "interval_item", "description": "Interval to use items (ms)", "type": "int64", "value": a.globalBalance.IntervalItem},
 		{"key": "interval_work", "description": "Interval to work (ms)", "type": "int64", "value": a.globalBalance.IntervalWork},
 		{"key": "interval_magic_hit", "description": "Interval magic-hit (ms)", "type": "int64", "value": a.globalBalance.IntervalMagicHit},
+		{"key": "interval_start_meditating", "description": "Delay to start meditating (ms)", "type": "int64", "value": a.globalBalance.IntervalStartMeditating},
+		{"key": "interval_meditation", "description": "Interval between meditation regens (ms)", "type": "int64", "value": a.globalBalance.IntervalMeditation},
 		{"key": "md5_enabled", "description": "Enable MD5 client validation", "type": "bool", "value": a.config.MD5Enabled},
 		{"key": "check_critical_files", "description": "Check critical files integrity", "type": "bool", "value": a.config.CheckCriticalFiles},
 	}
@@ -181,6 +183,10 @@ func (a *AdminAPI) handleConfigGet(w http.ResponseWriter, r *http.Request) {
 		val = a.globalBalance.IntervalWork
 	case "interval_magic_hit":
 		val = a.globalBalance.IntervalMagicHit
+	case "interval_start_meditating":
+		val = a.globalBalance.IntervalStartMeditating
+	case "interval_meditation":
+		val = a.globalBalance.IntervalMeditation
 	case "md5_enabled":
 		val = a.config.MD5Enabled
 	case "check_critical_files":
@@ -499,6 +505,14 @@ func (a *AdminAPI) handleConfigSet(w http.ResponseWriter, r *http.Request) {
 	case "interval_magic_hit":
 		if i, err := strconv.ParseInt(val, 10, 64); err == nil {
 			a.globalBalance.IntervalMagicHit = i
+		}
+	case "interval_start_meditating":
+		if i, err := strconv.ParseInt(val, 10, 64); err == nil {
+			a.globalBalance.IntervalStartMeditating = i
+		}
+	case "interval_meditation":
+		if i, err := strconv.ParseInt(val, 10, 64); err == nil {
+			a.globalBalance.IntervalMeditation = i
 		}
 	case "md5_enabled":
 		a.config.MD5Enabled = val == "true"

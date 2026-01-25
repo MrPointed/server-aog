@@ -31,6 +31,8 @@ type yamlBalance struct {
 			MagicHit   int64 `yaml:"magic_hit"`
 			Hunger     int64 `yaml:"hunger"`
 			Thirst     int64 `yaml:"thirst"`
+			StartMeditating int64 `yaml:"start_meditating"`
+			Meditation      int64 `yaml:"meditation"`
 		} `yaml:"intervals"`
 		Party struct {
 			LevelExponent float64 `yaml:"level_exponent"`
@@ -67,6 +69,8 @@ func (d *BalanceDAO) Load() (map[model.UserArchetype]*model.ArchetypeModifiers, 
 		IntervalMagicHit: yb.Balance.Intervals.MagicHit,
 		IntervalHunger:   yb.Balance.Intervals.Hunger,
 		IntervalThirst:   yb.Balance.Intervals.Thirst,
+		IntervalStartMeditating: yb.Balance.Intervals.StartMeditating,
+		IntervalMeditation:      yb.Balance.Intervals.Meditation,
 	}
 
 	// ... (Races and Classes mapping)

@@ -197,8 +197,8 @@ balance:
     stamina_no_rest: 10
     hp_rest: 100
     stamina_rest: 5
-    thirst: 6000
-    hunger: 6500
+    thirst: 12000
+    hunger: 12500
     poison: 500
     paralyzed: 500
     invisible: 500
@@ -207,9 +207,11 @@ balance:
     move: 200
     npc_ai: 380
     npc_attack: 1600
-    work: 
+    work: 700
     invocation: 1001
     rain_stamina_loss: 9999
+    start_meditating: 2000
+    meditation: 250
 
   distribution:
     e: [20, 20, 20, 20, 20]
