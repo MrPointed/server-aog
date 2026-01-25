@@ -209,7 +209,7 @@ func (b *EquipGenericBehavior) ToggleEquip(char *model.Character, slot int, obj 
 		itemSlot.Equipped = true
 		switch obj.Type {
 		case model.OTWeapon:
-			char.Weapon = int16(obj.ID)
+			char.Weapon = int16(obj.EquippedWeaponGraphic)
 		case model.OTArmor:
 			if obj.EquippedArmorGraphic > 0 {
 				char.Body = obj.EquippedArmorGraphic

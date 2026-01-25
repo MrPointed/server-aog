@@ -53,5 +53,5 @@ project:
         male: "1-40"
         female: "70-89"
       bodies:
-        male: 1
-        female: 1
+        male: 21
+        female: 39
