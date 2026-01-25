@@ -28,6 +28,11 @@ type Model struct {
 
 	// Monitor State
 	monitorStats MonitorStatsMsg
+
+	// Log State
+	logLines      []string
+	logOffset     int64
+	logAutoScroll bool
 }
 
 func InitialModel() Model {
@@ -49,6 +54,8 @@ func InitialModel() Model {
 		controlCursor:  0,
 		serverStatus:   "CHECKING...",
 		startTime:      time.Now(),
+		
+		logAutoScroll: true,
 	}
 }
 
@@ -87,6 +94,9 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		if m.activeTab == 1 { // Monitor Tab
 			cmds = append(cmds, fetchMonitorStatsCmd())
 		}
+		if m.activeTab == 2 { // Logs Tab
+			cmds = append(cmds, readLogsCmd(m.logOffset))
+		}
 	
 	case ServerStatusMsg:
 		m.serverStatus = msg.Status
@@ -103,6 +113,16 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	
 	case MonitorStatsMsg:
 		m.monitorStats = msg
+
+	case LogMsg:
+		if len(msg.Lines) > 0 {
+			m.logLines = append(m.logLines, msg.Lines...)
+			// Keep buffer size managed
+			if len(m.logLines) > 1000 {
+				m.logLines = m.logLines[len(m.logLines)-1000:]
+			}
+			m.logOffset = msg.NewOffset
+		}
 	}
 
 	// Dispatch to active tab logic if needed (e.g. navigation)
@@ -112,6 +132,8 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		m, cmd = m.updateControl(msg)
 	case 1:
 		m, cmd = m.updateMonitor(msg)
+	case 2:
+		m, cmd = m.updateLogs(msg)
 	default:
 		// Other tabs not implemented yet
 	}
@@ -167,6 +189,8 @@ func (m Model) View() string {
 		content = m.viewControl()
 	case 1:
 		content = m.viewMonitor()
+	case 2:
+		content = m.viewLogs()
 	default:
 		content = fmt.Sprintf("View for %s not implemented yet.", m.tabs[m.activeTab])
 	}

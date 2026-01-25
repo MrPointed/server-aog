@@ -1,6 +1,7 @@
 package tui
 
 import (
+	"bufio"
 	"encoding/json"
 	"fmt"
 	"net/http"
@@ -132,5 +133,52 @@ func fetchMonitorStatsCmd() tea.Cmd {
 			return MonitorStatsMsg{Err: err}
 		}
 		return stats
+	}
+}
+
+type LogMsg struct {
+	Lines     []string
+	NewOffset int64
+}
+
+func readLogsCmd(offset int64) tea.Cmd {
+	return func() tea.Msg {
+		file, err := os.Open("server.log")
+		if err != nil {
+			return LogMsg{NewOffset: offset} // Retry later
+		}
+		defer file.Close()
+
+		stat, err := file.Stat()
+		if err != nil {
+			return LogMsg{NewOffset: offset}
+		}
+
+		if stat.Size() < offset {
+			offset = 0 // File truncated
+		}
+
+		if stat.Size() == offset {
+			return LogMsg{NewOffset: offset} // No new data
+		}
+
+		_, err = file.Seek(offset, 0)
+		if err != nil {
+			return LogMsg{NewOffset: offset}
+		}
+
+		var lines []string
+		scanner := bufio.NewScanner(file)
+		for scanner.Scan() {
+			lines = append(lines, scanner.Text())
+		}
+
+		// Update offset
+		newOffset, _ := file.Seek(0, 1) // Get current position
+
+		return LogMsg{
+			Lines:     lines,
+			NewOffset: newOffset,
+		}
 	}
 }
