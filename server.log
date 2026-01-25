@@ -7,6 +7,10 @@ Loading cities from data file...
 Successfully loaded 7 cities.
 Successfully loaded 50 spells.
 Successfully loaded maps.
-All resources loaded in 222.009405ms
+All resources loaded in 243.31719ms
 Admin API listening on :7667
 AO Go Server listening on :7666 (Press Ctrl+C to stop)
+Connecting existing character: abel
+User abel logged in at {X:55 Y:48 Map:1} (Privs: 0)
+
+Shutting down server...

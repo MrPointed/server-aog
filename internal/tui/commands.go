@@ -4,7 +4,9 @@ import (
 	"bufio"
 	"encoding/json"
 	"fmt"
+	"io"
 	"net/http"
+	"net/url"
 	"os"
 	"os/exec"
 	"strconv"
@@ -180,5 +182,78 @@ func readLogsCmd(offset int64) tea.Cmd {
 			Lines:     lines,
 			NewOffset: newOffset,
 		}
+	}
+}
+
+type UserListMsg struct {
+	Users []struct {
+		Addr string `json:"addr"`
+		User string `json:"user"`
+	}
+	Err error
+}
+
+func fetchUserListCmd() tea.Cmd {
+	return func() tea.Msg {
+		resp, err := http.Get("http://localhost:7667/conn/list")
+		if err != nil {
+			return UserListMsg{Err: err}
+		}
+		defer resp.Body.Close()
+
+		var users []struct {
+			Addr string `json:"addr"`
+			User string `json:"user"`
+		}
+		if err := json.NewDecoder(resp.Body).Decode(&users); err != nil {
+			return UserListMsg{Err: err}
+		}
+		return UserListMsg{Users: users}
+	}
+}
+
+func kickUserCmd(name string) tea.Cmd {
+	return func() tea.Msg {
+		resp, err := http.Get(fmt.Sprintf("http://localhost:7667/conn/kick?name=%s", url.QueryEscape(name)))
+		if err != nil {
+			return ActionMsg{Err: err}
+		}
+		defer resp.Body.Close()
+		body, _ := io.ReadAll(resp.Body)
+		return ActionMsg{Output: string(body)}
+	}
+}
+
+func banUserCmd(name string) tea.Cmd {
+	return func() tea.Msg {
+		resp, err := http.Get(fmt.Sprintf("http://localhost:7667/conn/ban?nick=%s", url.QueryEscape(name)))
+		if err != nil {
+			return ActionMsg{Err: err}
+		}
+		defer resp.Body.Close()
+		body, _ := io.ReadAll(resp.Body)
+		return ActionMsg{Output: string(body)}
+	}
+}
+
+func inspectUserCmd(name string) tea.Cmd {
+	return func() tea.Msg {
+		resp, err := http.Get(fmt.Sprintf("http://localhost:7667/player/info?nick=%s", url.QueryEscape(name)))
+		if err != nil {
+			return ActionMsg{Err: err}
+		}
+		defer resp.Body.Close()
+		
+		if resp.StatusCode != http.StatusOK {
+			return ActionMsg{Err: fmt.Errorf("player not found or offline")}
+		}
+
+		// Just dumping JSON for now as inspection result
+		body, _ := io.ReadAll(resp.Body)
+		var prettyJSON map[string]interface{}
+		json.Unmarshal(body, &prettyJSON)
+		formatted, _ := json.MarshalIndent(prettyJSON, "", "  ")
+		
+		return ActionMsg{Output: string(formatted)}
 	}
 }

@@ -5,6 +5,7 @@ import (
 	"strings"
 	"time"
 
+	"github.com/charmbracelet/bubbles/textinput"
 	"github.com/charmbracelet/bubbletea"
 	"github.com/charmbracelet/lipgloss"
 )
@@ -33,9 +34,33 @@ type Model struct {
 	logLines      []string
 	logOffset     int64
 	logAutoScroll bool
+	logViewOffset int // Lines from bottom
+
+	// Users State
+	connectedUsers []struct {
+		Addr string `json:"addr"`
+		User string `json:"user"`
+	}
+	filteredUsers []struct {
+		Addr string `json:"addr"`
+		User string `json:"user"`
+	}
+	userListCursor     int
+	userActionMenuOpen bool
+	userActionCursor   int
+	selectedUser       struct {
+		Addr string
+		User string
+	}
+	userFilter textinput.Model
 }
 
 func InitialModel() Model {
+	ti := textinput.New()
+	ti.Placeholder = "Filter users... (Press / to focus)"
+	ti.CharLimit = 156
+	ti.Width = 30
+
 	return Model{
 		tabs: []string{
 			"Control", "Monitor", "Logs", "Users", "Maps", 
@@ -56,6 +81,7 @@ func InitialModel() Model {
 		startTime:      time.Now(),
 		
 		logAutoScroll: true,
+		userFilter:    ti,
 	}
 }
 
@@ -97,6 +123,9 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		if m.activeTab == 2 { // Logs Tab
 			cmds = append(cmds, readLogsCmd(m.logOffset))
 		}
+		if m.activeTab == 3 { // Users Tab
+			cmds = append(cmds, fetchUserListCmd())
+		}
 	
 	case ServerStatusMsg:
 		m.serverStatus = msg.Status
@@ -123,6 +152,12 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 			}
 			m.logOffset = msg.NewOffset
 		}
+
+	case UserListMsg:
+		if msg.Err == nil {
+			m.connectedUsers = msg.Users
+			m.filterUsers()
+		}
 	}
 
 	// Dispatch to active tab logic if needed (e.g. navigation)
@@ -134,6 +169,8 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		m, cmd = m.updateMonitor(msg)
 	case 2:
 		m, cmd = m.updateLogs(msg)
+	case 3:
+		m, cmd = m.updateUsers(msg)
 	default:
 		// Other tabs not implemented yet
 	}
@@ -142,6 +179,29 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	}
 
 	return m, tea.Batch(cmds...)
+}
+
+func (m *Model) filterUsers() {
+	filter := strings.ToLower(m.userFilter.Value())
+	if filter == "" {
+		m.filteredUsers = m.connectedUsers
+		return
+	}
+	var filtered []struct {
+		Addr string `json:"addr"`
+		User string `json:"user"`
+	}
+	for _, u := range m.connectedUsers {
+		if strings.Contains(strings.ToLower(u.User), filter) || strings.Contains(u.Addr, filter) {
+			filtered = append(filtered, u)
+		}
+	}
+	m.filteredUsers = filtered
+	
+	// Reset cursor if out of bounds
+	if m.userListCursor >= len(m.filteredUsers) {
+		m.userListCursor = 0
+	}
 }
 
 func (m Model) View() string {
@@ -191,6 +251,8 @@ func (m Model) View() string {
 		content = m.viewMonitor()
 	case 2:
 		content = m.viewLogs()
+	case 3:
+		content = m.viewUsers()
 	default:
 		content = fmt.Sprintf("View for %s not implemented yet.", m.tabs[m.activeTab])
 	}
