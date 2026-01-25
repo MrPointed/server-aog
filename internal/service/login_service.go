@@ -2,6 +2,7 @@ package service
 
 import (
 	"fmt"
+	"log/slog"
 	"strings"
 
 	"github.com/ao-go-server/internal/actions"
@@ -53,7 +54,7 @@ func NewLoginService(accDAO persistence.AccountDAO, charDAO persistence.UserChar
 // ConnectNewCharacter handles the creation and login of a new character.
 func (s *LoginService) ConnectNewCharacter(conn protocol.Connection, nick, password, mail string,
 	raceId, genderId, archetypeId, headId, cityId byte, clientHash, version string) error {
-	fmt.Printf("Connecting new character: %s\n", nick)
+	slog.Info("Connecting new character", "nick", nick)
 
 	if err := s.validateLoginRequest(nick, version, clientHash); err != nil {
 		return err
@@ -111,7 +112,7 @@ func (s *LoginService) ConnectNewCharacter(conn protocol.Connection, nick, passw
 // ConnectExistingCharacter handles the login of an existing character.
 // It follows the protocol described in login_existing_char.txt strictly for logic.
 func (s *LoginService) ConnectExistingCharacter(conn protocol.Connection, nick, password, version, clientHash string) error {
-	fmt.Printf("Connecting existing character: %s\n", nick)
+	slog.Info("Connecting existing character", "nick", nick)
 
 	// 1. Basic Validation (Version & Name)
 	if err := s.validateLoginRequest(nick, version, clientHash); err != nil {
@@ -257,7 +258,7 @@ func (s *LoginService) finalizeLogin(conn protocol.Connection, acc *model.Accoun
 	s.messageService.SendToAreaButUser(&outgoing.CharacterCreatePacket{Character: char}, char.Position, char)
 	s.messageService.AreaService.SendAreaState(char)
 
-	fmt.Printf("User %s logged in at %+v (Privs: %d)\n", char.Name, char.Position, char.Privileges)
+	slog.Info("User logged in", "name", char.Name, "pos", char.Position, "privs", char.Privileges)
 }
 
 func (s *LoginService) determinePrivileges(char *model.Character) {
@@ -380,7 +381,7 @@ func (s *LoginService) sendSpells(conn protocol.Connection, char *model.Characte
 func (s *LoginService) OnUserDisconnect(conn protocol.Connection) {
 	char := conn.GetUser()
 	if char != nil {
-		fmt.Printf("User %s disconnected, saving...\n", char.Name)
+		slog.Info("User disconnected, saving...", "name", char.Name)
 		s.charDAO.SaveCharacter(char)
 
 		// Broadcast removal

@@ -2,6 +2,7 @@ package service
 
 import (
 	"fmt"
+	"log/slog"
 	"math/rand"
 
 	"github.com/ao-go-server/internal/model"
@@ -39,7 +40,7 @@ func (s *SpellService) LoadSpells() error {
 		return err
 	}
 	s.spells = defs
-	fmt.Printf("Successfully loaded %d spells.\n", len(s.spells))
+	slog.Info("Successfully loaded spells", "count", len(s.spells))
 	return nil
 }
 
@@ -48,10 +49,10 @@ func (s *SpellService) GetSpell(id int) *model.Spell {
 }
 
 func (s *SpellService) CastSpell(caster *model.Character, spellID int, target any) {
-	fmt.Printf("CastSpell: Caster %s, SpellID %d\n", caster.Name, spellID)
+	slog.Debug("CastSpell", "caster", caster.Name, "spell_id", spellID)
 	spell := s.GetSpell(spellID)
 	if spell == nil {
-		fmt.Printf("CastSpell: Spell %d not found\n", spellID)
+		slog.Debug("CastSpell: Spell not found", "spell_id", spellID)
 		return
 	}
 
@@ -64,7 +65,7 @@ func (s *SpellService) CastSpell(caster *model.Character, spellID int, target an
 
 	// Validations
 	if caster.Mana < spell.ManaRequired {
-		fmt.Println("CastSpell: Not enough mana")
+		slog.Debug("CastSpell: Not enough mana")
 		if conn != nil {
 			conn.Send(&outgoing.ConsoleMessagePacket{
 				Message: "No tienes suficiente maná.",
@@ -75,7 +76,7 @@ func (s *SpellService) CastSpell(caster *model.Character, spellID int, target an
 	}
 
 	if caster.Stamina < spell.StaminaRequired {
-		fmt.Println("CastSpell: Not enough stamina")
+		slog.Debug("CastSpell: Not enough stamina")
 		if conn != nil {
 			conn.Send(&outgoing.ConsoleMessagePacket{
 				Message: "Estás demasiado cansado.",

@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 	"io"
+	"log/slog"
 	"net"
 	"os"
 	"os/signal"
@@ -62,7 +63,7 @@ func NewServer(addr string, resourcesPath string) *Server {
 	balanceDAO := persistence.NewBalanceDAO(filepath.Join(cfgPath, "balances.yaml"))
 	archetypeMods, _, globalBalance, err := balanceDAO.Load()
 	if err != nil {
-		fmt.Printf("Critical error loading balances: %v\n", err)
+		slog.Error("Critical error loading balances", "error", err)
 	}
 	combatFormulas := service.NewCombatFormulas(archetypeMods)
 	intervalService := service.NewIntervalService(cfg)
@@ -72,7 +73,7 @@ func NewServer(addr string, resourcesPath string) *Server {
 
 	mapDAO := persistence.NewMapDAO(filepath.Join(res, projectCfg.Project.Paths.Maps), projectCfg.Project.MapsCount)
 	if err := mapDAO.LoadProperties(filepath.Join(cfgPath, "maps.yaml")); err != nil {
-		fmt.Printf("Warning: could not load maps.yaml: %v\n", err)
+		slog.Warn("could not load maps.yaml", "error", err)
 	}
 	mapService := service.NewMapService(mapDAO, objectService, npcService)
 
@@ -174,14 +175,14 @@ func (s *Server) Start() error {
 	go adminAPI.Start(":7667")
 
 	if err := os.WriteFile("server.pid", []byte(fmt.Sprintf("%d", os.Getpid())), 0644); err != nil {
-		fmt.Printf("Warning: could not write server.pid: %v\n", err)
+		slog.Warn("could not write server.pid", "error", err)
 	}
 	defer os.Remove("server.pid")
 
 	stop := make(chan os.Signal, 1)
 	signal.Notify(stop, os.Interrupt, syscall.SIGTERM)
 
-	fmt.Printf("AO Go Server listening on %s (Press Ctrl+C to stop)\n", s.addr)
+	slog.Info("AO Go Server listening", "addr", s.addr)
 
 	go func() {
 		for {
@@ -194,7 +195,7 @@ func (s *Server) Start() error {
 	}()
 
 	<-stop
-	fmt.Println("\nShutting down server...")
+	slog.Info("Shutting down server...")
 	return nil
 }
 
@@ -229,7 +230,7 @@ func (s *Server) handleConnection(conn net.Conn) {
 		n, err := conn.Read(tmp)
 		if err != nil {
 			if err != io.EOF {
-				fmt.Printf("Read error: %v\n", err)
+				slog.Error("Read error", "error", err)
 			}
 			return
 		}
@@ -244,7 +245,7 @@ func (s *Server) handleConnection(conn net.Conn) {
 			processed, err := s.packetsManager.Handle(db, c)
 
 			if err != nil {
-				fmt.Printf("Protocol error (Packet ID %d): %v\n", idByte, err)
+				slog.Error("Protocol error", "packet_id", idByte, "error", err)
 				return
 			}
 

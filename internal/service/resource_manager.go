@@ -1,16 +1,16 @@
 package service
 
 import (
-	"fmt"
+	"log/slog"
 	"time"
 )
 
 type ResourceManager struct {
 	objectService *ObjectService
 	npcService    *NpcService
-	mapService     *MapService
-	spellService   *SpellService
-	cityService    *CityService
+	mapService    *MapService
+	spellService  *SpellService
+	cityService   *CityService
 }
 
 func NewResourceManager(objectService *ObjectService, npcService *NpcService, mapService *MapService, spellService *SpellService, cityService *CityService) *ResourceManager {
@@ -23,28 +23,26 @@ func NewResourceManager(objectService *ObjectService, npcService *NpcService, ma
 	}
 }
 
-func (rm *ResourceManager) LoadAll() {
+func (s *ResourceManager) LoadAll() {
 	start := time.Now()
-	fmt.Println("Starting resource loading...")
+	slog.Info("Starting resource loading...")
 
-	// Objects and NPCs must be loaded before maps
-	if err := rm.objectService.LoadObjects(); err != nil {
-		fmt.Printf("Error loading objects: %v\n", err)
+	if err := s.objectService.LoadObjects(); err != nil {
+		slog.Error("Error loading objects", "error", err)
 	}
-	if err := rm.npcService.LoadNpcs(); err != nil {
-		fmt.Printf("Error loading NPCs: %v\n", err)
+	if err := s.npcService.LoadNpcs(); err != nil {
+		slog.Error("Error loading NPCs", "error", err)
 	}
 
-	// These can be loaded concurrently with each other or just sequentially since they are fast
-	if err := rm.cityService.LoadCities(); err != nil {
-		fmt.Printf("Error loading cities: %v\n", err)
+	if err := s.cityService.LoadCities(); err != nil {
+		slog.Error("Error loading cities", "error", err)
 	}
-	if err := rm.spellService.LoadSpells(); err != nil {
-		fmt.Printf("Error loading spells: %v\n", err)
+	if err := s.spellService.LoadSpells(); err != nil {
+		slog.Error("Error loading spells", "error", err)
 	}
 
 	// Maps are the slowest and depend on Objects and NPCs
-	rm.mapService.LoadMapsConcurrent()
+	s.mapService.LoadMaps()
 
-	fmt.Printf("All resources loaded in %v\n", time.Since(start))
+	slog.Info("All resources loaded", "duration", time.Since(start))
 }

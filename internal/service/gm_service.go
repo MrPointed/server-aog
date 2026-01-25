@@ -2,6 +2,7 @@ package service
 
 import (
 	"fmt"
+	"log/slog"
 	"strings"
 	"time"
 
@@ -52,7 +53,7 @@ func (s *GMService) HandleCommand(conn protocol.Connection, cmdID byte, buffer *
 	case 32: // /ONLINEGM
 		return s.handleOnlineGM(conn)
 	default:
-		fmt.Printf("GM %s sent unknown command: %d\n", user.Name, cmdID)
+		slog.Warn("GM sent unknown command", "gm", user.Name, "command_id", cmdID)
 	}
 	return true, nil
 }

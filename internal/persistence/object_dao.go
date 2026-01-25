@@ -2,6 +2,7 @@ package persistence
 
 import (
 	"fmt"
+	"log/slog"
 	"strconv"
 	"strings"
 
@@ -26,12 +27,18 @@ func (d *ObjectDAO) Load() (map[int]*model.Object, error) {
 
 	for section, props := range data {
 		if !strings.HasPrefix(section, "OBJ") {
+
+			slog.Warn("Skipping invalid object section", "section", section)
+
 			continue
+
 		}
 
 		id, err := strconv.Atoi(section[3:])
 		if err != nil {
-			fmt.Printf("Skipping invalid object section: %s\n", section)
+
+			slog.Warn("Skipping invalid object section", "section", section)
+
 			continue
 		}
 
@@ -44,10 +51,11 @@ func (d *ObjectDAO) Load() (map[int]*model.Object, error) {
 			Pickupable:   true,
 		}
 		
-		if obj.Name == "" {
-			fmt.Printf("Warning: Object ID %d has no name in data file (searched key NAME)\n", id)
-		}
-
+		        if obj.Name == "" {
+		
+		            slog.Warn("Object has no name in data file", "id", id)
+		
+		        }
 		// Stats
 		obj.MinHit = toInt(props["MIN_HIT"])
 		obj.MaxHit = toInt(props["MAX_HIT"])

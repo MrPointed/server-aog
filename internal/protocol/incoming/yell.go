@@ -1,7 +1,7 @@
 package incoming
 
 import (
-	"fmt"
+	"log/slog"
 	"github.com/ao-go-server/internal/network"
 	"github.com/ao-go-server/internal/protocol"
 	"github.com/ao-go-server/internal/protocol/outgoing"
@@ -23,18 +23,16 @@ func (p *YellPacket) Handle(buffer *network.DataBuffer, connection protocol.Conn
 	}
 
 	char := connection.GetUser()
-	if char == nil {
-		return true, nil
-	}
 
-	fmt.Printf("YELL packet received from [%s]: %s\n", char.Name, message)
+	slog.Debug("YELL packet received", "user", char.Name, "message", message)
 
-	// Broadcast to map
-	p.MessageService.SendToMap(&outgoing.ChatOverHeadPacket{
+
+
+	p.MessageService.SendToArea(&outgoing.ChatOverHeadPacket{
 		Message:   message,
 		CharIndex: char.CharIndex,
 		R:         255, G: 255, B: 255, // White
-	}, char.Position.Map)
+	}, char.Position)
 
 	return true, nil
 }

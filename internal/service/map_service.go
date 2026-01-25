@@ -2,7 +2,7 @@ package service
 
 import (
 	"encoding/gob"
-	"fmt"
+	"log/slog"
 	"math/rand"
 	"os"
 	"sync"
@@ -32,22 +32,6 @@ func NewMapService(mapDAO *persistence.MapDAO, objectService *ObjectService, npc
 }
 
 func (s *MapService) LoadMaps() {
-	fmt.Println("Loading maps...")
-	maps, err := s.mapDAO.Load()
-	if err != nil {
-		fmt.Printf("Error loading maps: %v\n", err)
-		return
-	}
-	for _, m := range maps {
-		m.Characters = make(map[int16]*model.Character)
-		m.Npcs = make(map[int16]*model.WorldNPC)
-		s.resolveMapEntities(m)
-		s.maps[m.Id] = m
-	}
-	fmt.Printf("Loaded %d maps\n", len(s.maps))
-}
-
-func (s *MapService) LoadMapsConcurrent() {
 	if s.LoadCache() {
 		// We still need to resolve entities because pointers to Object/NPC definitions
 		// are not cached and depend on the current objects.dat/npcs.dat
@@ -55,7 +39,7 @@ func (s *MapService) LoadMapsConcurrent() {
 			s.resolveMapEntities(m)
 		}
 
-		fmt.Println("Successfully loaded maps.")
+		slog.Info("Successfully loaded maps.")
 		return
 	}
 
@@ -69,7 +53,7 @@ func (s *MapService) LoadMapsConcurrent() {
 			defer wg.Done()
 			m, err := s.mapDAO.LoadMap(id)
 			if err != nil {
-				fmt.Printf("Error loading map %d: %v\n", id, err)
+				slog.Error("Error loading map", "map_id", id, "error", err)
 				return
 			}
 			m.Characters = make(map[int16]*model.Character)
@@ -90,22 +74,22 @@ func (s *MapService) LoadMapsConcurrent() {
 		s.resolveMapEntities(m)
 	}
 
-	fmt.Printf("Loaded %d maps\n", len(s.maps))
+	slog.Info("Loaded maps", "count", len(s.maps))
 }
 
 func (s *MapService) SaveCache() {
 	file, err := os.Create(MapCacheFile)
 	if err != nil {
-		fmt.Printf("Could not create cache file: %v\n", err)
+		slog.Error("Could not create cache file", "error", err)
 		return
 	}
 	defer file.Close()
 
 	encoder := gob.NewEncoder(file)
 	if err := encoder.Encode(s.maps); err != nil {
-		fmt.Printf("Error encoding maps cache: %v\n", err)
+		slog.Error("Error encoding maps cache", "error", err)
 	} else {
-		fmt.Println("Maps cache saved successfully.")
+		slog.Info("Maps cache saved successfully.")
 	}
 }
 
@@ -122,7 +106,7 @@ func (s *MapService) LoadCache() bool {
 
 	decoder := gob.NewDecoder(file)
 	if err := decoder.Decode(&s.maps); err != nil {
-		fmt.Printf("Error decoding maps cache: %v\n", err)
+		slog.Error("Error decoding maps cache", "error", err)
 		s.maps = make(map[int]*model.Map)
 		return false
 	}
@@ -210,7 +194,7 @@ func (s *MapService) resolveMapEntities(m *model.Map) {
 					}
 				}
 			} else {
-				fmt.Printf("Map %d: Could not resolve object ID %d at tile %d\n", m.Id, tile.ObjectID, i)
+				slog.Warn("Could not resolve object", "map_id", m.Id, "obj_id", tile.ObjectID, "tile", i)
 			}
 		}
 
@@ -222,13 +206,13 @@ func (s *MapService) resolveMapEntities(m *model.Map) {
 				m.Npcs[worldNpc.Index] = worldNpc
 				npcsFound++
 			} else {
-				fmt.Printf("Map %d: Could not resolve NPC ID %d at tile %d\n", m.Id, tile.NPCID, i)
+				slog.Warn("Could not resolve NPC", "map_id", m.Id, "npc_id", tile.NPCID, "tile", i)
 			}
 		}
 	}
 
 	if objectsFound > 0 || npcsFound > 0 {
-		// fmt.Printf("Map %d: Resolved %d objects and %d NPCs on ground.\n", m.Id, objectsFound, npcsFound)
+		// slog.Debug("Resolved entities on ground", "map_id", m.Id, "objects", objectsFound, "npcs", npcsFound)
 	}
 }
 
@@ -251,10 +235,10 @@ func (s *MapService) PutCharacterAtPos(char *model.Character, pos model.Position
 
 	tile := m.GetTile(int(pos.X), int(pos.Y))
 	if tile.Character != nil && tile.Character != char {
-		fmt.Printf("Warning: PutCharacterAtPos overwriting character at %d,%d\n", pos.X, pos.Y)
+		slog.Warn("PutCharacterAtPos overwriting character", "x", pos.X, "y", pos.Y)
 	}
 	if tile.NPC != nil {
-		fmt.Printf("Warning: PutCharacterAtPos overwriting NPC at %d,%d\n", pos.X, pos.Y)
+		slog.Warn("PutCharacterAtPos overwriting NPC", "x", pos.X, "y", pos.Y)
 		tile.NPC = nil // NPCs are removed if a character teleports on top of them
 	}
 

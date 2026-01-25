@@ -1,35 +1,18 @@
 Starting server in dev environment on port 7666...
 Using resources from: /home/user98/Documents/ao-java/ao-go-server/resources
-Starting resource loading...
-Successfully loaded 1049 objects.
-Successfully loaded 316 NPC.
-Loading cities from data file...
-Successfully loaded 7 cities.
-Successfully loaded 50 spells.
-Successfully loaded maps.
-All resources loaded in 258.966039ms
-AO Go Server listening on :7666 (Press Ctrl+C to stop)
-Admin API listening on :7667
-Connecting existing character: pepe
-User pepe logged in at {X:23 Y:74 Map:34} (Privs: 3)
-Read error: read tcp 127.0.0.1:7666->127.0.0.1:44718: use of closed network connection
-User pepe disconnected, saving...
-Connecting existing character: tuco
-Read error: read tcp 127.0.0.1:7666->127.0.0.1:38940: use of closed network connection
-Connecting existing character: pepe
-User pepe logged in at {X:24 Y:73 Map:34} (Privs: 3)
-DoubleClick from pepe at 26,69 (Raw: 27,70)
-Read error: read tcp 127.0.0.1:7666->127.0.0.1:57564: use of closed network connection
-User pepe disconnected, saving...
-Connecting existing character: pepe
-User pepe logged in at {X:24 Y:73 Map:34} (Privs: 3)
-Read error: read tcp 127.0.0.1:7666->127.0.0.1:42768: use of closed network connection
-User pepe disconnected, saving...
-Connecting existing character: newbie
-User newbie logged in at {X:56 Y:47 Map:1} (Privs: 0)
-Read error: read tcp 127.0.0.1:7666->127.0.0.1:58188: use of closed network connection
-User newbie disconnected, saving...
-Connecting existing character: newbie
-Read error: read tcp 127.0.0.1:7666->127.0.0.1:39598: use of closed network connection
-Connecting existing character: newbie
-Read error: read tcp 127.0.0.1:7666->127.0.0.1:38964: use of closed network connection
+2026/01/25 06:56:31 INFO Starting resource loading...
+2026/01/25 06:56:31 WARN Skipping invalid object section section=INIT
+2026/01/25 06:56:31 INFO Successfully loaded objects count=1049
+2026/01/25 06:56:31 INFO Successfully loaded NPCs count=316
+2026/01/25 06:56:31 INFO Loading cities from data file...
+2026/01/25 06:56:31 INFO Successfully loaded cities count=7
+2026/01/25 06:56:31 INFO Successfully loaded spells count=50
+2026/01/25 06:56:32 INFO Successfully loaded maps.
+2026/01/25 06:56:32 INFO All resources loaded duration=292.567327ms
+2026/01/25 06:56:32 INFO Admin API listening addr=:7667
+2026/01/25 06:56:32 INFO AO Go Server listening addr=:7666
+2026/01/25 06:56:49 INFO Connecting existing character nick=pepe
+2026/01/25 06:56:49 INFO User logged in name=pepe pos="{X:24 Y:74 Map:34}" privs=3
+DoubleClick from pepe at 17,67 (Raw: 18,68)
+2026/01/25 06:59:32 ERROR Read error error="read tcp 127.0.0.1:7666->127.0.0.1:32854: use of closed network connection"
+2026/01/25 06:59:32 INFO User disconnected, saving... name=pepe

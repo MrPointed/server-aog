@@ -1,7 +1,7 @@
 package service
 
 import (
-	"fmt"
+	"log/slog"
 	"sync"
 
 	"github.com/ao-go-server/internal/model"
@@ -32,7 +32,7 @@ func (s *NpcService) LoadNpcs() error {
 		return err
 	}
 	s.npcDefs = defs
-	fmt.Printf("Successfully loaded %d NPC.\n", len(s.npcDefs))
+	slog.Info("Successfully loaded NPCs", "count", len(s.npcDefs))
 	return nil
 }
 

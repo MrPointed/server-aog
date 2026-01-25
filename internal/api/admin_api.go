@@ -3,6 +3,7 @@ package api
 import (
 	"encoding/json"
 	"fmt"
+	"log/slog"
 	"net/http"
 	"runtime"
 	"sort"
@@ -79,7 +80,7 @@ func (a *AdminAPI) Start(addr string) error {
 	mux.HandleFunc("/event/stop", a.handleEventStop)
 	mux.HandleFunc("/event/list", a.handleEventList)
 
-	fmt.Printf("Admin API listening on %s\n", addr)
+	slog.Info("Admin API listening", "addr", addr)
 	return http.ListenAndServe(addr, mux)
 }
 

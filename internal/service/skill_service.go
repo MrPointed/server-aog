@@ -1,7 +1,7 @@
 package service
 
 import (
-	"fmt"
+	"log/slog"
 	"math/rand"
 
 	"github.com/ao-go-server/internal/model"
@@ -54,13 +54,13 @@ func NewSkillService(mapService *MapService, objectService *ObjectService, messa
 
 func (s *SkillService) HandleUseSkillClick(user *model.Character, skill model.Skill, x, y byte) {
 
-	fmt.Printf("HandleUseSkillClick: Entered for User %s, Skill %d at %d,%d\n", user.Name, skill, x, y)
+	slog.Debug("HandleUseSkillClick", "user", user.Name, "skill", skill, "x", x, "y", y)
 
 	// Basic validation
 
 	if user.Dead {
 
-		fmt.Println("HandleUseSkillClick: User is dead")
+		slog.Debug("HandleUseSkillClick: User is dead")
 
 		return
 
@@ -158,85 +158,263 @@ func (s *SkillService) HandleUseSkillClick(user *model.Character, skill model.Sk
 
 
 
-	default:
+		default:
 
-		fmt.Printf("HandleUseSkillClick: Default case hit for skill %d\n", skill)
 
-		s.messageService.SendConsoleMessage(user, fmt.Sprintf("Skill %d no implementada en click.", skill), outgoing.INFO)
 
-	}
+	
+
+
+
+			slog.Debug("HandleUseSkillClick: Default case hit", "skill", skill)
+
+
+
+	
+
+
+
+		}
 
 }
 
 func (s *SkillService) handleMagic(user *model.Character, x, y byte) {
 
-	fmt.Printf("handleMagic: User %s casting spell %d at %d,%d\n", user.Name, user.SelectedSpell, x, y)
+	slog.Debug("handleMagic", "user", user.Name, "spell", user.SelectedSpell, "x", x, "y", y)
 
 	if user.SelectedSpell == 0 {
 
-		s.messageService.SendConsoleMessage(user, "Primero selecciona un hechizo.", outgoing.INFO)
-
 		return
 
 	}
 
 
 
-	// Resolve target
 
-	targetPos := model.Position{X: x, Y: y, Map: user.Position.Map}
+
+		m := s.mapService.GetMap(user.Position.Map)
+
+
+
+
 
 	
 
-	gameMap := s.mapService.GetMap(targetPos.Map)
 
-	if gameMap == nil {
 
-		fmt.Println("handleMagic: Map not found")
 
-		return
+
+		if m == nil {
+
+
+
+
+
+	
+
+
+
+
+
+			slog.Debug("handleMagic: Map not found")
+
+
+
+
+
+	
+
+
+
+
+
+			return
+
+
+
+
+
+	
+
+
+
+
+
+		}
+
+
+
+
+
+	
+
+
+
+
+
+	
+
+
+
+
+
+	
+
+
+
+
+
+		tile := m.GetTile(int(x), int(y))
+
+
+
+
+
+	
+
+
+
+
+
+	
+
+
+
+
+
+	
+
+
+
+
+
+		if tile.Character != nil {
+
+
+
+
+
+	
+
+
+
+
+
+			slog.Debug("handleMagic: Found Character target", "name", tile.Character.Name)
+
+
+
+
+
+	
+
+
+
+
+
+			s.spellService.CastSpell(user, user.SelectedSpell, tile.Character)
+
+
+
+
+
+	
+
+
+
+
+
+		} else if tile.NPC != nil {
+
+
+
+
+
+	
+
+
+
+
+
+			slog.Debug("handleMagic: Found NPC target", "name", tile.NPC.NPC.Name)
+
+
+
+
+
+	
+
+
+
+
+
+			s.spellService.CastSpell(user, user.SelectedSpell, tile.NPC)
+
+
+
+
+
+	
+
+
+
+
+
+		} else {
+
+
+
+
+
+	
+
+
+
+
+
+			slog.Debug("handleMagic: No entity found, using position as target")
+
+
+
+
+
+	
+
+
+
+
+
+			targetPos := model.Position{X: x, Y: y, Map: user.Position.Map}
+
+
+
+
+
+	
+
+
+
+
+
+			s.spellService.CastSpell(user, user.SelectedSpell, targetPos)
+
+
+
+
+
+	
+
+
+
+
+
+		}
+
+
+
+
 
 	}
-
-
-
-	tile := gameMap.GetTile(int(targetPos.X), int(targetPos.Y))
-
-	var target any
-
-	if tile.Character != nil {
-
-		fmt.Printf("handleMagic: Found Character target %s\n", tile.Character.Name)
-
-		target = tile.Character
-
-	} else if tile.NPC != nil {
-
-		fmt.Printf("handleMagic: Found NPC target %s\n", tile.NPC.NPC.Name)
-
-		target = tile.NPC
-
-	} else {
-
-		// No entity found, treat as terrain target
-
-		fmt.Println("handleMagic: No entity found, using position as target")
-
-		target = targetPos
-
-	}
-
-
-
-	s.spellService.CastSpell(user, user.SelectedSpell, target)
-
-	// Reset selected spell? Standard AO usually keeps it selected until changed or cast?
-
-	// Usually keeps it.
-
-	user.SelectedSpell = 0 // Some versions reset. Let's reset to force re-select/re-cast flow? 
-
-}
 
 func (s *SkillService) handleFishing(user *model.Character, x, y byte) {
 	// 1. Check Tool

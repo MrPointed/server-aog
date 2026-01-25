@@ -1,7 +1,7 @@
 package incoming
 
 import (
-	"fmt"
+	"log/slog"
 	"github.com/ao-go-server/internal/network"
 	"github.com/ao-go-server/internal/protocol"
 	"github.com/ao-go-server/internal/protocol/outgoing"
@@ -23,13 +23,11 @@ func (p *TalkPacket) Handle(buffer *network.DataBuffer, connection protocol.Conn
 	}
 
 	char := connection.GetUser()
-	if char == nil {
-		return true, nil
-	}
 
-	fmt.Printf("TALK packet received from [%s]: %s\n", char.Name, message)
+	slog.Debug("TALK packet received", "user", char.Name, "message", message)
 
-	// Broadcast to area
+
+
 	p.MessageService.SendToArea(&outgoing.ChatOverHeadPacket{
 		Message:   message,
 		CharIndex: char.CharIndex,

@@ -1,7 +1,7 @@
 package service
 
 import (
-	"fmt"
+	"log/slog"
 
 	"github.com/ao-go-server/internal/model"
 	"github.com/ao-go-server/internal/persistence"
@@ -20,13 +20,13 @@ func NewObjectService(dao *persistence.ObjectDAO) *ObjectService {
 }
 
 func (s *ObjectService) LoadObjects() error {
-	objs, err := s.dao.Load()
+	defs, err := s.dao.Load()
 	if err != nil {
-		fmt.Printf("FAILED to load objects: %v\n", err)
+		slog.Error("FAILED to load objects", "error", err)
 		return err
 	}
-	s.objects = objs
-	fmt.Printf("Successfully loaded %d objects.\n", len(s.objects))
+	s.objects = defs
+	slog.Info("Successfully loaded objects", "count", len(s.objects))
 	return nil
 }
 
