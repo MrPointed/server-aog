@@ -345,7 +345,16 @@ func (s *MapService) RemoveNPC(npc *model.WorldNPC) {
 	}
 }
 
+func (s *MapService) IsInPlayableArea(x, y int) bool {
+	return x >= 5 && x <= 95 && y >= 5 && y <= 95
+}
+
 func (s *MapService) MoveNpc(npc *model.WorldNPC, newPos model.Position) bool {
+	// Boundary checks
+	if !s.IsInPlayableArea(int(newPos.X), int(newPos.Y)) {
+		return false
+	}
+
 	oldPos := npc.Position
 	mOld := s.GetMap(oldPos.Map)
 	mNew := s.GetMap(newPos.Map)
@@ -361,6 +370,12 @@ func (s *MapService) MoveNpc(npc *model.WorldNPC, newPos model.Position) bool {
 
 		targetTile := mOld.GetTile(int(newPos.X), int(newPos.Y))
 		if targetTile.Blocked || targetTile.NPC != nil || targetTile.Character != nil {
+			return false
+		}
+
+		// Water check: NPCs cannot walk on water unless there is a bridge
+		hasBridge := targetTile.Layer2 > 0
+		if targetTile.IsWater && !hasBridge {
 			return false
 		}
 
@@ -392,6 +407,12 @@ func (s *MapService) MoveNpc(npc *model.WorldNPC, newPos model.Position) bool {
 		return false
 	}
 
+	// Water check: NPCs cannot walk on water unless there is a bridge
+	hasBridge := targetTile.Layer2 > 0
+	if targetTile.IsWater && !hasBridge {
+		return false
+	}
+
 	// Remove from old map
 	oldTile := mOld.GetTile(int(oldPos.X), int(oldPos.Y))
 	if oldTile.NPC == npc {
@@ -420,8 +441,8 @@ func (s *MapService) MoveCharacterTo(char *model.Character, heading model.Headin
 		newPos.X--
 	}
 
-	// Boundary checks (simplified)
-	if newPos.X < 0 || newPos.X >= 100 || newPos.Y < 0 || newPos.Y >= 100 {
+	// Boundary checks
+	if !s.IsInPlayableArea(int(newPos.X), int(newPos.Y)) {
 		return char.Position, false
 	}
 
@@ -508,10 +529,17 @@ func (s *MapService) IsTileEmpty(mapID int, x, y int) bool {
 	if m == nil {
 		return false
 	}
-	if x <= 10 || x >= model.MapWidth-10 || y <= 10 || y >= model.MapHeight-10 {
+	if !s.IsInPlayableArea(x, y) {
 		return false
 	}
 	tile := m.GetTile(x, y)
+
+	// Water check: NPCs cannot be on water unless there is a bridge
+	hasBridge := tile.Layer2 > 0
+	if tile.IsWater && !hasBridge {
+		return false
+	}
+
 	return !tile.Blocked && tile.Character == nil && tile.NPC == nil
 }
 
@@ -522,9 +550,23 @@ func (s *MapService) SpawnNpcInMap(npcID int, mapID int) *model.WorldNPC {
 	}
 
 	// Try to find a random empty tile
-	for i := 11; i < 90; i++ {
+	for i := 0; i < 100; i++ {
 		x := rand.Intn(model.MapWidth)
 		y := rand.Intn(model.MapHeight)
+
+		if !s.IsInPlayableArea(x, y) {
+			continue
+		}
+
+		//Valid position check
+		if s.IsInvalidPosition(
+			model.Position{
+				X:   byte(x),
+				Y:   byte(y),
+				Map: mapID,
+			}) {
+			continue
+		}
 
 		if s.IsTileEmpty(mapID, x, y) {
 			pos := model.Position{X: byte(x), Y: byte(y), Map: mapID}

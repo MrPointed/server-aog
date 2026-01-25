@@ -425,9 +425,13 @@ func (s *LoginService) ResetPassword(nick string, newPassword string) error {
 func (s *LoginService) TeleportPlayer(nick string, mapID, x, y int) error {
 	char := s.userService.GetCharacterByName(nick)
 	if char == nil {
-		// If not online, we could theoretically modify the saved file, 
+		// If not online, we could theoretically modify the saved file,
 		// but usually teleport is for online players.
 		return fmt.Errorf("player not online")
+	}
+
+	if !s.mapService.IsInPlayableArea(x, y) {
+		return fmt.Errorf("invalid position")
 	}
 
 	newPos := model.Position{Map: mapID, X: byte(x), Y: byte(y)}
@@ -458,4 +462,3 @@ func (s *LoginService) SaveAllPlayers() {
 		s.charDAO.SaveCharacter(char)
 	}
 }
-

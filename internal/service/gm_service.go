@@ -114,6 +114,11 @@ func (s *GMService) handleWarpChar(conn protocol.Connection, buffer *network.Dat
 		return true, nil
 	}
 
+	if !s.mapService.IsInPlayableArea(int(x), int(y)) {
+		conn.Send(&outgoing.ConsoleMessagePacket{Message: "Posicion invalida", Font: outgoing.INFO})
+		return true, nil
+	}
+
 	newPos := model.Position{Map: int(mapID), X: x, Y: y}
 
 	s.executor.Dispatch(func(m *MapService) {
@@ -166,6 +171,11 @@ func (s *GMService) handleGoToChar(conn protocol.Connection, buffer *network.Dat
 		newPos.X += 1
 	} else {
 		newPos.X -= 1
+	}
+
+	if !s.mapService.IsInPlayableArea(int(newPos.X), int(newPos.Y)) {
+		conn.Send(&outgoing.ConsoleMessagePacket{Message: "El usuario destino esta fuera de los limites permitidos.", Font: outgoing.INFO})
+		return true, nil
 	}
 
 	s.executor.Dispatch(func(m *MapService) {

@@ -149,7 +149,17 @@ func (s *AIService) moveNpc(npc *model.WorldNPC, heading model.Heading) bool {
 	}
 
 	// Boundary checks
-	if newPos.X < 1 || newPos.X >= 100 || newPos.Y < 1 || newPos.Y >= 100 {
+	if !s.mapService.IsInPlayableArea(int(newPos.X), int(newPos.Y)) {
+		return false
+	}
+
+	//Valid position check
+	if s.mapService.IsInvalidPosition(
+		model.Position{
+			X:   newPos.X,
+			Y:   newPos.Y,
+			Map: npc.Position.Map,
+		}) {
 		return false
 	}
 
@@ -161,6 +171,12 @@ func (s *AIService) moveNpc(npc *model.WorldNPC, heading model.Heading) bool {
 
 	tile := gameMap.GetTile(int(newPos.X), int(newPos.Y))
 	if tile.Blocked || tile.Character != nil || tile.NPC != nil {
+		return false
+	}
+
+	// Water check: NPCs cannot walk on water unless there is a bridge
+	hasBridge := tile.Layer2 > 0 || tile.Layer3 > 0
+	if tile.IsWater && !hasBridge {
 		return false
 	}
 
@@ -430,4 +446,3 @@ func (s *AIService) findDirection(from, to model.Position) model.Heading {
 		return model.North
 	}
 }
-
