@@ -5,7 +5,7 @@ main
 
 # Logs
 *.log
-TUI_monitor.txt
+server.pid
 
 # Character files
 resources/charfiles/

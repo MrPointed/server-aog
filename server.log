@@ -7,34 +7,29 @@ Loading cities from data file...
 Successfully loaded 7 cities.
 Successfully loaded 50 spells.
 Successfully loaded maps.
-All resources loaded in 237.508266ms
+All resources loaded in 258.966039ms
 AO Go Server listening on :7666 (Press Ctrl+C to stop)
 Admin API listening on :7667
 Connecting existing character: pepe
-User pepe logged in at {X:49 Y:13 Map:2} (Privs: 3)
-DoubleClick from pepe at 56,84 (Raw: 57,85)
-DoubleClick from pepe at 62,78 (Raw: 63,79)
-DoubleClick from pepe at 72,76 (Raw: 73,77)
-DoubleClick from pepe at 41,55 (Raw: 42,56)
-Warning: PutCharacterAtPos overwriting NPC at 42,56
-DoubleClick from pepe at 33,61 (Raw: 34,62)
-DoubleClick from pepe at 25,69 (Raw: 26,70)
-DoubleClick from pepe at 20,70 (Raw: 21,71)
-NPC LeftClick: User pepe clicked NPC 2 (Gallo)
-DoubleClick from pepe at 9,41 (Raw: 10,42)
-NPC LeftClick: User pepe clicked NPC 91 (Gran Águila)
-DoubleClick from pepe at 20,49 (Raw: 21,50)
-DoubleClick from pepe at 32,50 (Raw: 33,51)
-DoubleClick from pepe at 49,57 (Raw: 50,58)
-DoubleClick from pepe at 63,67 (Raw: 64,68)
-DoubleClick from pepe at 73,74 (Raw: 74,75)
-DoubleClick from pepe at 85,80 (Raw: 86,81)
-DoubleClick from pepe at 97,86 (Raw: 98,87)
-DoubleClick from pepe at 70,95 (Raw: 71,96)
-DoubleClick from pepe at 66,86 (Raw: 67,87)
-DoubleClick from pepe at 66,79 (Raw: 67,80)
-DoubleClick from pepe at 64,72 (Raw: 65,73)
-DoubleClick from pepe at 62,66 (Raw: 63,67)
-DoubleClick from pepe at 60,59 (Raw: 61,60)
-Read error: read tcp 127.0.0.1:7666->127.0.0.1:44288: use of closed network connection
+User pepe logged in at {X:23 Y:74 Map:34} (Privs: 3)
+Read error: read tcp 127.0.0.1:7666->127.0.0.1:44718: use of closed network connection
 User pepe disconnected, saving...
+Connecting existing character: tuco
+Read error: read tcp 127.0.0.1:7666->127.0.0.1:38940: use of closed network connection
+Connecting existing character: pepe
+User pepe logged in at {X:24 Y:73 Map:34} (Privs: 3)
+DoubleClick from pepe at 26,69 (Raw: 27,70)
+Read error: read tcp 127.0.0.1:7666->127.0.0.1:57564: use of closed network connection
+User pepe disconnected, saving...
+Connecting existing character: pepe
+User pepe logged in at {X:24 Y:73 Map:34} (Privs: 3)
+Read error: read tcp 127.0.0.1:7666->127.0.0.1:42768: use of closed network connection
+User pepe disconnected, saving...
+Connecting existing character: newbie
+User newbie logged in at {X:56 Y:47 Map:1} (Privs: 0)
+Read error: read tcp 127.0.0.1:7666->127.0.0.1:58188: use of closed network connection
+User newbie disconnected, saving...
+Connecting existing character: newbie
+Read error: read tcp 127.0.0.1:7666->127.0.0.1:39598: use of closed network connection
+Connecting existing character: newbie
+Read error: read tcp 127.0.0.1:7666->127.0.0.1:38964: use of closed network connection

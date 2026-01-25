@@ -26,6 +26,7 @@ type Server struct {
 	mapService     *service.MapService
 	userService    *service.UserService
 	loginService   *service.LoginService
+	messageService *service.MessageService
 	npcService     *service.NpcService
 	aiService      *service.AIService
 	config         *config.Config
@@ -151,6 +152,7 @@ func NewServer(addr string, resourcesPath string) *Server {
 		mapService:     mapService,
 		userService:    userService,
 		loginService:   loginService,
+		messageService: messageService,
 		npcService:     npcService,
 		aiService:      aiService,
 		config:         cfg,
@@ -168,7 +170,7 @@ func (s *Server) Start() error {
 
 	// Start Admin API
 	configPath := filepath.Join(s.resourcesPath, "config_yaml", "server.yaml")
-	adminAPI := api.NewAdminAPI(s.mapService, s.userService, s.loginService, s.npcService, s.aiService, s.config, configPath)
+	adminAPI := api.NewAdminAPI(s.mapService, s.userService, s.loginService, s.messageService, s.npcService, s.aiService, s.config, configPath)
 	go adminAPI.Start(":7667")
 
 	if err := os.WriteFile("server.pid", []byte(fmt.Sprintf("%d", os.Getpid())), 0644); err != nil {

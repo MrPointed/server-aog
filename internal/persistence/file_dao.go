@@ -199,10 +199,27 @@ func (d *FileDAO) Create(nick, password, mail string) (*model.Account, error) {
 }
 
 func (d *FileDAO) SaveAccount(acc *model.Account) error {
-	// In the classic .chr system, account data is inside the .chr
-	// If we have a character for this account, we save it.
-	// For now, assume account name == character name as in the current simplified logic.
-	return nil 
+	data, _ := ReadINI(d.getFilePath(acc.Nick))
+	if data == nil {
+		data = make(map[string]map[string]string)
+	}
+
+	if data["INIT"] == nil {
+		data["INIT"] = make(map[string]string)
+	}
+	data["INIT"]["PASSWORD"] = acc.Password
+
+	if data["CONTACTO"] == nil {
+		data["CONTACTO"] = make(map[string]string)
+	}
+	data["CONTACTO"]["EMAIL"] = acc.Mail
+
+	if data["FLAGS"] == nil {
+		data["FLAGS"] = make(map[string]string)
+	}
+	data["FLAGS"]["BAN"] = boolToIntString(acc.Banned)
+
+	return d.writeINI(d.getFilePath(acc.Nick), data)
 }
 
 func (d *FileDAO) SaveCharacter(char *model.Character) error {

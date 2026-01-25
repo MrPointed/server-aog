@@ -11,28 +11,31 @@ import (
 
 	"github.com/ao-go-server/internal/config"
 	"github.com/ao-go-server/internal/model"
+	"github.com/ao-go-server/internal/protocol/outgoing"
 	"github.com/ao-go-server/internal/service"
 )
 
 type AdminAPI struct {
-	mapService   *service.MapService
-	userService  *service.UserService
-	loginService *service.LoginService
-	npcService   *service.NpcService
-	aiService    *service.AIService
-	config       *config.Config
-	configPath   string
+	mapService     *service.MapService
+	userService    *service.UserService
+	loginService   *service.LoginService
+	messageService *service.MessageService
+	npcService     *service.NpcService
+	aiService      *service.AIService
+	config         *config.Config
+	configPath     string
 }
 
-func NewAdminAPI(mapService *service.MapService, userService *service.UserService, loginService *service.LoginService, npcService *service.NpcService, aiService *service.AIService, cfg *config.Config, configPath string) *AdminAPI {
+func NewAdminAPI(mapService *service.MapService, userService *service.UserService, loginService *service.LoginService, messageService *service.MessageService, npcService *service.NpcService, aiService *service.AIService, cfg *config.Config, configPath string) *AdminAPI {
 	return &AdminAPI{
-		mapService:   mapService,
-		userService:  userService,
-		loginService: loginService,
-		npcService:   npcService,
-		aiService:    aiService,
-		config:       cfg,
-		configPath:   configPath,
+		mapService:     mapService,
+		userService:    userService,
+		loginService:   loginService,
+		messageService: messageService,
+		npcService:     npcService,
+		aiService:      aiService,
+		config:         cfg,
+		configPath:     configPath,
 	}
 }
 
@@ -200,6 +203,14 @@ func (a *AdminAPI) handleConnBan(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// Kick if online
+	char := a.userService.GetCharacterByName(nick)
+	if char != nil {
+		conn := a.userService.GetConnection(char)
+		if conn != nil {
+			conn.Send(&outgoing.ErrorMessagePacket{Message: "Has sido baneado del servidor."})
+			time.Sleep(100 * time.Millisecond)
+		}
+	}
 	a.userService.KickByName(nick)
 
 	fmt.Fprintf(w, "Account %s banned and kicked", nick)
@@ -420,6 +431,14 @@ func (a *AdminAPI) handleConnKick(w http.ResponseWriter, r *http.Request) {
 	ip := r.URL.Query().Get("ip")
 
 	if name != "" {
+		char := a.userService.GetCharacterByName(name)
+		if char != nil {
+			conn := a.userService.GetConnection(char)
+			if conn != nil {
+				conn.Send(&outgoing.ErrorMessagePacket{Message: "Has sido expulsado del servidor."})
+				time.Sleep(100 * time.Millisecond)
+			}
+		}
 		if a.userService.KickByName(name) {
 			fmt.Fprintf(w, "Kicked user %s", name)
 		} else {
