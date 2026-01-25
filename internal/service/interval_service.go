@@ -3,16 +3,15 @@ package service
 import (
 	"time"
 	"github.com/ao-go-server/internal/model"
-	"github.com/ao-go-server/internal/config"
 )
 
 type IntervalService struct {
-	config *config.Config
+	globalBalance *model.GlobalBalanceConfig
 }
 
-func NewIntervalService(cfg *config.Config) *IntervalService {
+func NewIntervalService(globalBalance *model.GlobalBalanceConfig) *IntervalService {
 	return &IntervalService{
-		config: cfg,
+		globalBalance: globalBalance,
 	}
 }
 
@@ -20,12 +19,12 @@ func (s *IntervalService) CanAttack(char *model.Character) bool {
 	now := time.Now()
 	
 	// Check standard attack interval
-	if now.Sub(char.LastAttack).Milliseconds() < s.config.IntervalAttack {
+	if now.Sub(char.LastAttack).Milliseconds() < s.globalBalance.IntervalAttack {
 		return false
 	}
 
 	// Check Magic-Hit interval (If they casted a spell recently, they might have to wait)
-	if now.Sub(char.LastSpell).Milliseconds() < s.config.IntervalMagicHit {
+	if now.Sub(char.LastSpell).Milliseconds() < s.globalBalance.IntervalMagicHit {
 		return false
 	}
 
@@ -36,12 +35,12 @@ func (s *IntervalService) CanCastSpell(char *model.Character) bool {
 	now := time.Now()
 
 	// Check standard spell interval
-	if now.Sub(char.LastSpell).Milliseconds() < s.config.IntervalSpell {
+	if now.Sub(char.LastSpell).Milliseconds() < s.globalBalance.IntervalSpell {
 		return false
 	}
 
 	// Check Hit-Magic interval (If they attacked recently, they might have to wait)
-	if now.Sub(char.LastAttack).Milliseconds() < s.config.IntervalMagicHit {
+	if now.Sub(char.LastAttack).Milliseconds() < s.globalBalance.IntervalMagicHit {
 		return false
 	}
 
@@ -50,7 +49,7 @@ func (s *IntervalService) CanCastSpell(char *model.Character) bool {
 
 func (s *IntervalService) CanUseItem(char *model.Character) bool {
 	now := time.Now()
-	if now.Sub(char.LastItem).Milliseconds() < s.config.IntervalItem {
+	if now.Sub(char.LastItem).Milliseconds() < s.globalBalance.IntervalItem {
 		return false
 	}
 	return true
@@ -58,7 +57,7 @@ func (s *IntervalService) CanUseItem(char *model.Character) bool {
 
 func (s *IntervalService) CanWork(char *model.Character) bool {
 	now := time.Now()
-	if now.Sub(char.LastWork).Milliseconds() < s.config.IntervalWork {
+	if now.Sub(char.LastWork).Milliseconds() < s.globalBalance.IntervalWork {
 		return false
 	}
 	return true
@@ -68,12 +67,12 @@ func (s *IntervalService) CanNPCAttack(npc *model.WorldNPC) bool {
 	now := time.Now()
 
 	// Check standard attack interval
-	if now.Sub(npc.LastAttack).Milliseconds() < s.config.IntervalAttack {
+	if now.Sub(npc.LastAttack).Milliseconds() < s.globalBalance.IntervalAttack {
 		return false
 	}
 
 	// Check Magic-Hit interval
-	if now.Sub(npc.LastSpell).Milliseconds() < s.config.IntervalMagicHit {
+	if now.Sub(npc.LastSpell).Milliseconds() < s.globalBalance.IntervalMagicHit {
 		return false
 	}
 
@@ -84,12 +83,12 @@ func (s *IntervalService) CanNPCCastSpell(npc *model.WorldNPC) bool {
 	now := time.Now()
 
 	// Check standard spell interval
-	if now.Sub(npc.LastSpell).Milliseconds() < s.config.IntervalSpell {
+	if now.Sub(npc.LastSpell).Milliseconds() < s.globalBalance.IntervalSpell {
 		return false
 	}
 
 	// Check Hit-Magic interval
-	if now.Sub(npc.LastAttack).Milliseconds() < s.config.IntervalMagicHit {
+	if now.Sub(npc.LastAttack).Milliseconds() < s.globalBalance.IntervalMagicHit {
 		return false
 	}
 

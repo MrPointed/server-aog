@@ -33,10 +33,20 @@ func (p *WalkPacket) Handle(buffer *network.DataBuffer, connection protocol.Conn
 
 	if char.Meditating {
 		char.Meditating = false
+		connection.Send(&outgoing.MeditateTogglePacket{})
+		p.AreaService.BroadcastToArea(char.Position, &outgoing.MeditateTogglePacket{})
 		connection.Send(&outgoing.ConsoleMessagePacket{
 			Message: "Dejas de meditar.",
 			Font:    outgoing.INFO,
 		})
+		// Stop meditation FX
+		fxPacket := &outgoing.CreateFxPacket{
+			CharIndex: char.CharIndex,
+			FxID:      0,
+			Loops:     0,
+		}
+		connection.Send(fxPacket)
+		p.AreaService.BroadcastNearby(char, fxPacket)
 	} else {
 		oldPos := char.Position
 		newPos, success := p.MapService.MoveCharacterTo(char, heading)

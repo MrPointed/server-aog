@@ -24,10 +24,11 @@ type AdminAPI struct {
 	npcService     *service.NpcService
 	aiService      *service.AIService
 	config         *config.Config
+	globalBalance  *model.GlobalBalanceConfig
 	configPath     string
 }
 
-func NewAdminAPI(mapService *service.MapService, userService *service.UserService, loginService *service.LoginService, messageService *service.MessageService, npcService *service.NpcService, aiService *service.AIService, cfg *config.Config, configPath string) *AdminAPI {
+func NewAdminAPI(mapService *service.MapService, userService *service.UserService, loginService *service.LoginService, messageService *service.MessageService, npcService *service.NpcService, aiService *service.AIService, cfg *config.Config, globalBalance *model.GlobalBalanceConfig, configPath string) *AdminAPI {
 	return &AdminAPI{
 		mapService:     mapService,
 		userService:    userService,
@@ -36,6 +37,7 @@ func NewAdminAPI(mapService *service.MapService, userService *service.UserServic
 		npcService:     npcService,
 		aiService:      aiService,
 		config:         cfg,
+		globalBalance:  globalBalance,
 		configPath:     configPath,
 	}
 }
@@ -141,11 +143,11 @@ func (a *AdminAPI) handleConfigList(w http.ResponseWriter, r *http.Request) {
 		{"key": "admins_only", "description": "Restrict access to admins only", "type": "bool", "value": a.config.RestrictedToAdmins},
 		{"key": "xp_multiplier", "description": "Global XP Multiplier", "type": "float", "value": a.config.XpMultiplier},
 		{"key": "gold_multiplier", "description": "Global Gold Multiplier", "type": "float", "value": a.config.GoldMultiplier},
-		{"key": "interval_attack", "description": "Interval between attacks (ms)", "type": "int64", "value": a.config.IntervalAttack},
-		{"key": "interval_spell", "description": "Interval between spells (ms)", "type": "int64", "value": a.config.IntervalSpell},
-		{"key": "interval_item", "description": "Interval to use items (ms)", "type": "int64", "value": a.config.IntervalItem},
-		{"key": "interval_work", "description": "Interval to work (ms)", "type": "int64", "value": a.config.IntervalWork},
-		{"key": "interval_magic_hit", "description": "Interval magic-hit (ms)", "type": "int64", "value": a.config.IntervalMagicHit},
+		{"key": "interval_attack", "description": "Interval between attacks (ms)", "type": "int64", "value": a.globalBalance.IntervalAttack},
+		{"key": "interval_spell", "description": "Interval between spells (ms)", "type": "int64", "value": a.globalBalance.IntervalSpell},
+		{"key": "interval_item", "description": "Interval to use items (ms)", "type": "int64", "value": a.globalBalance.IntervalItem},
+		{"key": "interval_work", "description": "Interval to work (ms)", "type": "int64", "value": a.globalBalance.IntervalWork},
+		{"key": "interval_magic_hit", "description": "Interval magic-hit (ms)", "type": "int64", "value": a.globalBalance.IntervalMagicHit},
 		{"key": "md5_enabled", "description": "Enable MD5 client validation", "type": "bool", "value": a.config.MD5Enabled},
 		{"key": "check_critical_files", "description": "Check critical files integrity", "type": "bool", "value": a.config.CheckCriticalFiles},
 	}
@@ -170,15 +172,15 @@ func (a *AdminAPI) handleConfigGet(w http.ResponseWriter, r *http.Request) {
 	case "gold_multiplier":
 		val = a.config.GoldMultiplier
 	case "interval_attack":
-		val = a.config.IntervalAttack
+		val = a.globalBalance.IntervalAttack
 	case "interval_spell":
-		val = a.config.IntervalSpell
+		val = a.globalBalance.IntervalSpell
 	case "interval_item":
-		val = a.config.IntervalItem
+		val = a.globalBalance.IntervalItem
 	case "interval_work":
-		val = a.config.IntervalWork
+		val = a.globalBalance.IntervalWork
 	case "interval_magic_hit":
-		val = a.config.IntervalMagicHit
+		val = a.globalBalance.IntervalMagicHit
 	case "md5_enabled":
 		val = a.config.MD5Enabled
 	case "check_critical_files":
@@ -480,23 +482,23 @@ func (a *AdminAPI) handleConfigSet(w http.ResponseWriter, r *http.Request) {
 		}
 	case "interval_attack":
 		if i, err := strconv.ParseInt(val, 10, 64); err == nil {
-			a.config.IntervalAttack = i
+			a.globalBalance.IntervalAttack = i
 		}
 	case "interval_spell":
 		if i, err := strconv.ParseInt(val, 10, 64); err == nil {
-			a.config.IntervalSpell = i
+			a.globalBalance.IntervalSpell = i
 		}
 	case "interval_item":
 		if i, err := strconv.ParseInt(val, 10, 64); err == nil {
-			a.config.IntervalItem = i
+			a.globalBalance.IntervalItem = i
 		}
 	case "interval_work":
 		if i, err := strconv.ParseInt(val, 10, 64); err == nil {
-			a.config.IntervalWork = i
+			a.globalBalance.IntervalWork = i
 		}
 	case "interval_magic_hit":
 		if i, err := strconv.ParseInt(val, 10, 64); err == nil {
-			a.config.IntervalMagicHit = i
+			a.globalBalance.IntervalMagicHit = i
 		}
 	case "md5_enabled":
 		a.config.MD5Enabled = val == "true"

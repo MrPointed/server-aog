@@ -24,5 +24,14 @@ type GlobalBalanceConfig struct {
 	EnteraDist      []int
 	SemienteraDist  []int
 	LevelExponent   float64
-	ManaRecoveryPct int
+	ManaRecoveryPct float64
+
+	// Intervals in milliseconds
+	IntervalAttack   int64
+	IntervalSpell    int64
+	IntervalItem     int64
+	IntervalWork     int64
+	IntervalMagicHit int64
+	IntervalHunger   int64
+	IntervalThirst   int64
 }

@@ -14,15 +14,6 @@ type Config struct {
 	XpMultiplier             float64
 	GoldMultiplier           float64
 
-	// Intervals in milliseconds
-	IntervalAttack   int64
-	IntervalSpell    int64
-	IntervalItem     int64
-	IntervalWork     int64
-	IntervalMagicHit int64
-	IntervalHunger   int64
-	IntervalThirst   int64
-
 	Gods        []string
 	SemiGods    []string
 	Counselors  []string
@@ -48,15 +39,6 @@ type yamlConfig struct {
 		SemiGods    []string `yaml:"semi_gods"`
 		Counselors  []string `yaml:"counselors"`
 		RoleMasters []string `yaml:"role_masters"`
-		Intervals   struct {
-			UserAttack int64 `yaml:"user_attack"`
-			CastSpell  int64 `yaml:"cast_spell"`
-			UserUse    int64 `yaml:"user_use"`
-			Work       int64 `yaml:"work"`
-			MagicHit   int64 `yaml:"magic_hit"`
-			Hunger     int64 `yaml:"hunger"`
-			Thirst     int64 `yaml:"thirst"`
-		} `yaml:"intervals"`
 		Security struct {
 			MD5Hush struct {
 				Enabled           bool     `yaml:"enabled"`
@@ -75,12 +57,6 @@ func NewDefaultConfig() *Config {
 		MaxConcurrentUsers:       500,
 		XpMultiplier:             1.0,
 		GoldMultiplier:           1.0,
-
-		IntervalAttack:   1500,
-		IntervalSpell:    1400,
-		IntervalItem:     450,
-		IntervalWork:     800,
-		IntervalMagicHit: 1000,
 	}
 }
 
@@ -107,14 +83,6 @@ func Load(path string) (*Config, error) {
 	if yc.Server.Init.GoldMultiplier > 0 {
 		cfg.GoldMultiplier = yc.Server.Init.GoldMultiplier
 	}
-
-	cfg.IntervalAttack = yc.Server.Intervals.UserAttack
-	cfg.IntervalSpell = yc.Server.Intervals.CastSpell
-	cfg.IntervalItem = yc.Server.Intervals.UserUse
-	cfg.IntervalWork = yc.Server.Intervals.Work
-	cfg.IntervalMagicHit = yc.Server.Intervals.MagicHit
-	cfg.IntervalHunger = yc.Server.Intervals.Hunger
-	cfg.IntervalThirst = yc.Server.Intervals.Thirst
 
 	cfg.Gods = yc.Server.Gods
 	cfg.SemiGods = yc.Server.SemiGods

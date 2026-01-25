@@ -13,14 +13,16 @@ type TimedEventsService struct {
 	userService    *UserService
 	messageService *MessageService
 	config         *config.Config
+	globalBalance  *model.GlobalBalanceConfig
 	stopChan       chan struct{}
 }
 
-func NewTimedEventsService(userService *UserService, messageService *MessageService, cfg *config.Config) *TimedEventsService {
+func NewTimedEventsService(userService *UserService, messageService *MessageService, cfg *config.Config, globalBalance *model.GlobalBalanceConfig) *TimedEventsService {
 	return &TimedEventsService{
 		userService:    userService,
 		messageService: messageService,
 		config:         cfg,
+		globalBalance:  globalBalance,
 		stopChan:       make(chan struct{}),
 	}
 }
@@ -75,7 +77,9 @@ func (s *TimedEventsService) processRegen() {
 			}
 
 			if char.Meditating {
-				regen *= 3
+				// Increasing mana being 100 points 100% of the time,
+				// using mana_recovery_percentage as the multiplier.
+				regen = int(100 * s.globalBalance.ManaRecoveryPct)
 			}
 
 			char.Mana = utils.Min(char.MaxMana, char.Mana+regen)
@@ -108,7 +112,7 @@ func (s *TimedEventsService) processRegen() {
 			char.LastThirstUpdate = now
 		}
 
-		if now.Sub(char.LastHungerUpdate).Milliseconds() >= s.config.IntervalHunger {
+		if now.Sub(char.LastHungerUpdate).Milliseconds() >= s.globalBalance.IntervalHunger {
 			if char.Hunger > 0 {
 				decay := utils.RandomNumber(1, 3)
 				char.Hunger = utils.Max(0, char.Hunger-decay)
@@ -117,21 +121,13 @@ func (s *TimedEventsService) processRegen() {
 			char.LastHungerUpdate = now
 		}
 
-		if now.Sub(char.LastThirstUpdate).Milliseconds() >= s.config.IntervalThirst {
+		if now.Sub(char.LastThirstUpdate).Milliseconds() >= s.globalBalance.IntervalThirst {
 			if char.Thirstiness > 0 {
 				decay := utils.RandomNumber(1, 3)
 				char.Thirstiness = utils.Max(0, char.Thirstiness-decay)
 				changed = true
 			}
 			char.LastThirstUpdate = now
-		}
-
-		if char.Hunger <= 0 || char.Thirstiness <= 0 {
-			char.Hp -= 1
-			if char.Hp <= 0 {
-				s.messageService.HandleDeath(char, "Has muerto de hambre o sed.")
-			}
-			changed = true
 		}
 
 		// Potion Effects Expiration

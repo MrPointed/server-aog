@@ -63,6 +63,30 @@ func (s *SpellService) CastSpell(caster *model.Character, spellID int, target an
 		return
 	}
 
+	if caster.Meditating {
+		caster.Meditating = false
+		if conn != nil {
+			conn.Send(&outgoing.MeditateTogglePacket{})
+			conn.Send(&outgoing.ConsoleMessagePacket{
+				Message: "Dejas de meditar.",
+				Font:    outgoing.INFO,
+			})
+			// Stop FX
+			fxPacket := &outgoing.CreateFxPacket{
+				CharIndex: caster.CharIndex,
+				FxID:      0,
+				Loops:     0,
+			}
+			conn.Send(fxPacket)
+		}
+		s.messageService.SendToArea(&outgoing.MeditateTogglePacket{}, caster.Position)
+		s.messageService.SendToArea(&outgoing.CreateFxPacket{
+			CharIndex: caster.CharIndex,
+			FxID:      0,
+			Loops:     0,
+		}, caster.Position)
+	}
+
 	// Validations
 	if caster.Mana < spell.ManaRequired {
 		slog.Debug("CastSpell: Not enough mana")

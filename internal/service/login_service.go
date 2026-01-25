@@ -316,6 +316,17 @@ func (s *LoginService) sendInitialGameState(conn protocol.Connection, char *mode
 		conn.Send(&outgoing.NavigateTogglePacket{})
 	}
 
+	if char.Meditating {
+		conn.Send(&outgoing.MeditateTogglePacket{})
+		fx := &outgoing.CreateFxPacket{
+			CharIndex: char.CharIndex,
+			FxID:      4,
+			Loops:     -1,
+		}
+		conn.Send(fx)
+		s.messageService.SendToAreaButUser(fx, char.Position, char)
+	}
+
 	// Inventory & Spells
 	s.sendInventory(conn, char)
 	s.sendSpells(conn, char)

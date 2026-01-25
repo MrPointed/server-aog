@@ -1,18 +1,119 @@
-Starting server in dev environment on port 7666...
+Stopping existing server (PID 107991)...
+Stopping server (PID 107991) gracefully...
+Restarting server in dev environment on port 7666...
 Using resources from: /home/user98/Documents/ao-java/ao-go-server/resources
-2026/01/25 06:56:31 INFO Starting resource loading...
-2026/01/25 06:56:31 WARN Skipping invalid object section section=INIT
-2026/01/25 06:56:31 INFO Successfully loaded objects count=1049
-2026/01/25 06:56:31 INFO Successfully loaded NPCs count=316
-2026/01/25 06:56:31 INFO Loading cities from data file...
-2026/01/25 06:56:31 INFO Successfully loaded cities count=7
-2026/01/25 06:56:31 INFO Successfully loaded spells count=50
-2026/01/25 06:56:32 INFO Successfully loaded maps.
-2026/01/25 06:56:32 INFO All resources loaded duration=292.567327ms
-2026/01/25 06:56:32 INFO Admin API listening addr=:7667
-2026/01/25 06:56:32 INFO AO Go Server listening addr=:7666
-2026/01/25 06:56:49 INFO Connecting existing character nick=pepe
-2026/01/25 06:56:49 INFO User logged in name=pepe pos="{X:24 Y:74 Map:34}" privs=3
-DoubleClick from pepe at 17,67 (Raw: 18,68)
-2026/01/25 06:59:32 ERROR Read error error="read tcp 127.0.0.1:7666->127.0.0.1:32854: use of closed network connection"
-2026/01/25 06:59:32 INFO User disconnected, saving... name=pepe
+2026/01/25 08:49:48 INFO Starting resource loading...
+2026/01/25 08:49:48 WARN Skipping invalid object section section=INIT
+2026/01/25 08:49:48 INFO Successfully loaded objects count=1049
+2026/01/25 08:49:48 INFO Successfully loaded NPCs count=316
+2026/01/25 08:49:48 INFO Loading cities from data file...
+2026/01/25 08:49:48 INFO Successfully loaded cities count=7
+2026/01/25 08:49:48 INFO Successfully loaded spells count=50
+2026/01/25 08:49:48 INFO Successfully loaded maps.
+2026/01/25 08:49:48 INFO All resources loaded duration=286.628582ms
+2026/01/25 08:49:48 INFO Admin API listening addr=:7667
+2026/01/25 08:49:48 INFO AO Go Server listening addr=:7666
+2026/01/25 08:50:05 INFO Connecting existing character nick=pepe
+2026/01/25 08:50:05 INFO User logged in name=pepe pos="{X:33 Y:63 Map:34}" privs=3
+User pepe requested UseSkill for Skill ID: 1
+UseSkillClick: User pepe, Skill 1 at 33,59
+CastSpell: Target is Character pepe. Spell Type: 3
+User pepe requested UseSkill for Skill ID: 1
+UseSkillClick: User pepe, Skill 1 at 33,55
+CastSpell: Target is Character pepe. Spell Type: 3
+User pepe requested UseSkill for Skill ID: 1
+UseSkillClick: User pepe, Skill 1 at 33,45
+CastSpell: Target is Position. Spell Type: 3
+CastSpell: Invalid target type for Position
+User pepe requested UseSkill for Skill ID: 1
+UseSkillClick: User pepe, Skill 1 at 33,30
+CastSpell: Target is Position. Spell Type: 3
+CastSpell: Invalid target type for Position
+User pepe requested UseSkill for Skill ID: 1
+UseSkillClick: User pepe, Skill 1 at 33,30
+CastSpell: Target is Position. Spell Type: 3
+CastSpell: Invalid target type for Position
+User pepe requested UseSkill for Skill ID: 1
+UseSkillClick: User pepe, Skill 1 at 33,31
+CastSpell: Target is Character pepe. Spell Type: 3
+User pepe requested UseSkill for Skill ID: 1
+UseSkillClick: User pepe, Skill 1 at 33,31
+User pepe requested UseSkill for Skill ID: 1
+UseSkillClick: User pepe, Skill 1 at 36,30
+DoubleClick from pepe at 34,32 (Raw: 35,33)
+DoubleClick from pepe at 34,32 (Raw: 35,33)
+DoubleClick from pepe at 33,32 (Raw: 34,33)
+DoubleClick from pepe at 33,33 (Raw: 34,34)
+User pepe requested UseSkill for Skill ID: 1
+UseSkillClick: User pepe, Skill 1 at 33,32
+CastSpell: Target is Position. Spell Type: 3
+CastSpell: Invalid target type for Position
+DoubleClick from pepe at 34,30 (Raw: 35,31)
+User pepe requested UseSkill for Skill ID: 1
+UseSkillClick: User pepe, Skill 1 at 33,25
+CastSpell: Target is Character pepe. Spell Type: 3
+DoubleClick from pepe at 33,25 (Raw: 34,26)
+User pepe requested UseSkill for Skill ID: 1
+UseSkillClick: User pepe, Skill 1 at 33,23
+CastSpell: Target is Character pepe. Spell Type: 3
+User pepe requested UseSkill for Skill ID: 1
+UseSkillClick: User pepe, Skill 1 at 33,28
+CastSpell: Target is Character pepe. Spell Type: 3
+User pepe requested UseSkill for Skill ID: 1
+UseSkillClick: User pepe, Skill 1 at 34,34
+CastSpell: Target is Character pepe. Spell Type: 3
+User pepe requested UseSkill for Skill ID: 1
+UseSkillClick: User pepe, Skill 1 at 33,27
+CastSpell: Target is Character pepe. Spell Type: 3
+DoubleClick from pepe at 33,27 (Raw: 34,28)
+DoubleClick from pepe at 33,27 (Raw: 34,28)
+2026/01/25 08:53:01 ERROR Read error error="read tcp 127.0.0.1:7666->127.0.0.1:53764: use of closed network connection"
+2026/01/25 08:53:01 INFO User disconnected, saving... name=pepe
+2026/01/25 08:53:54 INFO Connecting existing character nick=pepe
+2026/01/25 08:53:54 INFO User logged in name=pepe pos="{X:32 Y:40 Map:34}" privs=3
+User pepe requested UseSkill for Skill ID: 1
+UseSkillClick: User pepe, Skill 1 at 32,40
+CastSpell: Target is Character pepe. Spell Type: 3
+User pepe requested UseSkill for Skill ID: 1
+UseSkillClick: User pepe, Skill 1 at 32,41
+CastSpell: Target is Character pepe. Spell Type: 3
+User pepe requested UseSkill for Skill ID: 1
+UseSkillClick: User pepe, Skill 1 at 34,33
+CastSpell: Target is Position. Spell Type: 3
+CastSpell: Invalid target type for Position
+User pepe requested UseSkill for Skill ID: 1
+UseSkillClick: User pepe, Skill 1 at 34,23
+CastSpell: Target is Character pepe. Spell Type: 3
+User pepe requested UseSkill for Skill ID: 1
+UseSkillClick: User pepe, Skill 1 at 34,13
+CastSpell: Target is Character pepe. Spell Type: 3
+User pepe requested UseSkill for Skill ID: 1
+UseSkillClick: User pepe, Skill 1 at 34,12
+CastSpell: Target is Position. Spell Type: 3
+CastSpell: Invalid target type for Position
+DoubleClick from pepe at 44,14 (Raw: 45,15)
+User pepe requested UseSkill for Skill ID: 1
+UseSkillClick: User pepe, Skill 1 at 34,13
+CastSpell: Target is Character pepe. Spell Type: 3
+User pepe requested UseSkill for Skill ID: 1
+UseSkillClick: User pepe, Skill 1 at 34,13
+CastSpell: Target is Character pepe. Spell Type: 3
+User pepe requested UseSkill for Skill ID: 1
+UseSkillClick: User pepe, Skill 1 at 34,13
+CastSpell: Target is Character pepe. Spell Type: 3
+User pepe requested UseSkill for Skill ID: 1
+UseSkillClick: User pepe, Skill 1 at 33,89
+CastSpell: Target is Character pepe. Spell Type: 3
+User pepe requested UseSkill for Skill ID: 1
+UseSkillClick: User pepe, Skill 1 at 33,11
+CastSpell: Target is Character pepe. Spell Type: 3
+User pepe requested UseSkill for Skill ID: 1
+UseSkillClick: User pepe, Skill 1 at 32,89
+CastSpell: Target is Character pepe. Spell Type: 3
+User pepe requested UseSkill for Skill ID: 1
+UseSkillClick: User pepe, Skill 1 at 28,89
+CastSpell: Target is NPC. Spell Type: 3
+DoubleClick from pepe at 27,89 (Raw: 28,90)
+2026/01/25 08:55:53 ERROR Read error error="read tcp 127.0.0.1:7666->127.0.0.1:40028: use of closed network connection"
+2026/01/25 08:55:53 INFO User disconnected, saving... name=pepe
+2026/01/25 08:57:00 INFO Shutting down server...

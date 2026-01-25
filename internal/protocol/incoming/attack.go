@@ -4,12 +4,14 @@ import (
 	"github.com/ao-go-server/internal/model"
 	"github.com/ao-go-server/internal/network"
 	"github.com/ao-go-server/internal/protocol"
+	"github.com/ao-go-server/internal/protocol/outgoing"
 	"github.com/ao-go-server/internal/service"
 )
 
 type AttackPacket struct {
 	MapService    *service.MapService
 	CombatService *service.CombatService
+	AreaService   *service.AreaService
 }
 
 func (p *AttackPacket) Handle(buffer *network.DataBuffer, connection protocol.Connection) (bool, error) {
@@ -20,6 +22,24 @@ func (p *AttackPacket) Handle(buffer *network.DataBuffer, connection protocol.Co
 
 	if char.Dead {
 		return true, nil
+	}
+
+	if char.Meditating {
+		char.Meditating = false
+		connection.Send(&outgoing.MeditateTogglePacket{})
+		p.AreaService.BroadcastToArea(char.Position, &outgoing.MeditateTogglePacket{})
+		connection.Send(&outgoing.ConsoleMessagePacket{
+			Message: "Dejas de meditar.",
+			Font:    outgoing.INFO,
+		})
+		// Stop meditation FX
+		fxPacket := &outgoing.CreateFxPacket{
+			CharIndex: char.CharIndex,
+			FxID:      0,
+			Loops:     0,
+		}
+		connection.Send(fxPacket)
+		p.AreaService.BroadcastNearby(char, fxPacket)
 	}
 
 	// Find target in front

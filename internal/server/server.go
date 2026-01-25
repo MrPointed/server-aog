@@ -14,6 +14,7 @@ import (
 	"github.com/ao-go-server/internal/actions"
 	"github.com/ao-go-server/internal/api"
 	"github.com/ao-go-server/internal/config"
+	"github.com/ao-go-server/internal/model"
 	"github.com/ao-go-server/internal/network"
 	"github.com/ao-go-server/internal/persistence"
 	"github.com/ao-go-server/internal/protocol"
@@ -31,6 +32,7 @@ type Server struct {
 	npcService     *service.NpcService
 	aiService      *service.AIService
 	config         *config.Config
+	globalBalance  *model.GlobalBalanceConfig
 	resourcesPath  string
 }
 
@@ -66,7 +68,7 @@ func NewServer(addr string, resourcesPath string) *Server {
 		slog.Error("Critical error loading balances", "error", err)
 	}
 	combatFormulas := service.NewCombatFormulas(archetypeMods)
-	intervalService := service.NewIntervalService(cfg)
+	intervalService := service.NewIntervalService(globalBalance)
 
 	bodyService := service.NewCharacterBodyService(projectCfg)
 	userService := service.NewUserService(bodyService)
@@ -91,7 +93,7 @@ func NewServer(addr string, resourcesPath string) *Server {
 	resourceManager.LoadAll()
 
 	combatService := service.NewCombatService(messageService, objectService, npcService, mapService, combatFormulas, intervalService, trainingService, cfg)
-	timedEventsService := service.NewTimedEventsService(userService, messageService, cfg)
+	timedEventsService := service.NewTimedEventsService(userService, messageService, cfg, globalBalance)
 	timedEventsService.Start()
 
 	aiService := service.NewAIService(npcService, mapService, areaService, userService, combatService, messageService, spellService)
@@ -120,10 +122,10 @@ func NewServer(addr string, resourcesPath string) *Server {
 	m.RegisterHandler(protocol.CP_Talk, &incoming.TalkPacket{MessageService: messageService})
 	m.RegisterHandler(protocol.CP_Yell, &incoming.YellPacket{MessageService: messageService})
 	m.RegisterHandler(protocol.CP_Whisper, &incoming.WhisperPacket{UserService: userService})
-	m.RegisterHandler(protocol.CP_Attack, &incoming.AttackPacket{MapService: mapService, CombatService: combatService})
+	m.RegisterHandler(protocol.CP_Attack, &incoming.AttackPacket{MapService: mapService, CombatService: combatService, AreaService: areaService})
 	m.RegisterHandler(protocol.CP_PickUp, &incoming.PickUpPacket{MapService: mapService, MessageService: messageService})
 	m.RegisterHandler(protocol.CP_Online, &incoming.OnlinePacket{UserService: userService})
-	m.RegisterHandler(protocol.CP_Meditate, &incoming.MeditatePacket{})
+	m.RegisterHandler(protocol.CP_Meditate, &incoming.MeditatePacket{AreaService: areaService})
 	m.RegisterHandler(protocol.CP_Quit, &incoming.QuitPacket{})
 	m.RegisterHandler(protocol.CP_Drop, &incoming.DropPacket{MapService: mapService, MessageService: messageService, ObjectService: objectService})
 	m.RegisterHandler(protocol.CP_CastSpell, &incoming.CastSpellPacket{MapService: mapService, SpellService: spellService})
@@ -133,7 +135,7 @@ func NewServer(addr string, resourcesPath string) *Server {
 	m.RegisterHandler(protocol.CP_ModifySkills, &incoming.ModifySkillsPacket{})
 	m.RegisterHandler(protocol.CP_ChangeHeading, &incoming.ChangeHeadingPacket{AreaService: areaService})
 	m.RegisterHandler(protocol.CP_Double_Click, &incoming.DoubleClickPacket{MapService: mapService, NpcService: npcService, UserService: userService, ObjectService: objectService, AreaService: areaService, BankService: bankService, SpellService: spellService})
-	m.RegisterHandler(protocol.CP_Work, &incoming.UseSkillPacket{})
+	m.RegisterHandler(protocol.CP_Work, &incoming.UseSkillPacket{AreaService: areaService})
 	m.RegisterHandler(protocol.CP_WorkLeftClick, &incoming.UseSkillClickPacket{SkillService: skillService})
 	m.RegisterHandler(protocol.CP_Resurrect, &incoming.ResurrectPacket{MapService: mapService, AreaService: areaService, MessageService: messageService})
 
@@ -157,6 +159,7 @@ func NewServer(addr string, resourcesPath string) *Server {
 		npcService:     npcService,
 		aiService:      aiService,
 		config:         cfg,
+		globalBalance:  globalBalance,
 		resourcesPath:  res,
 	}
 }
@@ -171,7 +174,7 @@ func (s *Server) Start() error {
 
 	// Start Admin API
 	configPath := filepath.Join(s.resourcesPath, "config_yaml", "server.yaml")
-	adminAPI := api.NewAdminAPI(s.mapService, s.userService, s.loginService, s.messageService, s.npcService, s.aiService, s.config, configPath)
+	adminAPI := api.NewAdminAPI(s.mapService, s.userService, s.loginService, s.messageService, s.npcService, s.aiService, s.config, s.globalBalance, configPath)
 	go adminAPI.Start(":7667")
 
 	if err := os.WriteFile("server.pid", []byte(fmt.Sprintf("%d", os.Getpid())), 0644); err != nil {

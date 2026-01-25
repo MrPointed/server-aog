@@ -185,13 +185,40 @@ balance:
       wrestling_damage: 0.5
       shield: 0.7
       hp: 9.5
+  
+  intervals:
+    user_attack: 1500
+    cast_spell: 1400
+    hunter_arrows: 1400
+    magic_hit: 1000
+    hit_magic: 1000
+    hp_no_rest: 1600
+    user_use: 125
+    stamina_no_rest: 10
+    hp_rest: 100
+    stamina_rest: 5
+    thirst: 6000
+    hunger: 6500
+    poison: 500
+    paralyzed: 500
+    invisible: 500
+    hidden: 500
+    cold: 15
+    move: 200
+    npc_ai: 380
+    npc_attack: 1600
+    work: 
+    invocation: 1001
+    rain_stamina_loss: 9999
 
   distribution:
     e: [20, 20, 20, 20, 20]
     s: [25, 25, 25, 25]
 
   extra:
-    mana_recovery_percentage: 6
+    mana_recovery_percentage: 0.06
 
   party:
     level_exponent: 1.75
+
+    

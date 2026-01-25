@@ -7,9 +7,11 @@ import (
 	"github.com/ao-go-server/internal/network"
 	"github.com/ao-go-server/internal/protocol"
 	"github.com/ao-go-server/internal/protocol/outgoing"
+	"github.com/ao-go-server/internal/service"
 )
 
 type UseSkillPacket struct {
+	AreaService *service.AreaService
 }
 
 func (p *UseSkillPacket) Handle(buffer *network.DataBuffer, connection protocol.Connection) (bool, error) {
@@ -29,9 +31,30 @@ func (p *UseSkillPacket) Handle(buffer *network.DataBuffer, connection protocol.
 			connection.Send(&outgoing.SkillRequestTargetPacket{Skill: skillID})
 
 		case model.Meditate:
-			// Toggle meditate
-			// TODO: Implement Meditate logic
-			connection.Send(&outgoing.ConsoleMessagePacket{Message: "Te concentras...", Font: outgoing.INFO})
+			if !user.Dead {
+				user.Meditating = !user.Meditating
+				connection.Send(&outgoing.MeditateTogglePacket{})
+				p.AreaService.BroadcastToArea(user.Position, &outgoing.MeditateTogglePacket{})
+				if user.Meditating {
+					connection.Send(&outgoing.ConsoleMessagePacket{Message: "Te concentras...", Font: outgoing.INFO})
+					fxPacket := &outgoing.CreateFxPacket{
+						CharIndex: user.CharIndex,
+						FxID:      4,
+						Loops:     -1,
+					}
+					connection.Send(fxPacket)
+					p.AreaService.BroadcastNearby(user, fxPacket)
+				} else {
+					connection.Send(&outgoing.ConsoleMessagePacket{Message: "Dejas de meditar.", Font: outgoing.INFO})
+					fxPacket := &outgoing.CreateFxPacket{
+						CharIndex: user.CharIndex,
+						FxID:      0,
+						Loops:     0,
+					}
+					connection.Send(fxPacket)
+					p.AreaService.BroadcastNearby(user, fxPacket)
+				}
+			}
 
 		case model.Hiding:
 			// Toggle hiding

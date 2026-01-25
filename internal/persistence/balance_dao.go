@@ -23,11 +23,20 @@ type yamlBalance struct {
 			E []int `yaml:"e"`
 			S []int `yaml:"s"`
 		} `yaml:"distribution"`
+		Intervals struct {
+			UserAttack int64 `yaml:"user_attack"`
+			CastSpell  int64 `yaml:"cast_spell"`
+			UserUse    int64 `yaml:"user_use"`
+			Work       int64 `yaml:"work"`
+			MagicHit   int64 `yaml:"magic_hit"`
+			Hunger     int64 `yaml:"hunger"`
+			Thirst     int64 `yaml:"thirst"`
+		} `yaml:"intervals"`
 		Party struct {
 			LevelExponent float64 `yaml:"level_exponent"`
 		} `yaml:"party"`
 		Extra struct {
-			ManaRecoveryPercentage int `yaml:"mana_recovery_percentage"`
+			ManaRecoveryPercentage float64 `yaml:"mana_recovery_percentage"`
 		} `yaml:"extra"`
 	} `yaml:"balance"`
 }
@@ -51,6 +60,13 @@ func (d *BalanceDAO) Load() (map[model.UserArchetype]*model.ArchetypeModifiers, 
 		SemienteraDist:  yb.Balance.Distribution.S,
 		LevelExponent:   yb.Balance.Party.LevelExponent,
 		ManaRecoveryPct: yb.Balance.Extra.ManaRecoveryPercentage,
+		IntervalAttack:   yb.Balance.Intervals.UserAttack,
+		IntervalSpell:    yb.Balance.Intervals.CastSpell,
+		IntervalItem:     yb.Balance.Intervals.UserUse,
+		IntervalWork:     yb.Balance.Intervals.Work,
+		IntervalMagicHit: yb.Balance.Intervals.MagicHit,
+		IntervalHunger:   yb.Balance.Intervals.Hunger,
+		IntervalThirst:   yb.Balance.Intervals.Thirst,
 	}
 
 	// ... (Races and Classes mapping)

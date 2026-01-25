@@ -72,40 +72,11 @@ server:
     - NIHIELOR
     - INJU
     - RENSOKU
-
+  
   intervals:
-    hp_no_rest: 1600
-    stamina_no_rest: 10
-    hp_rest: 100
-    stamina_rest: 5
-    thirst: 6000
-    hunger: 6500
-    poison: 500
-    paralyzed: 500
-    invisible: 500
-    hidden: 500
-    cold: 15
-    wav_fx: 190
-    move: 200
-    cast_spell: 1400
-    npc_ai: 380
-    npc_attack: 1600
-    work: 700
-    user_attack: 1500
     world_save: 180
-    invocation: 1001
-    rain_stamina_loss: 9999
-    connection: 3000
-    timer_exec: 50
     close_connection: 5
-    user_use: 125
-    hunter_arrows: 1400
-    auto_restart: 100000
-    magic_hit: 1000
-    hit_magic: 1000
-
-  balance:
-    mana_recovery_percentage: 6
+    connection: 3000
 
   security:
     md5_hush:
