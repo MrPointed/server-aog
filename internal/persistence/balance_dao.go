@@ -24,13 +24,13 @@ type yamlBalance struct {
 			S []int `yaml:"s"`
 		} `yaml:"distribution"`
 		Intervals struct {
-			UserAttack int64 `yaml:"user_attack"`
-			CastSpell  int64 `yaml:"cast_spell"`
-			UserUse    int64 `yaml:"user_use"`
-			Work       int64 `yaml:"work"`
-			MagicHit   int64 `yaml:"magic_hit"`
-			Hunger     int64 `yaml:"hunger"`
-			Thirst     int64 `yaml:"thirst"`
+			UserAttack      int64 `yaml:"user_attack"`
+			CastSpell       int64 `yaml:"cast_spell"`
+			UserUse         int64 `yaml:"user_use"`
+			Work            int64 `yaml:"work"`
+			MagicHit        int64 `yaml:"magic_hit"`
+			Hunger          int64 `yaml:"hunger"`
+			Thirst          int64 `yaml:"thirst"`
 			StartMeditating int64 `yaml:"start_meditating"`
 			Meditation      int64 `yaml:"meditation"`
 		} `yaml:"intervals"`
@@ -39,6 +39,7 @@ type yamlBalance struct {
 		} `yaml:"party"`
 		Extra struct {
 			ManaRecoveryPercentage float64 `yaml:"mana_recovery_percentage"`
+			NewbieMaxLevel         int     `yaml:"newbie_max_level"`
 		} `yaml:"extra"`
 	} `yaml:"balance"`
 }
@@ -58,28 +59,29 @@ func (d *BalanceDAO) Load() (map[model.UserArchetype]*model.ArchetypeModifiers, 
 	raceModifiers := make(map[model.Race]*model.RaceModifiers)
 
 	globalConfig := &model.GlobalBalanceConfig{
-		EnteraDist:      yb.Balance.Distribution.E,
-		SemienteraDist:  yb.Balance.Distribution.S,
-		LevelExponent:   yb.Balance.Party.LevelExponent,
-		ManaRecoveryPct: yb.Balance.Extra.ManaRecoveryPercentage,
-		IntervalAttack:   yb.Balance.Intervals.UserAttack,
-		IntervalSpell:    yb.Balance.Intervals.CastSpell,
-		IntervalItem:     yb.Balance.Intervals.UserUse,
-		IntervalWork:     yb.Balance.Intervals.Work,
-		IntervalMagicHit: yb.Balance.Intervals.MagicHit,
-		IntervalHunger:   yb.Balance.Intervals.Hunger,
-		IntervalThirst:   yb.Balance.Intervals.Thirst,
+		EnteraDist:              yb.Balance.Distribution.E,
+		SemienteraDist:          yb.Balance.Distribution.S,
+		LevelExponent:           yb.Balance.Party.LevelExponent,
+		NwMaxLevel:              yb.Balance.Extra.NewbieMaxLevel,
+		ManaRecoveryPct:         yb.Balance.Extra.ManaRecoveryPercentage,
+		IntervalAttack:          yb.Balance.Intervals.UserAttack,
+		IntervalSpell:           yb.Balance.Intervals.CastSpell,
+		IntervalItem:            yb.Balance.Intervals.UserUse,
+		IntervalWork:            yb.Balance.Intervals.Work,
+		IntervalMagicHit:        yb.Balance.Intervals.MagicHit,
+		IntervalHunger:          yb.Balance.Intervals.Hunger,
+		IntervalThirst:          yb.Balance.Intervals.Thirst,
 		IntervalStartMeditating: yb.Balance.Intervals.StartMeditating,
 		IntervalMeditation:      yb.Balance.Intervals.Meditation,
 	}
 
 	// ... (Races and Classes mapping)
 	raceMap := map[string]model.Race{
-		"human":    model.Human,
-		"elf":      model.Elf,
-		"drow":     model.DarkElf,
-		"gnome":    model.Gnome,
-		"dwarf":    model.Dwarf,
+		"human": model.Human,
+		"elf":   model.Elf,
+		"drow":  model.DarkElf,
+		"gnome": model.Gnome,
+		"dwarf": model.Dwarf,
 	}
 
 	for name, r := range raceMap {

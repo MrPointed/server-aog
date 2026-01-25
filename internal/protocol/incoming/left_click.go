@@ -26,7 +26,7 @@ func (p *LeftClickPacket) Handle(buffer *network.DataBuffer, connection protocol
 
 	rawX, _ := buffer.Get()
 	rawY, _ := buffer.Get()
-	
+
 	x := rawX - 1
 	y := rawY - 1
 
@@ -59,7 +59,7 @@ func (p *LeftClickPacket) Handle(buffer *network.DataBuffer, connection protocol
 	}
 
 	foundSomething := false
-	
+
 	// Reset targets
 	user.TargetMap = mapID
 	user.TargetX = int(x)
@@ -93,7 +93,7 @@ func (p *LeftClickPacket) Handle(buffer *network.DataBuffer, connection protocol
 		user.TargetObjX = objX
 		user.TargetObjY = objY
 		foundSomething = true
-		
+
 		msg := targetObj.Object.Name
 		if targetObj.Amount > 1 {
 			msg = fmt.Sprintf("%s - %d", msg, targetObj.Amount)
@@ -105,14 +105,16 @@ func (p *LeftClickPacket) Handle(buffer *network.DataBuffer, connection protocol
 	}
 
 	// Check Characters
-	// Check Y+1 first (user overlap?) - VB6 does this
+	// Check Y+1 first (user overlap)
 	var targetCharIndex int16 = 0
 	var isNpc bool = false
-	
+
 	checkTileForChar := func(tx, ty int) bool {
-		if tx < 0 || tx >= model.MapWidth || ty < 0 || ty >= model.MapHeight {
+
+		if !p.MapService.IsInPlayableArea(tx, ty) {
 			return false
 		}
+
 		tile := gameMap.GetTile(tx, ty)
 		if tile.Character != nil {
 			targetCharIndex = tile.Character.CharIndex
@@ -141,16 +143,16 @@ func (p *LeftClickPacket) Handle(buffer *network.DataBuffer, connection protocol
 				user.TargetNPC = targetCharIndex
 				user.TargetNpcType = worldNpc.NPC.Type
 				user.TargetUser = 0
-				
+
 				// Calculate status based on survival skill
 				// For now simplified
-				status := "(Sano) " 
+				status := "(Sano) "
 				ratio := float64(worldNpc.HP) / float64(worldNpc.NPC.MaxHp)
 				if ratio < 0.5 {
 					status = "(Herido) "
 				}
 				// TODO: Full survival skill logic
-				
+
 				msg := fmt.Sprintf("%s%s", status, worldNpc.NPC.Name)
 				connection.Send(&outgoing.ConsoleMessagePacket{
 					Message: msg,
@@ -185,26 +187,41 @@ func (p *LeftClickPacket) Handle(buffer *network.DataBuffer, connection protocol
 				} else {
 					user.TargetUser = targetCharIndex
 					user.TargetNPC = 0
-					
+
 					// Build status string
 					desc := targetUser.Description
 					if desc == "" {
 						desc = "No Description"
 					}
-					
-					// Simplified stats
-					status := "Intacto)"
-					ratio := float64(targetUser.Hp) / float64(targetUser.MaxHp)
-					if ratio < 1.0 { status = "Herido)" }
-					if ratio < 0.5 { status = "Malherido)" }
-					if ratio == 0 { status = "Muerto)" }
 
-					// TODO: Add Class and Race names lookup
-					msg := fmt.Sprintf("%s - %s (%s", targetUser.Name, desc, status)
-					
+					// Simplified stats
+					status := "Intacto"
+					ratio := float64(targetUser.Hp) / float64(targetUser.MaxHp)
+					if ratio < 1.0 {
+						status = "Herido"
+					}
+					if ratio < 0.5 {
+						status = "Malherido"
+					}
+					if ratio == 0 {
+						status = "Muerto"
+					}
+
+					// Tags: Newbie and Faction
+					newbieTag := ""
+					if targetUser.Level <= 12 {
+						newbieTag = " <NEWBIE>"
+					}
+
+					factionTag := " <CIUDADANO>"
 					font := outgoing.CITIZEN
-					// TODO: Check criminal status, etc.
-					
+					if targetUser.Faccion.Criminal {
+						factionTag = " <CRIMINAL>"
+						font = outgoing.CRIMINAL
+					}
+
+					msg := fmt.Sprintf("Ves a %s (%s)%s%s", targetUser.Name, status, newbieTag, factionTag)
+
 					connection.Send(&outgoing.ConsoleMessagePacket{
 						Message: msg,
 						Font:    font,

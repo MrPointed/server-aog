@@ -219,6 +219,7 @@ balance:
 
   extra:
     mana_recovery_percentage: 0.06
+    newbie_max_level: 13
 
   party:
     level_exponent: 1.75
