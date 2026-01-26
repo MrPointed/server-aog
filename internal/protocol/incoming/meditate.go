@@ -10,7 +10,7 @@ import (
 )
 
 type MeditatePacket struct {
-	AreaService *service.AreaService
+	AreaService service.AreaService
 }
 
 func (p *MeditatePacket) Handle(buffer *network.DataBuffer, connection protocol.Connection) (bool, error) {

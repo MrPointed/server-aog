@@ -6,14 +6,14 @@ import (
 )
 
 type ResourceManager struct {
-	objectService *ObjectService
-	npcService    *NpcService
-	mapService    *MapService
-	spellService  *SpellService
-	cityService   *CityService
+	objectService ObjectService
+	npcService    NpcService
+	mapService    MapService
+	spellService  SpellService
+	cityService   CityService
 }
 
-func NewResourceManager(objectService *ObjectService, npcService *NpcService, mapService *MapService, spellService *SpellService, cityService *CityService) *ResourceManager {
+func NewResourceManager(objectService ObjectService, npcService NpcService, mapService MapService, spellService SpellService, cityService CityService) *ResourceManager {
 	return &ResourceManager{
 		objectService: objectService,
 		npcService:    npcService,

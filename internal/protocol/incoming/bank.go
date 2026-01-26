@@ -7,7 +7,7 @@ import (
 )
 
 type BankEndPacket struct {
-	BankService *service.BankService
+	BankService service.BankService
 }
 
 func (p *BankEndPacket) Handle(buffer *network.DataBuffer, connection protocol.Connection) (bool, error) {
@@ -18,7 +18,7 @@ func (p *BankEndPacket) Handle(buffer *network.DataBuffer, connection protocol.C
 }
 
 type BankExtractItemPacket struct {
-	BankService *service.BankService
+	BankService service.BankService
 }
 
 func (p *BankExtractItemPacket) Handle(buffer *network.DataBuffer, connection protocol.Connection) (bool, error) {
@@ -34,7 +34,7 @@ func (p *BankExtractItemPacket) Handle(buffer *network.DataBuffer, connection pr
 }
 
 type BankDepositPacket struct {
-	BankService *service.BankService
+	BankService service.BankService
 }
 
 func (p *BankDepositPacket) Handle(buffer *network.DataBuffer, connection protocol.Connection) (bool, error) {
@@ -50,7 +50,7 @@ func (p *BankDepositPacket) Handle(buffer *network.DataBuffer, connection protoc
 }
 
 type ExtractGoldPacket struct {
-	BankService *service.BankService
+	BankService service.BankService
 }
 
 func (p *ExtractGoldPacket) Handle(buffer *network.DataBuffer, connection protocol.Connection) (bool, error) {
@@ -64,7 +64,7 @@ func (p *ExtractGoldPacket) Handle(buffer *network.DataBuffer, connection protoc
 }
 
 type DepositGoldPacket struct {
-	BankService *service.BankService
+	BankService service.BankService
 }
 
 func (p *DepositGoldPacket) Handle(buffer *network.DataBuffer, connection protocol.Connection) (bool, error) {

@@ -9,7 +9,7 @@ import (
 )
 
 type ChangeHeadingPacket struct {
-	AreaService *service.AreaService
+	AreaService service.AreaService
 }
 
 func (p *ChangeHeadingPacket) Handle(buffer *network.DataBuffer, connection protocol.Connection) (bool, error) {

@@ -12,11 +12,11 @@ import (
 )
 
 type LeftClickPacket struct {
-	MapService    *service.MapService
-	NpcService    *service.NpcService
-	UserService   *service.UserService
-	ObjectService *service.ObjectService
-	AreaService   *service.AreaService
+	MapService    service.MapService
+	NpcService    service.NpcService
+	UserService   service.UserService
+	ObjectService service.ObjectService
+	AreaService   service.AreaService
 }
 
 func (p *LeftClickPacket) Handle(buffer *network.DataBuffer, connection protocol.Connection) (bool, error) {

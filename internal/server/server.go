@@ -25,12 +25,12 @@ import (
 type Server struct {
 	addr           string
 	packetsManager *protocol.ClientPacketsManager
-	mapService     *service.MapService
-	userService    *service.UserService
-	loginService   *service.LoginService
-	messageService *service.MessageService
-	npcService     *service.NpcService
-	aiService      *service.AIService
+	mapService     service.MapService
+	userService    service.UserService
+	loginService   service.LoginService
+	messageService service.MessageService
+	npcService     service.NpcService
+	aiService      service.AiService
 	config         *config.Config
 	globalBalance  *model.GlobalBalanceConfig
 	resourcesPath  string
@@ -52,62 +52,61 @@ func NewServer(addr string, resourcesPath string) *Server {
 		// Fallback or handle error
 	}
 
-	objectDAO := persistence.NewObjectDAO(filepath.Join(res, projectCfg.Project.Paths.ObjectsDat))
-	objectService := service.NewObjectService(objectDAO)
+	objectRepo := persistence.NewObjectDatRepo(filepath.Join(res, projectCfg.Project.Paths.ObjectsDat))
+	objectService := service.NewObjectServiceImpl(objectRepo)
 
 	indexManager := service.NewCharacterIndexManager()
-	npcDAO := persistence.NewNpcDAO(filepath.Join(res, projectCfg.Project.Paths.NpcsDat))
-	npcService := service.NewNpcService(npcDAO, indexManager)
+	npcRepo := persistence.NewNpcDatRepo(filepath.Join(res, projectCfg.Project.Paths.NpcsDat))
+	npcService := service.NewNpcServiceImpl(npcRepo, indexManager)
 
-	cityDAO := persistence.NewCityDAO(filepath.Join(res, projectCfg.Project.Paths.CitiesDat))
-	cityService := service.NewCityService(cityDAO)
+	cityRepo := persistence.NewCityDatRepo(filepath.Join(res, projectCfg.Project.Paths.CitiesDat))
+	cityService := service.NewCityServiceImpl(cityRepo)
 
-	balanceDAO := persistence.NewBalanceDAO(filepath.Join(cfgPath, "balances.yaml"))
-	archetypeMods, _, globalBalance, err := balanceDAO.Load()
+	balanceRepo := persistence.NewBalanceYamlRepo(filepath.Join(cfgPath, "balances.yaml"))
+	archetypeMods, _, globalBalance, err := balanceRepo.Load()
 	if err != nil {
 		slog.Error("Critical error loading balances", "error", err)
 	}
 	combatFormulas := service.NewCombatFormulas(archetypeMods)
-	intervalService := service.NewIntervalService(globalBalance)
+	intervalService := service.NewIntervalServiceImpl(globalBalance)
 
-	bodyService := service.NewCharacterBodyService(projectCfg)
-	userService := service.NewUserService(bodyService)
+	bodyService := service.NewCharacterBodyServiceImpl(projectCfg)
+	userService := service.NewUserServiceImpl(bodyService)
 
-	mapDAO := persistence.NewMapDAO(filepath.Join(res, projectCfg.Project.Paths.Maps), projectCfg.Project.MapsCount)
-	if err := mapDAO.LoadProperties(filepath.Join(cfgPath, "maps.yaml")); err != nil {
+	mapRepo := persistence.NewMapDatRepo(filepath.Join(res, projectCfg.Project.Paths.Maps), projectCfg.Project.MapsCount)
+	if err := mapRepo.LoadProperties(filepath.Join(cfgPath, "maps.yaml")); err != nil {
 		slog.Warn("could not load maps.yaml", "error", err)
 	}
-	mapService := service.NewMapService(mapDAO, objectService, npcService)
+	mapService := service.NewMapServiceImpl(mapRepo, objectService, npcService)
 
-	executor := actions.NewActionExecutor[*service.MapService](mapService)
+	executor := actions.NewActionExecutor[service.MapService](mapService)
 	executor.Start()
 
-	areaService := service.NewAreaService(mapService, userService)
-	messageService := service.NewMessageService(userService, areaService, mapService, objectService)
-	trainingService := service.NewTrainingService(messageService, userService, archetypeMods, globalBalance)
+	areaService := service.NewAreaServiceImpl(mapService, userService)
+	messageService := service.NewMessageServiceImpl(userService, areaService, mapService, objectService)
+	trainingService := service.NewTrainingServiceImpl(messageService, userService, archetypeMods, globalBalance)
 
-	spellDAO := persistence.NewSpellDAO(filepath.Join(res, "data/hechizos.dat"))
-	spellService := service.NewSpellService(spellDAO, userService, npcService, messageService, objectService, intervalService, trainingService, areaService)
+	spellRepo := persistence.NewSpellDatRepo(filepath.Join(res, "data/hechizos.dat"))
+	spellService := service.NewSpellServiceImpl(spellRepo, userService, npcService, messageService, objectService, intervalService, trainingService, areaService)
 
 	resourceManager := service.NewResourceManager(objectService, npcService, mapService, spellService, cityService)
 	resourceManager.LoadAll()
 
-	combatService := service.NewCombatService(messageService, objectService, npcService, mapService, combatFormulas, intervalService, trainingService, cfg)
-	timedEventsService := service.NewTimedEventsService(userService, messageService, cfg, globalBalance)
+	combatService := service.NewCombatServiceImpl(messageService, objectService, npcService, mapService, combatFormulas, intervalService, trainingService, cfg)
+	timedEventsService := service.NewTimedEventsServiceImpl(userService, messageService, cfg, globalBalance)
 	timedEventsService.Start()
 
-	aiService := service.NewAIService(npcService, mapService, areaService, userService, combatService, messageService, spellService)
+	aiService := service.NewAiServiceImpl(npcService, mapService, areaService, userService, combatService, messageService, spellService)
 	aiService.Start()
 
-	skillService := service.NewSkillService(mapService, objectService, messageService, userService, npcService, spellService, intervalService)
-	bankService := service.NewBankService(objectService, messageService, userService)
+	skillService := service.NewSkillServiceImpl(mapService, objectService, messageService, userService, npcService, spellService, intervalService)
+	bankService := service.NewBankServiceImpl(objectService, messageService, userService)
 
-	fileDAO := persistence.NewFileDAO(filepath.Join(res, projectCfg.Project.Paths.Charfiles))
-	loginService := service.NewLoginService(fileDAO, fileDAO, cfg, projectCfg, userService, mapService, bodyService, indexManager, messageService, objectService, cityService, spellService, executor)
+	        userRepo := persistence.NewUserChrRepo(filepath.Join(res, projectCfg.Project.Paths.Charfiles))
+	        loginService := service.NewLoginServiceImpl(userRepo, cfg, projectCfg, userService, mapService, bodyService, indexManager, messageService, objectService, cityService, spellService, executor)
+		itemActionService := service.NewItemActionServiceImpl(objectService, messageService, intervalService, bodyService)
 
-	itemActionService := service.NewItemActionService(objectService, messageService, intervalService, bodyService)
-
-	gmService := service.NewGMService(userService, mapService, messageService, executor)
+	gmService := service.NewGmServiceImpl(userService, mapService, messageService, executor)
 
 	m := protocol.NewClientPacketsManager()
 	// Register handlers

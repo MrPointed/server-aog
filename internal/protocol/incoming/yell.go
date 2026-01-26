@@ -9,7 +9,7 @@ import (
 )
 
 type YellPacket struct {
-	MessageService *service.MessageService
+	MessageService service.MessageService
 }
 
 func (p *YellPacket) Handle(buffer *network.DataBuffer, connection protocol.Connection) (bool, error) {

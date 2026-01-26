@@ -11,9 +11,9 @@ import (
 )
 
 type CommerceBuyPacket struct {
-	NpcService    *service.NpcService
-	ObjectService *service.ObjectService
-	MessageService *service.MessageService
+	NpcService    service.NpcService
+	ObjectService service.ObjectService
+	MessageService service.MessageService
 }
 
 func (p *CommerceBuyPacket) Handle(buffer *network.DataBuffer, connection protocol.Connection) (bool, error) {
@@ -88,9 +88,9 @@ func (p *CommerceBuyPacket) Handle(buffer *network.DataBuffer, connection protoc
 }
 
 type CommerceSellPacket struct {
-	NpcService    *service.NpcService
-	ObjectService *service.ObjectService
-	MessageService *service.MessageService
+	NpcService    service.NpcService
+	ObjectService service.ObjectService
+	MessageService service.MessageService
 }
 
 func (p *CommerceSellPacket) Handle(buffer *network.DataBuffer, connection protocol.Connection) (bool, error) {

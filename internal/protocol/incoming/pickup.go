@@ -10,8 +10,8 @@ import (
 )
 
 type PickUpPacket struct {
-	MapService     *service.MapService
-	MessageService *service.MessageService
+	MapService     service.MapService
+	MessageService service.MessageService
 }
 
 func (p *PickUpPacket) Handle(buffer *network.DataBuffer, connection protocol.Connection) (bool, error) {

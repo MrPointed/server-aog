@@ -1,0 +1,72 @@
+package persistence
+
+import (
+	"strconv"
+	"strings"
+
+	"github.com/ao-go-server/internal/model"
+)
+
+type SpellDatRepo struct {
+	path string
+}
+
+func NewSpellDatRepo(path string) *SpellDatRepo {
+	return &SpellDatRepo{path: path}
+}
+
+func (d *SpellDatRepo) Load() (map[int]*model.Spell, error) {
+	data, err := ReadINI(d.path)
+	if err != nil {
+		return nil, err
+	}
+
+	spells := make(map[int]*model.Spell)
+
+	for section, props := range data {
+		if !strings.HasPrefix(section, "HECHIZO") || section == "INIT" {
+			continue
+		}
+
+		id, err := strconv.Atoi(section[7:])
+		if err != nil {
+			continue
+		}
+
+		spell := &model.Spell{
+			ID:              id,
+			Name:            props["NOMBRE"],
+			Description:     props["DESC"],
+			MagicWords:      props["PALABRASMAGICAS"],
+			CasterMsg:       props["HECHIZEROMSG"],
+			OwnMsg:          props["PROPIOMSG"],
+			TargetMsg:       props["TARGETMSG"],
+			Type:            toInt(props["TIPO"]),
+			WAV:             toInt(props["WAV"]),
+			FX:              toInt(props["FXGRH"]),
+			Loops:           toInt(props["LOOPS"]),
+			MinSkill:        toInt(props["MINSKILL"]),
+			ManaRequired:    toInt(props["MANAREQUERIDO"]),
+			StaminaRequired: toInt(props["STAREQUERIDO"]),
+			TargetType:      model.SpellTarget(toInt(props["TARGET"])),
+			MinHP:           toInt(props["MINHP"]),
+			MaxHP:           toInt(props["MAXHP"]),
+			SubeHP:          toInt(props["SUBEHP"]),
+			Invisibility:    props["INVISIBILIDAD"] == "1",
+			Paralyzes:       props["PARALIZA"] == "1",
+			Immobilizes:     props["INMOVILIZA"] == "1",
+			Poison:          props["ENVENENA"] == "1",
+			CurePoison:      props["CURAVENENO"] == "1",
+			Revive:          props["REVIVIR"] == "1",
+			Blind:           props["CEGUERA"] == "1",
+			Dumb:            props["ESTUPIDEZ"] == "1",
+			SummonNPC:       toInt(props["NUMNPC"]),
+			SummonAmount:    toInt(props["CANT"]),
+			NeedStaff:       toInt(props["NEEDSTAFF"]),
+		}
+
+		spells[id] = spell
+	}
+
+	return spells, nil
+}

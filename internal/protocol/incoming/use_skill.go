@@ -12,7 +12,7 @@ import (
 )
 
 type UseSkillPacket struct {
-	AreaService *service.AreaService
+	AreaService service.AreaService
 }
 
 func (p *UseSkillPacket) Handle(buffer *network.DataBuffer, connection protocol.Connection) (bool, error) {

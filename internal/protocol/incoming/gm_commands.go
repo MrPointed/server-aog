@@ -7,7 +7,7 @@ import (
 )
 
 type GMCommandsPacket struct {
-	GMService *service.GMService
+	GMService service.GmService
 }
 
 func (p *GMCommandsPacket) Handle(buffer *network.DataBuffer, connection protocol.Connection) (bool, error) {

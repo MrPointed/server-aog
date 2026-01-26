@@ -11,9 +11,9 @@ import (
 )
 
 type DropPacket struct {
-	MapService     *service.MapService
-	MessageService *service.MessageService
-	ObjectService  *service.ObjectService
+	MapService     service.MapService
+	MessageService service.MessageService
+	ObjectService  service.ObjectService
 }
 
 func (p *DropPacket) Handle(buffer *network.DataBuffer, connection protocol.Connection) (bool, error) {

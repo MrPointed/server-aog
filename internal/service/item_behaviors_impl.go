@@ -13,7 +13,7 @@ import (
 // --- Consumables ---
 
 type FoodBehavior struct {
-	svc *ItemActionService
+	svc *ItemActionServiceImpl
 }
 
 func (b *FoodBehavior) Use(char *model.Character, slot int, obj *model.Object, connection protocol.Connection) {
@@ -32,7 +32,7 @@ func (b *FoodBehavior) Use(char *model.Character, slot int, obj *model.Object, c
 }
 
 type DrinkBehavior struct {
-	svc *ItemActionService
+	svc *ItemActionServiceImpl
 }
 
 func (b *DrinkBehavior) Use(char *model.Character, slot int, obj *model.Object, connection protocol.Connection) {
@@ -53,7 +53,7 @@ func (b *DrinkBehavior) Use(char *model.Character, slot int, obj *model.Object, 
 // --- Potions ---
 
 type PotionBehavior struct {
-	svc *ItemActionService
+	svc *ItemActionServiceImpl
 }
 
 func (b *PotionBehavior) Use(char *model.Character, slot int, obj *model.Object, connection protocol.Connection) {
@@ -146,7 +146,7 @@ func (b *PotionBehavior) Use(char *model.Character, slot int, obj *model.Object,
 // --- Others ---
 
 type MoneyBehavior struct {
-	svc *ItemActionService
+	svc *ItemActionServiceImpl
 }
 
 func (b *MoneyBehavior) Use(char *model.Character, slot int, obj *model.Object, connection protocol.Connection) {
@@ -164,7 +164,7 @@ func (b *MoneyBehavior) Use(char *model.Character, slot int, obj *model.Object, 
 }
 
 type ToolBehavior struct {
-	svc *ItemActionService
+	svc *ItemActionServiceImpl
 }
 
 func (b *ToolBehavior) Use(char *model.Character, slot int, obj *model.Object, connection protocol.Connection) {
@@ -177,7 +177,7 @@ func (b *ToolBehavior) Use(char *model.Character, slot int, obj *model.Object, c
 // --- Equipment ---
 
 type EquipGenericBehavior struct {
-	svc  *ItemActionService
+	svc *ItemActionServiceImpl
 	Type model.ObjectType
 }
 
@@ -229,7 +229,7 @@ func (b *EquipGenericBehavior) ToggleEquip(char *model.Character, slot int, obj 
 }
 
 type BoatBehavior struct {
-	svc *ItemActionService
+	svc *ItemActionServiceImpl
 }
 
 func (b *BoatBehavior) Use(char *model.Character, slot int, obj *model.Object, connection protocol.Connection) {

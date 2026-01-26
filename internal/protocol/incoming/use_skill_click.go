@@ -9,7 +9,7 @@ import (
 )
 
 type UseSkillClickPacket struct {
-	SkillService *service.SkillService
+	SkillService service.SkillService
 }
 
 func (p *UseSkillClickPacket) Handle(buffer *network.DataBuffer, connection protocol.Connection) (bool, error) {

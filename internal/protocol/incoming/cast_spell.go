@@ -8,8 +8,8 @@ import (
 )
 
 type CastSpellPacket struct {
-	MapService   *service.MapService
-	SpellService *service.SpellService
+	MapService   service.MapService
+	SpellService service.SpellService
 }
 
 func (p *CastSpellPacket) Handle(buffer *network.DataBuffer, connection protocol.Connection) (bool, error) {

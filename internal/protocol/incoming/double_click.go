@@ -12,13 +12,13 @@ import (
 )
 
 type DoubleClickPacket struct {
-	MapService    *service.MapService
-	NpcService    *service.NpcService
-	UserService   *service.UserService
-	ObjectService *service.ObjectService
-	AreaService   *service.AreaService
-	BankService   *service.BankService
-	SpellService  *service.SpellService
+	MapService    service.MapService
+	NpcService    service.NpcService
+	UserService   service.UserService
+	ObjectService service.ObjectService
+	AreaService   service.AreaService
+	BankService   service.BankService
+	SpellService  service.SpellService
 }
 
 func (p *DoubleClickPacket) Handle(buffer *network.DataBuffer, connection protocol.Connection) (bool, error) {

@@ -9,7 +9,7 @@ import (
 )
 
 type OnlinePacket struct {
-	UserService *service.UserService
+	UserService service.UserService
 }
 
 func (p *OnlinePacket) Handle(buffer *network.DataBuffer, connection protocol.Connection) (bool, error) {

@@ -11,7 +11,7 @@ import (
 
 type LoginNewCharacterPacket struct {
 
-	LoginService *service.LoginService
+	LoginService service.LoginService
 
 }
 

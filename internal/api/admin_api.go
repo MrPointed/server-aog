@@ -17,18 +17,18 @@ import (
 )
 
 type AdminAPI struct {
-	mapService     *service.MapService
-	userService    *service.UserService
-	loginService   *service.LoginService
-	messageService *service.MessageService
-	npcService     *service.NpcService
-	aiService      *service.AIService
+	mapService     service.MapService
+	userService    service.UserService
+	loginService   service.LoginService
+	messageService service.MessageService
+	npcService     service.NpcService
+	aiService      service.AiService
 	config         *config.Config
 	globalBalance  *model.GlobalBalanceConfig
 	configPath     string
 }
 
-func NewAdminAPI(mapService *service.MapService, userService *service.UserService, loginService *service.LoginService, messageService *service.MessageService, npcService *service.NpcService, aiService *service.AIService, cfg *config.Config, globalBalance *model.GlobalBalanceConfig, configPath string) *AdminAPI {
+func NewAdminAPI(mapService service.MapService, userService service.UserService, loginService service.LoginService, messageService service.MessageService, npcService service.NpcService, aiService service.AiService, cfg *config.Config, globalBalance *model.GlobalBalanceConfig, configPath string) *AdminAPI {
 	return &AdminAPI{
 		mapService:     mapService,
 		userService:    userService,

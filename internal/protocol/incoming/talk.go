@@ -9,7 +9,7 @@ import (
 )
 
 type TalkPacket struct {
-	MessageService *service.MessageService
+	MessageService service.MessageService
 }
 
 func (p *TalkPacket) Handle(buffer *network.DataBuffer, connection protocol.Connection) (bool, error) {

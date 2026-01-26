@@ -9,9 +9,9 @@ import (
 )
 
 type ResurrectPacket struct {
-	MapService     *service.MapService
-	AreaService    *service.AreaService
-	MessageService *service.MessageService
+	MapService     service.MapService
+	AreaService    service.AreaService
+	MessageService service.MessageService
 }
 
 func (p *ResurrectPacket) Handle(buffer *network.DataBuffer, connection protocol.Connection) (bool, error) {

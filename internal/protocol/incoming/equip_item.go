@@ -7,7 +7,7 @@ import (
 )
 
 type EquipItemPacket struct {
-	ItemActionService *service.ItemActionService
+	ItemActionService service.ItemActionService
 }
 
 func (p *EquipItemPacket) Handle(buffer *network.DataBuffer, connection protocol.Connection) (bool, error) {

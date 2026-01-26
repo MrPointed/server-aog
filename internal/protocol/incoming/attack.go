@@ -9,9 +9,9 @@ import (
 )
 
 type AttackPacket struct {
-	MapService    *service.MapService
-	CombatService *service.CombatService
-	AreaService   *service.AreaService
+	MapService    service.MapService
+	CombatService service.CombatService
+	AreaService   service.AreaService
 }
 
 func (p *AttackPacket) Handle(buffer *network.DataBuffer, connection protocol.Connection) (bool, error) {

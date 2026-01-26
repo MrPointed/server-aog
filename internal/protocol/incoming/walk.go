@@ -9,9 +9,9 @@ import (
 )
 
 type WalkPacket struct {
-	MapService     *service.MapService
-	MessageService *service.MessageService
-	AreaService    *service.AreaService // Still needed for Area logic in Handle
+	MapService     service.MapService
+	MessageService service.MessageService
+	AreaService    service.AreaService // Still needed for Area logic in Handle
 }
 
 func (p *WalkPacket) Handle(buffer *network.DataBuffer, connection protocol.Connection) (bool, error) {

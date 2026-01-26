@@ -9,7 +9,7 @@ import (
 )
 
 type LoginExistingCharacterPacket struct {
-	LoginService *service.LoginService
+	LoginService service.LoginService
 }
 
 func (p *LoginExistingCharacterPacket) Handle(buffer *network.DataBuffer, connection protocol.Connection) (bool, error) {

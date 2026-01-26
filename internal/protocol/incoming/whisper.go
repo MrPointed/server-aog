@@ -9,7 +9,7 @@ import (
 )
 
 type WhisperPacket struct {
-	UserService    *service.UserService
+	UserService    service.UserService
 }
 
 func (p *WhisperPacket) Handle(buffer *network.DataBuffer, connection protocol.Connection) (bool, error) {
