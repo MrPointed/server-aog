@@ -1,56 +1,67 @@
 Starting server in dev environment on port 7666...
 Using resources from: /home/user98/Documents/ao-java/ao-go-server/resources
-2026/01/25 10:22:32 INFO Starting resource loading...
-2026/01/25 10:22:32 WARN Skipping invalid object section section=INIT
-2026/01/25 10:22:32 INFO Successfully loaded objects count=1049
-2026/01/25 10:22:32 INFO Successfully loaded NPCs count=316
-2026/01/25 10:22:32 INFO Loading cities from data file...
-2026/01/25 10:22:32 INFO Successfully loaded cities count=7
-2026/01/25 10:22:32 INFO Successfully loaded spells count=50
-2026/01/25 10:22:32 INFO Successfully loaded maps.
-2026/01/25 10:22:32 INFO All resources loaded duration=159.625874ms
-2026/01/25 10:22:32 INFO Admin API listening addr=:7667
-2026/01/25 10:22:32 INFO AO Go Server listening addr=:7666
-2026/01/25 10:22:53 INFO Connecting existing character nick=pepe
-2026/01/25 10:22:53 INFO User logged in name=pepe pos="{X:39 Y:57 Map:34}" privs=3
-User pepe requested UseSkill for Skill ID: 1
-UseSkillClick: User pepe, Skill 1 at 32,60
-CastSpell: Target is Character pepe. Spell Type: 3
-User pepe requested UseSkill for Skill ID: 1
-UseSkillClick: User pepe, Skill 1 at 32,70
-CastSpell: Target is Character pepe. Spell Type: 3
-User pepe requested UseSkill for Skill ID: 1
-User pepe requested UseSkill for Skill ID: 1
-UseSkillClick: User pepe, Skill 1 at 33,73
-CastSpell: Target is Position. Spell Type: 3
-CastSpell: Invalid target type for Position
-DoubleClick from pepe at 32,69 (Raw: 33,70)
-User pepe requested UseSkill for Skill ID: 1
-UseSkillClick: User pepe, Skill 1 at 33,59
-CastSpell: Target is Character pepe. Spell Type: 3
-User pepe requested UseSkill for Skill ID: 1
-UseSkillClick: User pepe, Skill 1 at 34,56
-CastSpell: Target is Position. Spell Type: 3
-CastSpell: Invalid target type for Position
-User pepe requested UseSkill for Skill ID: 1
-UseSkillClick: User pepe, Skill 1 at 31,68
-CastSpell: Target is Character pepe. Spell Type: 3
-User pepe requested UseSkill for Skill ID: 1
-UseSkillClick: User pepe, Skill 1 at 31,74
-CastSpell: Target is Character pepe. Spell Type: 3
-User pepe requested UseSkill for Skill ID: 1
-UseSkillClick: User pepe, Skill 1 at 13,90
-CastSpell: Target is Character pepe. Spell Type: 3
-User pepe requested UseSkill for Skill ID: 1
-UseSkillClick: User pepe, Skill 1 at 10,77
-CastSpell: Target is Character pepe. Spell Type: 3
-User pepe requested UseSkill for Skill ID: 1
-UseSkillClick: User pepe, Skill 1 at 12,74
-CastSpell: Target is Character pepe. Spell Type: 3
-User pepe requested UseSkill for Skill ID: 1
-UseSkillClick: User pepe, Skill 1 at 22,73
-CastSpell: Target is Position. Spell Type: 3
-CastSpell: Invalid target type for Position
-2026/01/25 10:24:52 ERROR Read error error="read tcp 127.0.0.1:7666->127.0.0.1:52366: use of closed network connection"
-2026/01/25 10:24:52 INFO User disconnected, saving... name=pepe
-2026/01/25 10:25:50 INFO Shutting down server...
+2026/01/25 21:47:06 INFO Starting resource loading...
+2026/01/25 21:47:06 WARN Skipping invalid object section section=INIT
+2026/01/25 21:47:06 INFO Successfully loaded objects count=1049
+2026/01/25 21:47:06 INFO Successfully loaded NPCs count=316
+2026/01/25 21:47:06 INFO Loading cities from data file...
+2026/01/25 21:47:06 INFO Successfully loaded cities count=7
+2026/01/25 21:47:06 INFO Successfully loaded spells count=50
+2026/01/25 21:47:06 INFO Successfully loaded maps.
+2026/01/25 21:47:06 INFO All resources loaded duration=177.951371ms
+2026/01/25 21:47:06 INFO AO Go Server listening addr=:7666
+2026/01/25 21:47:06 INFO Admin API listening addr=:7667
+2026/01/25 21:47:33 INFO Connecting existing character nick=pepe
+2026/01/25 21:47:33 INFO User logged in name=pepe pos="{X:33 Y:54 Map:115}" privs=3
+DoubleClick from pepe at 33,54 (Raw: 34,55)
+NPC LeftClick: User pepe clicked NPC 530 (Bandido)
+NPC LeftClick: User pepe clicked NPC 530 (Bandido)
+DoubleClick from pepe at 56,49 (Raw: 57,50)
+NPC LeftClick: User pepe clicked NPC 530 (Bandido)
+DoubleClick from pepe at 64,55 (Raw: 65,56)
+NPC LeftClick: User pepe clicked NPC 5 (Sacerdote)
+NPC LeftClick: Sending description: ¡Hola, hijo mío! Soy el Sacerdote de estas tierras. Si quieres que te resucite escribe /RESUCITAR, o haz doble click sobre mí.
+NPC LeftClick: User pepe clicked NPC 5 (Sacerdote)
+NPC LeftClick: Sending description: ¡Hola, hijo mío! Soy el Sacerdote de estas tierras. Si quieres que te resucite escribe /RESUCITAR, o haz doble click sobre mí.
+DoubleClick from pepe at 76,62 (Raw: 77,63)
+NPC DoubleClick: Sending description for NPC 5: ¡Hola, hijo mío! Soy el Sacerdote de estas tierras. Si quieres que te resucite escribe /RESUCITAR, o haz doble click sobre mí.
+NPC LeftClick: User pepe clicked NPC 5 (Sacerdote)
+NPC LeftClick: Sending description: ¡Hola, hijo mío! Soy el Sacerdote de estas tierras. Si quieres que te resucite escribe /RESUCITAR, o haz doble click sobre mí.
+NPC LeftClick: User pepe clicked NPC 5 (Sacerdote)
+NPC LeftClick: Sending description: ¡Hola, hijo mío! Soy el Sacerdote de estas tierras. Si quieres que te resucite escribe /RESUCITAR, o haz doble click sobre mí.
+NPC LeftClick: User pepe clicked NPC 5 (Sacerdote)
+NPC LeftClick: Sending description: ¡Hola, hijo mío! Soy el Sacerdote de estas tierras. Si quieres que te resucite escribe /RESUCITAR, o haz doble click sobre mí.
+DoubleClick from pepe at 76,62 (Raw: 77,63)
+NPC DoubleClick: Sending description for NPC 5: ¡Hola, hijo mío! Soy el Sacerdote de estas tierras. Si quieres que te resucite escribe /RESUCITAR, o haz doble click sobre mí.
+NPC LeftClick: User pepe clicked NPC 5 (Sacerdote)
+NPC LeftClick: Sending description: ¡Hola, hijo mío! Soy el Sacerdote de estas tierras. Si quieres que te resucite escribe /RESUCITAR, o haz doble click sobre mí.
+NPC LeftClick: User pepe clicked NPC 5 (Sacerdote)
+NPC LeftClick: Sending description: ¡Hola, hijo mío! Soy el Sacerdote de estas tierras. Si quieres que te resucite escribe /RESUCITAR, o haz doble click sobre mí.
+DoubleClick from pepe at 76,62 (Raw: 77,63)
+NPC DoubleClick: Sending description for NPC 5: ¡Hola, hijo mío! Soy el Sacerdote de estas tierras. Si quieres que te resucite escribe /RESUCITAR, o haz doble click sobre mí.
+DoubleClick from pepe at 86,60 (Raw: 87,61)
+DoubleClick from pepe at 56,68 (Raw: 57,69)
+DoubleClick from pepe at 34,42 (Raw: 35,43)
+DoubleClick from pepe at 28,37 (Raw: 29,38)
+NPC LeftClick: User pepe clicked NPC 8 (Thorkis)
+NPC LeftClick: Sending description: Hooooola jovencito, tengo las mejores provisiones de Ullathorpe!!
+NPC LeftClick: User pepe clicked NPC 8 (Thorkis)
+NPC LeftClick: Sending description: Hooooola jovencito, tengo las mejores provisiones de Ullathorpe!!
+DoubleClick from pepe at 26,33 (Raw: 27,34)
+NPC DoubleClick: Sending description for NPC 8: Hooooola jovencito, tengo las mejores provisiones de Ullathorpe!!
+DoubleClick from pepe at 34,65 (Raw: 35,66)
+DoubleClick from pepe at 33,74 (Raw: 34,75)
+DoubleClick from pepe at 33,83 (Raw: 34,84)
+DoubleClick from pepe at 37,92 (Raw: 38,93)
+DoubleClick from pepe at 43,87 (Raw: 44,88)
+DoubleClick from pepe at 38,53 (Raw: 39,54)
+DoubleClick from pepe at 65,32 (Raw: 66,33)
+DoubleClick from pepe at 54,32 (Raw: 55,33)
+DoubleClick from pepe at 45,23 (Raw: 46,24)
+DoubleClick from pepe at 45,14 (Raw: 46,15)
+DoubleClick from pepe at 43,60 (Raw: 44,61)
+DoubleClick from pepe at 53,68 (Raw: 54,69)
+DoubleClick from pepe at 55,77 (Raw: 56,78)
+DoubleClick from pepe at 55,82 (Raw: 56,83)
+2026/01/25 21:50:49 ERROR Read error error="read tcp 127.0.0.1:7666->127.0.0.1:58052: use of closed network connection"
+2026/01/25 21:50:49 INFO User disconnected, saving... name=pepe

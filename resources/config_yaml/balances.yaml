@@ -197,8 +197,8 @@ balance:
     stamina_no_rest: 10
     hp_rest: 100
     stamina_rest: 5
-    thirst: 12000
-    hunger: 12500
+    thirst: 30000
+    hunger: 23000
     poison: 500
     paralyzed: 500
     invisible: 500

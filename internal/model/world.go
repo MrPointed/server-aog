@@ -77,20 +77,41 @@ type Map struct {
 	mu         sync.RWMutex
 }
 
-func (m *Map) Lock() {
+// Modify executes the action under a write lock.
+func (m *Map) Modify(action func(m *Map)) {
 	m.mu.Lock()
+	defer m.mu.Unlock()
+	action(m)
 }
 
-func (m *Map) Unlock() {
-	m.mu.Unlock()
-}
-
-func (m *Map) RLock() {
+// View executes the action under a read lock.
+func (m *Map) View(action func(m *Map)) {
 	m.mu.RLock()
+	defer m.mu.RUnlock()
+	action(m)
 }
 
-func (m *Map) RUnlock() {
-	m.mu.RUnlock()
+// ModifyTwo executes the action locking both maps safely (ordered by ID) to prevent deadlocks.
+// If both maps are the same, it only locks once.
+func ModifyTwo(m1, m2 *Map, action func(m1, m2 *Map)) {
+	if m1 == m2 {
+		m1.Modify(func(m *Map) {
+			action(m, m)
+		})
+		return
+	}
+
+	first, second := m1, m2
+	if m1.Id > m2.Id {
+		first, second = m2, m1
+	}
+
+	first.mu.Lock()
+	second.mu.Lock()
+	defer first.mu.Unlock()
+	defer second.mu.Unlock()
+
+	action(m1, m2)
 }
 
 func (m *Map) GetTile(x, y int) *Tile {

@@ -298,12 +298,13 @@ func (a *AdminAPI) handleNpcRespawn(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// Remove all NPCs from map first
-	m.Lock()
-	npcsToRemove := make([]*model.WorldNPC, 0, len(m.Npcs))
-	for _, npc := range m.Npcs {
-		npcsToRemove = append(npcsToRemove, npc)
-	}
-	m.Unlock()
+	var npcsToRemove []*model.WorldNPC
+	m.Modify(func(m *model.Map) {
+		npcsToRemove = make([]*model.WorldNPC, 0, len(m.Npcs))
+		for _, npc := range m.Npcs {
+			npcsToRemove = append(npcsToRemove, npc)
+		}
+	})
 
 	for _, npc := range npcsToRemove {
 		// We use a temporary flag to avoid auto-respawn during manual respawn command

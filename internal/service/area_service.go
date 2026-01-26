@@ -163,57 +163,56 @@ func (s *AreaService) SendAreaState(char *model.Character) {
 		return
 	}
 
-	gameMap.RLock()
-	defer gameMap.RUnlock()
+	gameMap.View(func(gameMap *model.Map) {
+		for y := 0; y < 100; y++ {
+			for x := 0; x < 100; x++ {
+				tile := gameMap.GetTile(x, y)
 
-	for y := 0; y < 100; y++ {
-		for x := 0; x < 100; x++ {
-			tile := gameMap.GetTile(x, y)
-
-			// Objects
-			if tile.Object != nil {
-				objPos := model.Position{X: byte(x), Y: byte(y), Map: char.Position.Map}
-				if s.InRange(char.Position, objPos) {
-					conn.Send(&outgoing.ObjectCreatePacket{
-						X:            byte(x),
-						Y:            byte(y),
-						GraphicIndex: int16(tile.Object.Object.GraphicIndex),
-					})
-
-					// If it's a door, sync the blocking status as it might have changed from the static map file
-					if tile.Object.Object.Type == model.OTDoor {
-						conn.Send(&outgoing.BlockPositionPacket{
-							X:       byte(x),
-							Y:       byte(y),
-							Blocked: tile.Blocked,
+				// Objects
+				if tile.Object != nil {
+					objPos := model.Position{X: byte(x), Y: byte(y), Map: char.Position.Map}
+					if s.InRange(char.Position, objPos) {
+						conn.Send(&outgoing.ObjectCreatePacket{
+							X:            byte(x),
+							Y:            byte(y),
+							GraphicIndex: int16(tile.Object.Object.GraphicIndex),
 						})
-						// Also sync the left tile which is part of the same door
-						if x > 0 {
-							leftTile := gameMap.GetTile(x-1, y)
+
+						// If it's a door, sync the blocking status as it might have changed from the static map file
+						if tile.Object.Object.Type == model.OTDoor {
 							conn.Send(&outgoing.BlockPositionPacket{
-								X:       byte(x - 1),
+								X:       byte(x),
 								Y:       byte(y),
-								Blocked: leftTile.Blocked,
+								Blocked: tile.Blocked,
 							})
+							// Also sync the left tile which is part of the same door
+							if x > 0 {
+								leftTile := gameMap.GetTile(x-1, y)
+								conn.Send(&outgoing.BlockPositionPacket{
+									X:       byte(x - 1),
+									Y:       byte(y),
+									Blocked: leftTile.Blocked,
+								})
+							}
 						}
 					}
 				}
-			}
 
-			// NPCs
-			if tile.NPC != nil {
-				if s.InRange(char.Position, tile.NPC.Position) {
-					conn.Send(&outgoing.NpcCreatePacket{Npc: tile.NPC})
+				// NPCs
+				if tile.NPC != nil {
+					if s.InRange(char.Position, tile.NPC.Position) {
+						conn.Send(&outgoing.NpcCreatePacket{Npc: tile.NPC})
+					}
 				}
 			}
 		}
-	}
 
-	// Characters
-	s.mapService.ForEachCharacter(char.Position.Map, func(other *model.Character) {
-		if other != char {
-			if s.InRange(char.Position, other.Position) {
-				conn.Send(&outgoing.CharacterCreatePacket{Character: other})
+		// Characters
+		for _, other := range gameMap.Characters {
+			if other != char {
+				if s.InRange(char.Position, other.Position) {
+					conn.Send(&outgoing.CharacterCreatePacket{Character: other})
+				}
 			}
 		}
 	})
@@ -230,42 +229,41 @@ func (s *AreaService) SendAreaObjectsOnly(char *model.Character) {
 		return
 	}
 
-	gameMap.RLock()
-	defer gameMap.RUnlock()
+	gameMap.View(func(gameMap *model.Map) {
+		for y := 0; y < 100; y++ {
+			for x := 0; x < 100; x++ {
+				tile := gameMap.GetTile(x, y)
 
-	for y := 0; y < 100; y++ {
-		for x := 0; x < 100; x++ {
-			tile := gameMap.GetTile(x, y)
-
-			// Objects
-			if tile.Object != nil {
-				objPos := model.Position{X: byte(x), Y: byte(y), Map: char.Position.Map}
-				if s.InRange(char.Position, objPos) {
-					conn.Send(&outgoing.ObjectCreatePacket{
-						X:            byte(x),
-						Y:            byte(y),
-						GraphicIndex: int16(tile.Object.Object.GraphicIndex),
-					})
-
-					// If it's a door, sync the blocking status as it might have changed from the static map file
-					if tile.Object.Object.Type == model.OTDoor {
-						conn.Send(&outgoing.BlockPositionPacket{
-							X:       byte(x),
-							Y:       byte(y),
-							Blocked: tile.Blocked,
+				// Objects
+				if tile.Object != nil {
+					objPos := model.Position{X: byte(x), Y: byte(y), Map: char.Position.Map}
+					if s.InRange(char.Position, objPos) {
+						conn.Send(&outgoing.ObjectCreatePacket{
+							X:            byte(x),
+							Y:            byte(y),
+							GraphicIndex: int16(tile.Object.Object.GraphicIndex),
 						})
-						// Also sync the left tile which is part of the same door
-						if x > 0 {
-							leftTile := gameMap.GetTile(x-1, y)
+
+						// If it's a door, sync the blocking status as it might have changed from the static map file
+						if tile.Object.Object.Type == model.OTDoor {
 							conn.Send(&outgoing.BlockPositionPacket{
-								X:       byte(x - 1),
+								X:       byte(x),
 								Y:       byte(y),
-								Blocked: leftTile.Blocked,
+								Blocked: tile.Blocked,
 							})
+							// Also sync the left tile which is part of the same door
+							if x > 0 {
+								leftTile := gameMap.GetTile(x-1, y)
+								conn.Send(&outgoing.BlockPositionPacket{
+									X:       byte(x - 1),
+									Y:       byte(y),
+									Blocked: leftTile.Blocked,
+								})
+							}
 						}
 					}
 				}
 			}
 		}
-	}
+	})
 }

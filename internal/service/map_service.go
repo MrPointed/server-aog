@@ -147,12 +147,12 @@ func (s *MapService) UnloadMap(id int) {
 	}
 
 	// Remove all NPCs associated with this map
-	m.RLock()
 	var npcsToRemove []*model.WorldNPC
-	for _, npc := range m.Npcs {
-		npcsToRemove = append(npcsToRemove, npc)
-	}
-	m.RUnlock()
+	m.View(func(m *model.Map) {
+		for _, npc := range m.Npcs {
+			npcsToRemove = append(npcsToRemove, npc)
+		}
+	})
 
 	for _, npc := range npcsToRemove {
 		npc.Respawn = false
@@ -230,33 +230,32 @@ func (s *MapService) PutCharacterAtPos(char *model.Character, pos model.Position
 		return
 	}
 
-	m.Lock()
-	defer m.Unlock()
+	m.Modify(func(m *model.Map) {
+		tile := m.GetTile(int(pos.X), int(pos.Y))
+		if tile.Character != nil && tile.Character != char {
+			slog.Warn("PutCharacterAtPos overwriting character", "x", pos.X, "y", pos.Y)
+		}
+		if tile.NPC != nil {
+			slog.Warn("PutCharacterAtPos overwriting NPC", "x", pos.X, "y", pos.Y)
+			tile.NPC = nil // NPCs are removed if a character teleports on top of them
+		}
 
-	tile := m.GetTile(int(pos.X), int(pos.Y))
-	if tile.Character != nil && tile.Character != char {
-		slog.Warn("PutCharacterAtPos overwriting character", "x", pos.X, "y", pos.Y)
-	}
-	if tile.NPC != nil {
-		slog.Warn("PutCharacterAtPos overwriting NPC", "x", pos.X, "y", pos.Y)
-		tile.NPC = nil // NPCs are removed if a character teleports on top of them
-	}
-
-	m.Characters[char.CharIndex] = char
-	tile.Character = char
-	char.Position = pos
+		m.Characters[char.CharIndex] = char
+		tile.Character = char
+		char.Position = pos
+	})
 }
 
 func (s *MapService) RemoveCharacter(char *model.Character) {
 	m := s.GetMap(char.Position.Map)
 	if m != nil {
-		m.Lock()
-		delete(m.Characters, char.CharIndex)
-		tile := m.GetTile(int(char.Position.X), int(char.Position.Y))
-		if tile.Character == char {
-			tile.Character = nil
-		}
-		m.Unlock()
+		m.Modify(func(m *model.Map) {
+			delete(m.Characters, char.CharIndex)
+			tile := m.GetTile(int(char.Position.X), int(char.Position.Y))
+			if tile.Character == char {
+				tile.Character = nil
+			}
+		})
 	}
 }
 
@@ -265,11 +264,11 @@ func (s *MapService) ForEachCharacter(mapID int, f func(*model.Character)) {
 	if m == nil {
 		return
 	}
-	m.RLock()
-	defer m.RUnlock()
-	for _, char := range m.Characters {
-		f(char)
-	}
+	m.View(func(m *model.Map) {
+		for _, char := range m.Characters {
+			f(char)
+		}
+	})
 }
 
 func (s *MapService) ForEachNpc(mapID int, f func(*model.WorldNPC)) {
@@ -277,11 +276,11 @@ func (s *MapService) ForEachNpc(mapID int, f func(*model.WorldNPC)) {
 	if m == nil {
 		return
 	}
-	m.RLock()
-	defer m.RUnlock()
-	for _, npc := range m.Npcs {
-		f(npc)
-	}
+	m.View(func(m *model.Map) {
+		for _, npc := range m.Npcs {
+			f(npc)
+		}
+	})
 }
 
 func (s *MapService) GetObjectAt(pos model.Position) *model.WorldObject {
@@ -319,13 +318,13 @@ func (s *MapService) GetNPCAt(pos model.Position) *model.WorldNPC {
 func (s *MapService) RemoveNPC(npc *model.WorldNPC) {
 	m := s.GetMap(npc.Position.Map)
 	if m != nil {
-		m.Lock()
-		delete(m.Npcs, npc.Index)
-		tile := m.GetTile(int(npc.Position.X), int(npc.Position.Y))
-		if tile.NPC == npc {
-			tile.NPC = nil
-		}
-		m.Unlock()
+		m.Modify(func(m *model.Map) {
+			delete(m.Npcs, npc.Index)
+			tile := m.GetTile(int(npc.Position.X), int(npc.Position.Y))
+			if tile.NPC == npc {
+				tile.NPC = nil
+			}
+		})
 	}
 }
 
@@ -347,68 +346,36 @@ func (s *MapService) MoveNpc(npc *model.WorldNPC, newPos model.Position) bool {
 		return false
 	}
 
-	// Same map movement
-	if mOld == mNew {
-		mOld.Lock()
-		defer mOld.Unlock()
-
-		targetTile := mOld.GetTile(int(newPos.X), int(newPos.Y))
+	var success bool
+	model.ModifyTwo(mOld, mNew, func(mOld, mNew *model.Map) {
+		targetTile := mNew.GetTile(int(newPos.X), int(newPos.Y))
 		if targetTile.Blocked || targetTile.NPC != nil || targetTile.Character != nil {
-			return false
+			return
 		}
 
 		// Water check: NPCs cannot walk on water unless there is a bridge
 		hasBridge := targetTile.Layer2 > 0
 		if targetTile.IsWater && !hasBridge {
-			return false
+			return
 		}
 
-		// Remove from old tile
+		// Remove from old map
 		oldTile := mOld.GetTile(int(oldPos.X), int(oldPos.Y))
 		if oldTile.NPC == npc {
 			oldTile.NPC = nil
 		}
 
-		// Add to new tile
+		if mOld != mNew {
+			delete(mOld.Npcs, npc.Index)
+			mNew.Npcs[npc.Index] = npc
+		}
+
+		// Add to new map/tile
 		targetTile.NPC = npc
-		return true
-	}
+		success = true
+	})
 
-	// Cross-map movement (Rare for NPCs but possible)
-	// To avoid deadlock, always lock in order of Map ID
-	first, second := mOld, mNew
-	if mOld.Id > mNew.Id {
-		first, second = mNew, mOld
-	}
-
-	first.Lock()
-	second.Lock()
-	defer first.Unlock()
-	defer second.Unlock()
-
-	targetTile := mNew.GetTile(int(newPos.X), int(newPos.Y))
-	if targetTile.Blocked || targetTile.NPC != nil || targetTile.Character != nil {
-		return false
-	}
-
-	// Water check: NPCs cannot walk on water unless there is a bridge
-	hasBridge := targetTile.Layer2 > 0
-	if targetTile.IsWater && !hasBridge {
-		return false
-	}
-
-	// Remove from old map
-	oldTile := mOld.GetTile(int(oldPos.X), int(oldPos.Y))
-	if oldTile.NPC == npc {
-		oldTile.NPC = nil
-	}
-	delete(mOld.Npcs, npc.Index)
-
-	// Add to new map
-	mNew.Npcs[npc.Index] = npc
-	targetTile.NPC = npc
-
-	return true
+	return success
 }
 
 func (s *MapService) MoveCharacterTo(char *model.Character, heading model.Heading) (model.Position, bool) {
@@ -436,50 +403,55 @@ func (s *MapService) MoveCharacterTo(char *model.Character, heading model.Headin
 		return char.Position, false
 	}
 
-	gameMap.Lock()
-	defer gameMap.Unlock()
+	gameMap.Modify(func(gameMap *model.Map) {
+		tile := gameMap.GetTile(int(newPos.X), int(newPos.Y))
 
-	tile := gameMap.GetTile(int(newPos.X), int(newPos.Y))
-
-	// Map static blocking
-	if tile.Blocked {
-		return char.Position, false
-	}
-
-	// Sailing Logic
-	hasBridge := tile.Layer2 > 0 || tile.Layer3 > 0
-	if char.Sailing {
-		if !tile.IsWater || hasBridge {
-			return char.Position, false
+		// Map static blocking
+		if tile.Blocked {
+			return
 		}
-	} else {
-		if tile.IsWater && !hasBridge {
-			return char.Position, false
+
+		// Sailing Logic
+		hasBridge := tile.Layer2 > 0 || tile.Layer3 > 0
+		if char.Sailing {
+			if !tile.IsWater || hasBridge {
+				return
+			}
+		} else {
+			if tile.IsWater && !hasBridge {
+				return
+			}
 		}
-	}
 
-	// Occupancy check
-	if tile.Character != nil || tile.NPC != nil {
-		return char.Position, false
-	}
+		// Occupancy check
+		if tile.Character != nil || tile.NPC != nil {
+			return
+		}
 
-	// Perform the move on the map
-	// 1. Remove from old tile
-	oldTile := gameMap.GetTile(int(oldPos.X), int(oldPos.Y))
-	if oldTile.Character == char {
-		oldTile.Character = nil
-	}
+		// Perform the move on the map
+		// 1. Remove from old tile
+		oldTile := gameMap.GetTile(int(oldPos.X), int(oldPos.Y))
+		if oldTile.Character == char {
+			oldTile.Character = nil
+		}
 
-	// 2. Add to new tile
-	tile.Character = char
+		// 2. Add to new tile
+		tile.Character = char
 
-	char.Heading = heading
-	char.Position = newPos
+		char.Heading = heading
+		char.Position = newPos
 
-	// Ensure it's in the map's characters list (should already be there if same map)
-	gameMap.Characters[char.CharIndex] = char
+		// Ensure it's in the map's characters list (should already be there if same map)
+		gameMap.Characters[char.CharIndex] = char
+        
+        newPos = char.Position // Update newPos just in case, though it was local
+	})
 
-	return newPos, true
+    // If position changed, it means success (since newPos started as oldPos modification but we return based on char.Position change? No, better use a flag or check if char.Position changed)
+    if char.Position == newPos { // Wait, newPos was derived from oldPos at start of function
+        return newPos, true
+    }
+    return char.Position, false
 }
 
 func (s *MapService) IsSafeZone(pos model.Position) bool {
@@ -556,10 +528,10 @@ func (s *MapService) SpawnNpcInMap(npcID int, mapID int) *model.WorldNPC {
 			pos := model.Position{X: byte(x), Y: byte(y), Map: mapID}
 			worldNpc := s.npcService.SpawnNpc(npcID, pos)
 			if worldNpc != nil {
-				m.Lock()
-				m.Npcs[worldNpc.Index] = worldNpc
-				m.Unlock()
-				m.GetTile(x, y).NPC = worldNpc
+				m.Modify(func(m *model.Map) {
+					m.Npcs[worldNpc.Index] = worldNpc
+					m.GetTile(x, y).NPC = worldNpc
+				})
 				return worldNpc
 			}
 		}
