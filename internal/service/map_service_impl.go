@@ -56,8 +56,8 @@ func (s *MapServiceImpl) LoadMaps() {
 				slog.Error("Error loading map", "map_id", id, "error", err)
 				return
 			}
-			m.Characters = make(map[int16]*model.Character)
-			m.Npcs = make(map[int16]*model.WorldNPC)
+			m.InitEntities()
+			
 
 			mu.Lock()
 			s.maps[m.Id] = m
@@ -111,10 +111,15 @@ func (s *MapServiceImpl) LoadCache() bool {
 		return false
 	}
 
-	// Re-initialize non-exported or non-cached fields
+	// Re-initialize non-exported or non-cached fields and clear entity pointers
 	for _, m := range s.maps {
-		m.Characters = make(map[int16]*model.Character)
-		m.Npcs = make(map[int16]*model.WorldNPC)
+		m.InitEntities()
+		
+		for i := range m.Tiles {
+			m.Tiles[i].NPC = nil
+			m.Tiles[i].Character = nil
+			m.Tiles[i].Object = nil
+		}
 	}
 
 	return true
@@ -133,8 +138,8 @@ func (s *MapServiceImpl) LoadMap(id int) error {
 	if err != nil {
 		return err
 	}
-	m.Characters = make(map[int16]*model.Character)
-	m.Npcs = make(map[int16]*model.WorldNPC)
+	m.InitEntities()
+	
 	s.resolveMapEntities(m)
 	s.maps[m.Id] = m
 	return nil
@@ -149,7 +154,7 @@ func (s *MapServiceImpl) UnloadMap(id int) {
 	// Remove all NPCs associated with this map
 	var npcsToRemove []*model.WorldNPC
 	m.View(func(m *model.Map) {
-		for _, npc := range m.Npcs {
+		for _, npc := range m.GetNpcs() {
 			npcsToRemove = append(npcsToRemove, npc)
 		}
 	})
@@ -203,7 +208,7 @@ func (s *MapServiceImpl) resolveMapEntities(m *model.Map) {
 			worldNpc := s.npcService.SpawnNpc(tile.NPCID, pos)
 			if worldNpc != nil {
 				tile.NPC = worldNpc
-				m.Npcs[worldNpc.Index] = worldNpc
+				m.AddNpc(worldNpc)
 				npcsFound++
 			} else {
 				slog.Warn("Could not resolve NPC", "map_id", m.Id, "npc_id", tile.NPCID, "tile", i)
@@ -240,7 +245,7 @@ func (s *MapServiceImpl) PutCharacterAtPos(char *model.Character, pos model.Posi
 			tile.NPC = nil // NPCs are removed if a character teleports on top of them
 		}
 
-		m.Characters[char.CharIndex] = char
+		m.AddCharacter(char)
 		tile.Character = char
 		char.Position = pos
 	})
@@ -250,7 +255,7 @@ func (s *MapServiceImpl) RemoveCharacter(char *model.Character) {
 	m := s.GetMap(char.Position.Map)
 	if m != nil {
 		m.Modify(func(m *model.Map) {
-			delete(m.Characters, char.CharIndex)
+			m.RemoveCharacter(char.CharIndex)
 			tile := m.GetTile(int(char.Position.X), int(char.Position.Y))
 			if tile.Character == char {
 				tile.Character = nil
@@ -265,7 +270,7 @@ func (s *MapServiceImpl) ForEachCharacter(mapID int, f func(*model.Character)) {
 		return
 	}
 	m.View(func(m *model.Map) {
-		for _, char := range m.Characters {
+		for _, char := range m.GetCharacters() {
 			f(char)
 		}
 	})
@@ -277,7 +282,7 @@ func (s *MapServiceImpl) ForEachNpc(mapID int, f func(*model.WorldNPC)) {
 		return
 	}
 	m.View(func(m *model.Map) {
-		for _, npc := range m.Npcs {
+		for _, npc := range m.GetNpcs() {
 			f(npc)
 		}
 	})
@@ -319,7 +324,7 @@ func (s *MapServiceImpl) RemoveNPC(npc *model.WorldNPC) {
 	m := s.GetMap(npc.Position.Map)
 	if m != nil {
 		m.Modify(func(m *model.Map) {
-			delete(m.Npcs, npc.Index)
+			m.RemoveNpc(npc.Index)
 			tile := m.GetTile(int(npc.Position.X), int(npc.Position.Y))
 			if tile.NPC == npc {
 				tile.NPC = nil
@@ -366,8 +371,8 @@ func (s *MapServiceImpl) MoveNpc(npc *model.WorldNPC, newPos model.Position) boo
 		}
 
 		if mOld != mNew {
-			delete(mOld.Npcs, npc.Index)
-			mNew.Npcs[npc.Index] = npc
+			mOld.RemoveNpc(npc.Index)
+			mNew.AddNpc(npc)
 		}
 
 		// Add to new map/tile
@@ -442,7 +447,7 @@ func (s *MapServiceImpl) MoveCharacterTo(char *model.Character, heading model.He
 		char.Position = newPos
 
 		// Ensure it's in the map's characters list (should already be there if same map)
-		gameMap.Characters[char.CharIndex] = char
+		gameMap.AddCharacter(char)
         
         newPos = char.Position // Update newPos just in case, though it was local
 	})
@@ -529,7 +534,7 @@ func (s *MapServiceImpl) SpawnNpcInMap(npcID int, mapID int) *model.WorldNPC {
 			worldNpc := s.npcService.SpawnNpc(npcID, pos)
 			if worldNpc != nil {
 				m.Modify(func(m *model.Map) {
-					m.Npcs[worldNpc.Index] = worldNpc
+					m.AddNpc(worldNpc)
 					m.GetTile(x, y).NPC = worldNpc
 				})
 				return worldNpc

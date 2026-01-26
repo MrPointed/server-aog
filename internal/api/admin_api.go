@@ -300,8 +300,8 @@ func (a *AdminAPI) handleNpcRespawn(w http.ResponseWriter, r *http.Request) {
 	// Remove all NPCs from map first
 	var npcsToRemove []*model.WorldNPC
 	m.Modify(func(m *model.Map) {
-		npcsToRemove = make([]*model.WorldNPC, 0, len(m.Npcs))
-		for _, npc := range m.Npcs {
+		npcsToRemove = make([]*model.WorldNPC, 0, len(m.GetNpcs()))
+		for _, npc := range m.GetNpcs() {
 			npcsToRemove = append(npcsToRemove, npc)
 		}
 	})

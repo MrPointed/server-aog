@@ -5,7 +5,7 @@ import (
 	"time"
 )
 
-type ResourceManager struct {
+type ResourceManagerImpl struct {
 	objectService ObjectService
 	npcService    NpcService
 	mapService    MapService
@@ -13,8 +13,8 @@ type ResourceManager struct {
 	cityService   CityService
 }
 
-func NewResourceManager(objectService ObjectService, npcService NpcService, mapService MapService, spellService SpellService, cityService CityService) *ResourceManager {
-	return &ResourceManager{
+func NewResourceManagerImpl(objectService ObjectService, npcService NpcService, mapService MapService, spellService SpellService, cityService CityService) ResourceManager {
+	return &ResourceManagerImpl{
 		objectService: objectService,
 		npcService:    npcService,
 		mapService:    mapService,
@@ -23,7 +23,7 @@ func NewResourceManager(objectService ObjectService, npcService NpcService, mapS
 	}
 }
 
-func (s *ResourceManager) LoadAll() {
+func (s *ResourceManagerImpl) LoadAll() {
 	start := time.Now()
 	slog.Info("Starting resource loading...")
 

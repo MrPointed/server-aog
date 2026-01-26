@@ -89,7 +89,7 @@ func NewServer(addr string, resourcesPath string) *Server {
 	spellRepo := persistence.NewSpellDatRepo(filepath.Join(res, "data/hechizos.dat"))
 	spellService := service.NewSpellServiceImpl(spellRepo, userService, npcService, messageService, objectService, intervalService, trainingService, areaService)
 
-	resourceManager := service.NewResourceManager(objectService, npcService, mapService, spellService, cityService)
+	resourceManager := service.NewResourceManagerImpl(objectService, npcService, mapService, spellService, cityService)
 	resourceManager.LoadAll()
 
 	combatService := service.NewCombatServiceImpl(messageService, objectService, npcService, mapService, combatFormulas, intervalService, trainingService, cfg)

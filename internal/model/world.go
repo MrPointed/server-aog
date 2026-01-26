@@ -72,9 +72,38 @@ type Map struct {
 	Version int16
 	Pk      bool
 	Tiles   []Tile
-	Characters map[int16]*Character
-	Npcs       map[int16]*WorldNPC
+	characters map[int16]*Character
+	npcs       map[int16]*WorldNPC
 	mu         sync.RWMutex
+}
+
+func (m *Map) GetCharacters() map[int16]*Character {
+	return m.characters
+}
+
+func (m *Map) GetNpcs() map[int16]*WorldNPC {
+	return m.npcs
+}
+
+func (m *Map) InitEntities() {
+	m.characters = make(map[int16]*Character)
+	m.npcs = make(map[int16]*WorldNPC)
+}
+
+func (m *Map) AddCharacter(char *Character) {
+	m.characters[char.CharIndex] = char
+}
+
+func (m *Map) RemoveCharacter(index int16) {
+	delete(m.characters, index)
+}
+
+func (m *Map) AddNpc(npc *WorldNPC) {
+	m.npcs[npc.Index] = npc
+}
+
+func (m *Map) RemoveNpc(index int16) {
+	delete(m.npcs, index)
 }
 
 // Modify executes the action under a write lock.

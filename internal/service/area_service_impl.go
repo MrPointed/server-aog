@@ -223,7 +223,7 @@ func (s *AreaServiceImpl) SendAreaState(char *model.Character) {
 		}
 
 		// Characters
-		for _, other := range gameMap.Characters {
+		for _, other := range gameMap.GetCharacters() {
 			if other != char {
 				if s.InRange(char.Position, other.Position) {
 					conn.Send(&outgoing.CharacterCreatePacket{Character: other})

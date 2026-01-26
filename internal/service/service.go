@@ -182,3 +182,7 @@ type AiService interface {
 	Stop()
 	SetEnabled(enabled bool)
 }
+
+type ResourceManager interface {
+	LoadAll()
+}
