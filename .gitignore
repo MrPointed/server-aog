@@ -6,6 +6,10 @@ main
 # Logs
 *.log
 server.pid
+TUI_monitor.txt
+
+# Caches
+resources/maps.cache
 
 # Character files
 resources/charfiles/
