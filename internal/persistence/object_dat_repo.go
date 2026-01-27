@@ -97,6 +97,15 @@ func (d *ObjectDatRepo) Load() (map[int]*model.Object, error) {
 		obj.EquippedArmorGraphic = toInt(props["EQUIPPED_ARMOR_GRAPHIC"])
 		obj.EquippedHelmetGraphic = toInt(props["EQUIPPED_HEAD_GRAPHIC"])
 
+		// Fallbacks for standard AO data
+		if obj.EquippedWeaponGraphic == 0 {
+			if obj.Type == model.OTShield {
+				obj.EquippedWeaponGraphic = toInt(props["ANIM"])
+			} else if obj.Type == model.OTHelmet {
+				obj.EquippedWeaponGraphic = toInt(props["CASCOANIM"])
+			}
+		}
+
 		// Map interaction overrides
 		if p, ok := props["PICKUPABLE"]; ok {
 			obj.Pickupable = p == "1"
@@ -116,6 +125,9 @@ func (d *ObjectDatRepo) Load() (map[int]*model.Object, error) {
 		// Doors
 		obj.OpenIndex = toInt(props["OPEN_INDEX"])
 		obj.ClosedIndex = toInt(props["CLOSED_INDEX"])
+
+		// Spells
+		obj.SpellIndex = toInt(props["SPELL_INDEX"])
 
 		// Forbidden Archetypes (simplified parsing for now)
 		for i := 1; i <= 10; i++ {

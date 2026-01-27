@@ -38,6 +38,7 @@ func (d *UserChrRepo) Load(nick string) (*model.Character, error) {
 		Attributes:         make(map[model.Attribute]byte),
 		OriginalAttributes: make(map[model.Attribute]byte),
 		Skills:             make(map[model.Skill]int),
+		Kills:              make(map[model.KillType]int),
 	}
 
 	init := data["INIT"]

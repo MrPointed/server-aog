@@ -13,17 +13,19 @@ type ItemActionServiceImpl struct {
 	messageService  MessageService
 	intervalService IntervalService
 	bodyService     BodyService
+	spellService    SpellService
 
 	useBehaviors   map[model.ObjectType]ItemBehavior
 	equipBehaviors map[model.ObjectType]EquipBehavior
 }
 
-func NewItemActionServiceImpl(objSvc ObjectService, msgSvc MessageService, intSvc IntervalService, bodySvc BodyService) ItemActionService {
+func NewItemActionServiceImpl(objSvc ObjectService, msgSvc MessageService, intSvc IntervalService, bodySvc BodyService, spellSvc SpellService) ItemActionService {
 	s := &ItemActionServiceImpl{
 		objectService:   objSvc,
 		messageService:  msgSvc,
 		intervalService: intSvc,
 		bodyService:     bodySvc,
+		spellService:    spellSvc,
 		useBehaviors:    make(map[model.ObjectType]ItemBehavior),
 		equipBehaviors:  make(map[model.ObjectType]EquipBehavior),
 	}
@@ -226,6 +228,7 @@ func (s *ItemActionServiceImpl) registerDefaultBehaviors() {
 	s.useBehaviors[model.OTPotion] = &PotionBehavior{s}
 	s.useBehaviors[model.OTMoney] = &MoneyBehavior{s}
 	s.useBehaviors[model.OTWeapon] = &ToolBehavior{s}
+	s.useBehaviors[model.OTParchment] = &ScrollBehavior{s}
 
 	// Equip behaviors
 	weaponBehavior := &EquipGenericBehavior{s, model.OTWeapon}

@@ -80,6 +80,9 @@ type Object struct {
 	// Doors
 	OpenIndex   int
 	ClosedIndex int
+	
+	// Spells
+	SpellIndex int
 }
 
 type WorldObject struct {

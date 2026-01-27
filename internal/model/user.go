@@ -2,6 +2,15 @@ package model
 
 import "time"
 
+type KillType int
+
+const (
+	KillCriminals KillType = iota
+	KillCitizens
+	KillUsers
+	KillCreatures
+)
+
 type Account struct {
 	Nick       string
 	Password   string
@@ -102,6 +111,10 @@ type Character struct {
 	Dead        bool
 	Hidden      bool
 
+	// Stats counters
+	Kills       map[KillType]int
+	JailTime    int64
+
 	// Targets
 	TargetMap     int
 	TargetX       int
@@ -189,5 +202,6 @@ func NewCharacter(name string, race Race, gender Gender, archetype UserArchetype
 		Attributes:         make(map[Attribute]byte),
 		OriginalAttributes: make(map[Attribute]byte),
 		Skills:             make(map[Skill]int),
+		Kills:              make(map[KillType]int),
 	}
 }

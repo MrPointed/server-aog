@@ -66,19 +66,26 @@ func (b *PotionBehavior) Use(char *model.Character, slot int, obj *model.Object,
 
 	switch obj.PotionType {
 	case 1: // Agility (Yellow)
-		base := char.OriginalAttributes[model.Dexterity]
+		base := int(char.OriginalAttributes[model.Dexterity])
 		modifier := utils.RandomNumber(obj.MinModifier, obj.MaxModifier)
-		
-		// The new value should always be Base + Modifier, but limited to 40.
-		newVal := byte(utils.Min(40, int(base)+modifier))
-		
-		// ALWAYS POSITIVE: Only set if the new value is higher than current, 
-		// OR if the current effect has already expired.
-		if newVal > char.Attributes[model.Dexterity] || time.Now().After(char.AgilityEffectEnd) {
-			char.Attributes[model.Dexterity] = newVal
+
+		current := int(char.Attributes[model.Dexterity])
+		if time.Now().After(char.AgilityEffectEnd) {
+			current = base
 		}
-		
+
+		limit := base + 20
+		newVal := current + modifier
+		if newVal > limit {
+			newVal = limit
+		}
+		if newVal > 255 {
+			newVal = 255
+		}
+
+		char.Attributes[model.Dexterity] = byte(newVal)
 		char.AgilityEffectEnd = time.Now().Add(time.Duration(obj.Duration) * time.Second)
+
 		connection.Send(&outgoing.ConsoleMessagePacket{
 			Message: "¡Tu agilidad ha aumentado!",
 			Font:    outgoing.INFO,
@@ -89,16 +96,26 @@ func (b *PotionBehavior) Use(char *model.Character, slot int, obj *model.Object,
 		})
 
 	case 2: // Strength (Green)
-		base := char.OriginalAttributes[model.Strength]
+		base := int(char.OriginalAttributes[model.Strength])
 		modifier := utils.RandomNumber(obj.MinModifier, obj.MaxModifier)
-		
-		newVal := byte(utils.Min(40, int(base)+modifier))
-		
-		if newVal > char.Attributes[model.Strength] || time.Now().After(char.StrengthEffectEnd) {
-			char.Attributes[model.Strength] = newVal
+
+		current := int(char.Attributes[model.Strength])
+		if time.Now().After(char.StrengthEffectEnd) {
+			current = base
 		}
 
+		limit := base + 20
+		newVal := current + modifier
+		if newVal > limit {
+			newVal = limit
+		}
+		if newVal > 255 {
+			newVal = 255
+		}
+
+		char.Attributes[model.Strength] = byte(newVal)
 		char.StrengthEffectEnd = time.Now().Add(time.Duration(obj.Duration) * time.Second)
+
 		connection.Send(&outgoing.ConsoleMessagePacket{
 			Message: "¡Tu fuerza ha aumentado!",
 			Font:    outgoing.INFO,
@@ -211,9 +228,9 @@ func (b *EquipGenericBehavior) ToggleEquip(char *model.Character, slot int, obj 
 				char.Body = obj.EquippedArmorGraphic
 			}
 		case model.OTShield:
-			char.Shield = int16(obj.ID)
+			char.Shield = int16(obj.EquippedWeaponGraphic)
 		case model.OTHelmet:
-			char.Helmet = int16(obj.ID)
+			char.Helmet = int16(obj.EquippedWeaponGraphic)
 		}
 	}
 	b.svc.SyncSlot(char, slot, connection)
@@ -241,4 +258,47 @@ func (b *BoatBehavior) ToggleEquip(char *model.Character, slot int, obj *model.O
 	}
 	b.svc.SyncSlot(char, slot, connection)
 	b.svc.messageService.SendToArea(&outgoing.CharacterChangePacket{Character: char}, char.Position)
+}
+
+type ScrollBehavior struct {
+	svc *ItemActionServiceImpl
+}
+
+func (b *ScrollBehavior) Use(char *model.Character, slot int, obj *model.Object, connection protocol.Connection) {
+	if obj.SpellIndex <= 0 {
+		return
+	}
+
+	// Check if already known
+	for _, spellID := range char.Spells {
+		if spellID == obj.SpellIndex {
+			connection.Send(&outgoing.ConsoleMessagePacket{
+				Message: "Ya conoces este hechizo.",
+				Font:    outgoing.INFO,
+			})
+			return
+		}
+	}
+
+	spell := b.svc.spellService.GetSpell(obj.SpellIndex)
+	if spell == nil {
+		return
+	}
+
+	// Add spell
+	char.Spells = append(char.Spells, obj.SpellIndex)
+
+	// Notify client
+	connection.Send(&outgoing.ChangeSpellSlotPacket{
+		Slot:      byte(len(char.Spells)),
+		SpellID:   int16(obj.SpellIndex),
+		SpellName: spell.Name,
+	})
+
+	connection.Send(&outgoing.ConsoleMessagePacket{
+		Message: fmt.Sprintf("¡Has aprendido el hechizo %s!", spell.Name),
+		Font:    outgoing.INFO,
+	})
+
+	b.svc.RemoveOne(char, slot, connection)
 }

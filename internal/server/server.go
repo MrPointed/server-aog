@@ -104,7 +104,7 @@ func NewServer(addr string, resourcesPath string) *Server {
 
 	        userRepo := persistence.NewUserChrRepo(filepath.Join(res, projectCfg.Project.Paths.Charfiles))
 	        loginService := service.NewLoginServiceImpl(userRepo, cfg, projectCfg, userService, mapService, bodyService, indexManager, messageService, objectService, cityService, spellService, executor)
-		itemActionService := service.NewItemActionServiceImpl(objectService, messageService, intervalService, bodyService)
+		itemActionService := service.NewItemActionServiceImpl(objectService, messageService, intervalService, bodyService, spellService)
 
 	gmService := service.NewGmServiceImpl(userService, mapService, messageService, executor)
 
@@ -118,6 +118,7 @@ func NewServer(addr string, resourcesPath string) *Server {
 	m.RegisterHandler(protocol.CP_RequestPositionUpdate, &incoming.RequestPositionUpdatePacket{})
 	m.RegisterHandler(protocol.CP_RequestAttributes, &incoming.RequestAttributesPacket{})
 	m.RegisterHandler(protocol.CP_RequestFame, &incoming.RequestFamePacket{})
+	m.RegisterHandler(protocol.CP_RequestMiniStats, &incoming.RequestMiniStatsPacket{})
 	m.RegisterHandler(protocol.CP_RequestSkills, &incoming.RequestSkillsPacket{})
 	m.RegisterHandler(protocol.CP_Talk, &incoming.TalkPacket{MessageService: messageService})
 	m.RegisterHandler(protocol.CP_Yell, &incoming.YellPacket{MessageService: messageService})
