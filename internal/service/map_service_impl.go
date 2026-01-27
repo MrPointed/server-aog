@@ -2,6 +2,7 @@ package service
 
 import (
 	"encoding/gob"
+	"fmt"
 	"log/slog"
 	"math/rand"
 	"os"
@@ -39,7 +40,7 @@ func (s *MapServiceImpl) LoadMaps() {
 			s.resolveMapEntities(m)
 		}
 
-		slog.Info("Successfully loaded maps.")
+		slog.Info(fmt.Sprintf("Successfully loaded %d maps.", len(s.maps)))
 		return
 	}
 
@@ -57,7 +58,6 @@ func (s *MapServiceImpl) LoadMaps() {
 				return
 			}
 			m.InitEntities()
-			
 
 			mu.Lock()
 			s.maps[m.Id] = m
@@ -114,7 +114,7 @@ func (s *MapServiceImpl) LoadCache() bool {
 	// Re-initialize non-exported or non-cached fields and clear entity pointers
 	for _, m := range s.maps {
 		m.InitEntities()
-		
+
 		for i := range m.Tiles {
 			m.Tiles[i].NPC = nil
 			m.Tiles[i].Character = nil
@@ -139,7 +139,7 @@ func (s *MapServiceImpl) LoadMap(id int) error {
 		return err
 	}
 	m.InitEntities()
-	
+
 	s.resolveMapEntities(m)
 	s.maps[m.Id] = m
 	return nil
@@ -448,15 +448,15 @@ func (s *MapServiceImpl) MoveCharacterTo(char *model.Character, heading model.He
 
 		// Ensure it's in the map's characters list (should already be there if same map)
 		gameMap.AddCharacter(char)
-        
-        newPos = char.Position // Update newPos just in case, though it was local
+
+		newPos = char.Position // Update newPos just in case, though it was local
 	})
 
-    // If position changed, it means success (since newPos started as oldPos modification but we return based on char.Position change? No, better use a flag or check if char.Position changed)
-    if char.Position == newPos { // Wait, newPos was derived from oldPos at start of function
-        return newPos, true
-    }
-    return char.Position, false
+	// If position changed, it means success (since newPos started as oldPos modification but we return based on char.Position change? No, better use a flag or check if char.Position changed)
+	if char.Position == newPos { // Wait, newPos was derived from oldPos at start of function
+		return newPos, true
+	}
+	return char.Position, false
 }
 
 func (s *MapServiceImpl) IsSafeZone(pos model.Position) bool {
@@ -502,6 +502,18 @@ func (s *MapServiceImpl) IsTileEmpty(mapID int, x, y int) bool {
 	}
 
 	return !tile.Blocked && tile.Character == nil && tile.NPC == nil
+}
+
+func (s *MapServiceImpl) IsBlocked(mapID, x, y int) bool {
+	m := s.GetMap(mapID)
+	if m == nil {
+		return true
+	}
+	if !s.IsInPlayableArea(x, y) {
+		return true
+	}
+	tile := m.GetTile(x, y)
+	return tile.Blocked
 }
 
 func (s *MapServiceImpl) SpawnNpcInMap(npcID int, mapID int) *model.WorldNPC {

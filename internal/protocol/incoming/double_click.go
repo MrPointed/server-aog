@@ -119,7 +119,10 @@ func (p *DoubleClickPacket) Handle(buffer *network.DataBuffer, connection protoc
 				}
 				return true, nil
 			}
-			connection.Send(&outgoing.ConsoleMessagePacket{Message: "Este personaje no tiene nada para venderte.", Font: outgoing.INFO})
+
+			if !npc.NPC.Hostile {
+				connection.Send(&outgoing.ConsoleMessagePacket{Message: "Este personaje no tiene nada para venderte.", Font: outgoing.INFO})
+			}
 
 		case model.NTBanker:
 			if user.Dead {

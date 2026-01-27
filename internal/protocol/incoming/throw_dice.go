@@ -2,21 +2,16 @@ package incoming
 
 import (
 	"math/rand"
+
+	"github.com/ao-go-server/internal/model"
 	"github.com/ao-go-server/internal/network"
 	"github.com/ao-go-server/internal/protocol"
 	"github.com/ao-go-server/internal/protocol/outgoing"
-	"github.com/ao-go-server/internal/model"
 )
 
 type ThrowDicesPacket struct{}
 
 func (p *ThrowDicesPacket) Handle(buffer *network.DataBuffer, connection protocol.Connection) (bool, error) {
-	// Java logic:
-	// byte strength = (byte) Math.max(MIN_STRENGTH, 13 + random.nextInt(4) + random.nextInt(3));
-	// byte dexterity = (byte) Math.max(MIN_DEXTERITY, 12 + random.nextInt(4) + random.nextInt(4));
-	// byte intelligence = (byte) Math.max(MIN_INGELLIGENCE, 13 + random.nextInt(4) + random.nextInt(3));
-	// byte charisma = (byte) Math.max(MIN_CHARISMA, 12 + random.nextInt(4) + random.nextInt(4));
-	// byte constitution = (byte) Math.max(MIN_CONSTITUTION, 16 + random.nextInt(2) + random.nextInt(2));
 
 	strength := byte(max(15, 13+rand.Intn(4)+rand.Intn(3)))
 	dexterity := byte(max(15, 12+rand.Intn(4)+rand.Intn(4)))
@@ -39,11 +34,4 @@ func (p *ThrowDicesPacket) Handle(buffer *network.DataBuffer, connection protoco
 	})
 
 	return true, nil
-}
-
-func max(a, b int) int {
-	if a > b {
-		return a
-	}
-	return b
 }

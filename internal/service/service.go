@@ -31,6 +31,7 @@ type MapService interface {
 	IsPkMap(mapID int) bool
 	IsInvalidPosition(pos model.Position) bool
 	IsTileEmpty(mapID int, x, y int) bool
+	IsBlocked(mapID, x, y int) bool
 	SpawnNpcInMap(npcID int, mapID int) *model.WorldNPC
 }
 

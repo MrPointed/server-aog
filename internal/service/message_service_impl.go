@@ -67,22 +67,22 @@ func (s *MessageServiceImpl) HandleDeath(char *model.Character, message string) 
 
 		// Drop logic
 		if shouldDropItems && !obj.Newbie && !obj.NoDrop {
-			// Try to drop on current position if empty, or nearby
-			if s.mapService.GetObjectAt(char.Position) == nil {
+			dropPos := s.findDropPosition(char.Position)
+			if dropPos != nil {
 				worldObj := &model.WorldObject{
 					Object: obj,
 					Amount: slot.Amount,
 				}
-				s.mapService.PutObject(char.Position, worldObj)
-				
+				s.mapService.PutObject(*dropPos, worldObj)
+
 				// Notify nearby players about the new object on ground
 				s.SendToArea(&outgoing.ObjectCreatePacket{
-					X:            char.Position.X,
-					Y:            char.Position.Y,
+					X:            dropPos.X,
+					Y:            dropPos.Y,
 					GraphicIndex: int16(obj.GraphicIndex),
-				}, char.Position)
+				}, *dropPos)
 			}
-			
+
 			// Remove from inventory
 			slot.ObjectID = 0
 			slot.Amount = 0
@@ -115,7 +115,7 @@ func (s *MessageServiceImpl) HandleDeath(char *model.Character, message string) 
 			if slot.ObjectID > 0 {
 				obj = s.objectService.GetObject(slot.ObjectID)
 			}
-			
+
 			conn.Send(&outgoing.ChangeInventorySlotPacket{
 				Slot:     byte(i + 1),
 				Object:   obj,
@@ -127,6 +127,53 @@ func (s *MessageServiceImpl) HandleDeath(char *model.Character, message string) 
 
 	// Broadcast character appearance change (ghost)
 	s.SendToArea(&outgoing.CharacterChangePacket{Character: char}, char.Position)
+}
+
+func (s *MessageServiceImpl) checkDropPos(center model.Position, dx, dy int) *model.Position {
+	tx := int(center.X) + dx
+	ty := int(center.Y) + dy
+
+	// Check strictly playable area from MapService IsBlocked/IsInPlayableArea
+	if s.mapService.IsBlocked(center.Map, tx, ty) {
+		return nil
+	}
+
+	pos := model.Position{X: byte(tx), Y: byte(ty), Map: center.Map}
+	if s.mapService.GetObjectAt(pos) == nil {
+		return &pos
+	}
+	return nil
+}
+
+func (s *MessageServiceImpl) findDropPosition(startPos model.Position) *model.Position {
+	// 1. Check center
+	if pos := s.checkDropPos(startPos, 0, 0); pos != nil {
+		return pos
+	}
+
+	// 2. Spiral out
+	for r := 1; r <= 3; r++ {
+		// Iterate around the square ring of radius r
+		for i := -r; i <= r; i++ {
+			// Top row (y = -r)
+			if pos := s.checkDropPos(startPos, i, -r); pos != nil {
+				return pos
+			}
+			// Bottom row (y = r)
+			if pos := s.checkDropPos(startPos, i, r); pos != nil {
+				return pos
+			}
+			// Left col (x = -r)
+			if pos := s.checkDropPos(startPos, -r, i); pos != nil {
+				return pos
+			}
+			// Right col (x = r)
+			if pos := s.checkDropPos(startPos, r, i); pos != nil {
+				return pos
+			}
+		}
+	}
+	return nil
 }
 
 func (s *MessageServiceImpl) HandleResurrection(char *model.Character) {

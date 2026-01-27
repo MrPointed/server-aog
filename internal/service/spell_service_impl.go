@@ -5,6 +5,7 @@ import (
 	"log/slog"
 	"math/rand"
 
+	"github.com/ao-go-server/internal/config"
 	"github.com/ao-go-server/internal/model"
 	"github.com/ao-go-server/internal/persistence"
 	"github.com/ao-go-server/internal/protocol/outgoing"
@@ -20,9 +21,10 @@ type SpellServiceImpl struct {
 	trainingService TrainingService
 	areaService     AreaService
 	spells          map[int]*model.Spell
+	config          *config.Config
 }
 
-func NewSpellServiceImpl(dao persistence.SpellRepository, userService UserService, npcService NpcService, messageService MessageService, objectService ObjectService, intervals IntervalService, trainingService TrainingService, areaService AreaService) SpellService {
+func NewSpellServiceImpl(dao persistence.SpellRepository, userService UserService, npcService NpcService, messageService MessageService, objectService ObjectService, intervals IntervalService, trainingService TrainingService, areaService AreaService, cfg *config.Config) SpellService {
 	return &SpellServiceImpl{
 		dao:             dao,
 		userService:     userService,
@@ -33,6 +35,7 @@ func NewSpellServiceImpl(dao persistence.SpellRepository, userService UserServic
 		trainingService: trainingService,
 		areaService:     areaService,
 		spells:          make(map[int]*model.Spell),
+		config:          cfg,
 	}
 }
 
@@ -453,7 +456,7 @@ func (s *SpellServiceImpl) grantExperience(attacker *model.Character, victim *mo
 		return
 	}
 
-	expToGive := int(float32(damage) * (float32(victim.NPC.Exp) / float32(victim.NPC.MaxHp)))
+	expToGive := int(float32(damage) * (float32(victim.NPC.Exp) / float32(victim.NPC.MaxHp)) * float32(s.config.XpMultiplier))
 
 	// Ensure at least 1 exp if damage was dealt and there's exp left
 	if expToGive == 0 && damage > 0 && victim.RemainingExp > 0 {
