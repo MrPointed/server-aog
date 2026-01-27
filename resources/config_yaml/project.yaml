@@ -25,29 +25,29 @@ project:
         male: "201-221"
         female: "270-288"
       bodies:
-        male: 3
-        female: 3
+        male: 32
+        female: 40
     dwarf:
       heads:
         male: "301-319"
         female: "370-384"
       bodies:
-        male: 300
-        female: 300
+        male: 53
+        female: 60
     elf:
       heads:
         male: "101-122"
         female: "170-188"
       bodies:
-        male: 2
-        female: 2
+        male: 210
+        female: 259
     gnome:
       heads:
         male: "401-416"
         female: "470-484"
       bodies:
-        male: 300
-        female: 300
+        male: 222
+        female: 260
     human:
       heads:
         male: "1-40"

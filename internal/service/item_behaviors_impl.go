@@ -225,7 +225,7 @@ func (b *EquipGenericBehavior) ToggleEquip(char *model.Character, slot int, obj 
 		}
 	}
 	b.svc.SyncSlot(char, slot, connection)
-	connection.Send(&outgoing.CharacterChangePacket{Character: char})
+	b.svc.messageService.SendToArea(&outgoing.CharacterChangePacket{Character: char}, char.Position)
 }
 
 type BoatBehavior struct {
@@ -248,5 +248,5 @@ func (b *BoatBehavior) ToggleEquip(char *model.Character, slot int, obj *model.O
 		connection.Send(&outgoing.NavigateTogglePacket{})
 	}
 	b.svc.SyncSlot(char, slot, connection)
-	connection.Send(&outgoing.CharacterChangePacket{Character: char})
+	b.svc.messageService.SendToArea(&outgoing.CharacterChangePacket{Character: char}, char.Position)
 }

@@ -16,6 +16,16 @@ type CharacterFaccion struct {
 	FuerzasCaos int
 }
 
+type CharacterReputation struct {
+	Assassin int
+	Bandit   int
+	Burguer  int
+	Thief    int
+	Noble    int
+	Commoner int
+	Promoter int
+}
+
 func (a *Account) Authenticate(password string) bool {
 	// Simple comparison, should be hashed in real scenario
 	return a.Password == password
@@ -41,7 +51,8 @@ type Character struct {
 	ExpToNext   int
 
 	Privileges  PrivilegeLevel
-	Faccion CharacterFaccion
+	Faccion     CharacterFaccion
+	Reputation  CharacterReputation
 
 	MinHit      int
 	MaxHit      int

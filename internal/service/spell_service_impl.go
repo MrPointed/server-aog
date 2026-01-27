@@ -375,7 +375,7 @@ func (s *SpellServiceImpl) SacerdoteResucitateUser(target *model.Character) {
 			target.Hp = target.MaxHp
 			target.Mana = target.MaxMana
 		}
-		target.Body = 1
+		target.Body = s.userService.BodyService().GetBody(target.Race, target.Gender)
 		target.Head = target.OriginalHead
 
 		s.messageService.SendToArea(&outgoing.CharacterChangePacket{Character: target}, target.Position)

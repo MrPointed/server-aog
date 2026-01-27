@@ -50,6 +50,9 @@ func (s *MessageServiceImpl) HandleDeath(char *model.Character, message string) 
 	char.Immobilized = false
 	char.Body = 8   // Ghost
 	char.Head = 500 // Ghost head
+	char.Weapon = 0
+	char.Shield = 0
+	char.Helmet = 0
 
 	conn := s.userService.GetConnection(char)
 
