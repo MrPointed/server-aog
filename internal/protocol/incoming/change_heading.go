@@ -30,6 +30,11 @@ func (p *ChangeHeadingPacket) Handle(buffer *network.DataBuffer, connection prot
 		return true, nil
 	}
 
+	//if user's paralyzed can't head
+	if user.Paralyzed {
+		return true, nil
+	}
+
 	if user.Heading != heading {
 		user.Heading = heading
 		// Notify nearby players about the heading change

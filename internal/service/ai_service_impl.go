@@ -80,13 +80,13 @@ func (s *AiServiceImpl) processNpcs() {
 
 func (s *AiServiceImpl) handleNpcAI(npc *model.WorldNPC) {
 	// 0. Handle Paralysis/Immobilization Expiration
-	if (npc.Paralizado || npc.Inmovilizado) && time.Since(npc.ParalizadoSince).Milliseconds() >= s.globalBalance.NPCParalizedTime {
-		npc.Paralizado = false
-		npc.Inmovilizado = false
+	if (npc.Paralyzed || npc.Immobilized) && time.Since(npc.ParalyzedSince).Milliseconds() >= s.globalBalance.NPCParalizedTime {
+		npc.Paralyzed = false
+		npc.Immobilized = false
 	}
 
 	// 1. Hostility/Attack Logic - Handled by intervals in CombatService
-	if npc.MaestroUser == 0 {
+	if npc.OwnerIndex == 0 {
 		if npc.NPC.Type == model.NTGuard {
 			s.guardiasAI(npc, false)
 		} else if npc.NPC.Type == model.NTGuardCaos {
@@ -104,7 +104,7 @@ func (s *AiServiceImpl) handleNpcAI(npc *model.WorldNPC) {
 	moved := false
 	switch model.MovementType(npc.NPC.Movement) {
 	case model.MovementRandom:
-		if npc.Inmovilizado {
+		if npc.Immobilized {
 			break
 		}
 		if rand.Intn(15) == 3 {
@@ -128,7 +128,7 @@ func (s *AiServiceImpl) handleNpcAI(npc *model.WorldNPC) {
 		moved = s.persigueCriminal(npc)
 
 	case model.MovementFollowOwner:
-		if npc.Inmovilizado {
+		if npc.Immobilized {
 			break
 		}
 		moved = s.seguirAmo(npc)
@@ -213,7 +213,7 @@ func (s *AiServiceImpl) guardiasAI(npc *model.WorldNPC, delCaos bool) {
 			targetPos.X--
 		}
 
-		if npc.Inmovilizado && h != npc.Heading {
+		if npc.Immobilized && h != npc.Heading {
 			continue
 		}
 
@@ -258,7 +258,7 @@ func (s *AiServiceImpl) hostilMalvadoAI(npc *model.WorldNPC) {
 			targetPos.X--
 		}
 
-		if npc.Inmovilizado && h != npc.Heading {
+		if npc.Immobilized && h != npc.Heading {
 			continue
 		}
 
@@ -279,7 +279,7 @@ func (s *AiServiceImpl) hostilMalvadoAI(npc *model.WorldNPC) {
 }
 
 func (s *AiServiceImpl) irUsuarioCercano(npc *model.WorldNPC) bool {
-	if npc.Inmovilizado {
+	if npc.Immobilized {
 		// Just attack if someone is in range
 		s.hostilMalvadoAI(npc)
 		return false
@@ -316,7 +316,7 @@ func (s *AiServiceImpl) irUsuarioCercano(npc *model.WorldNPC) bool {
 }
 
 func (s *AiServiceImpl) persigueCriminal(npc *model.WorldNPC) bool {
-	if npc.Inmovilizado {
+	if npc.Immobilized {
 		return false
 	}
 
@@ -342,7 +342,7 @@ func (s *AiServiceImpl) persigueCriminal(npc *model.WorldNPC) bool {
 }
 
 func (s *AiServiceImpl) persigueCiudadano(npc *model.WorldNPC) bool {
-	if npc.Inmovilizado {
+	if npc.Immobilized {
 		return false
 	}
 
@@ -390,7 +390,7 @@ func (s *AiServiceImpl) seguirAgresor(npc *model.WorldNPC) bool {
 		if s.npcAtacaUser(npc, target) {
 			return false
 		}
-	} else if !npc.Inmovilizado {
+	} else if !npc.Immobilized {
 		heading := s.findDirection(npc.Position, target.Position)
 		return s.moveNpc(npc, heading)
 	}
@@ -398,7 +398,7 @@ func (s *AiServiceImpl) seguirAgresor(npc *model.WorldNPC) bool {
 }
 
 func (s *AiServiceImpl) seguirAmo(npc *model.WorldNPC) bool {
-	owner := s.userService.GetCharacterByIndex(int16(npc.MaestroUser))
+	owner := s.userService.GetCharacterByIndex(int16(npc.OwnerIndex))
 	if owner == nil || owner.Position.Map != npc.Position.Map {
 		return false
 	}
@@ -417,14 +417,18 @@ func (s *AiServiceImpl) aiNpcObjeto(npc *model.WorldNPC) {
 }
 
 func (s *AiServiceImpl) npcAtacaUser(npc *model.WorldNPC, victim *model.Character) bool {
+	if npc.Paralyzed {
+		return false
+	}
+
 	// Head to player before hitting
 	heading := s.findDirection(npc.Position, victim.Position)
 	if npc.Heading != heading {
 		s.npcService.ChangeNpcHeading(npc, heading, s.areaService)
 	}
 
-	if npc.NPC.LanzaSpells > 0 {
-		if npc.NPC.AtacaDoble {
+	if npc.NPC.CastsSpells > 0 {
+		if npc.NPC.DoubleAttack {
 			if rand.Intn(2) == 0 {
 				return s.combatService.NpcAtacaUser(npc, victim)
 			}
@@ -442,7 +446,7 @@ func (s *AiServiceImpl) npcLanzaUnSpell(npc *model.WorldNPC, victim *model.Chara
 	}
 
 	// Heading is already set by npcAtacaUser
-	if npc.NPC.LanzaSpells > 0 && len(npc.NPC.Spells) > 0 {
+	if npc.NPC.CastsSpells > 0 && len(npc.NPC.Spells) > 0 {
 		idx := rand.Intn(len(npc.NPC.Spells))
 		spellID := npc.NPC.Spells[idx]
 		return s.spellService.NpcLanzaSpellSobreUser(npc, victim, spellID)

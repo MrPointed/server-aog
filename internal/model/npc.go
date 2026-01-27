@@ -57,10 +57,10 @@ type NPC struct {
 	Hostile bool
 
 	// Template AI properties
-	LanzaSpells int
+	CastsSpells int
 	Spells      []int
-	AtacaDoble  bool
-	ReSpawn     bool
+	DoubleAttack  bool
+	Respawn     bool
 
 	// Trading
 	CanTrade  bool
@@ -86,14 +86,14 @@ type WorldNPC struct {
 	Index        int16
 
 	// Stateful AI flags
-	Inmovilizado bool
-	Paralizado   bool
-	ParalizadoSince time.Time
+	Immobilized bool
+	Paralyzed   bool
+	ParalyzedSince time.Time
 	OldMovement  int
 	OldHostile   bool
 	AttackedBy   string
 	Follow       bool
-	MaestroUser  int // Index of the user who owns this NPC
+	OwnerIndex  int // Index of the user who owns this NPC
 	Respawn      bool
 
 	// Intervals

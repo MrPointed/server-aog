@@ -69,43 +69,34 @@ func (s *SpellServiceImpl) CastSpell(caster *model.Character, spellID int, targe
 		return
 	}
 
-			if caster.Meditating {
+	if caster.Meditating {
 
-				caster.Meditating = false
+		caster.Meditating = false
 
-				
+		conn.Send(&outgoing.MeditateTogglePacket{})
 
-				conn.Send(&outgoing.MeditateTogglePacket{})
+		s.messageService.SendConsoleMessage(caster, "Dejas de meditar.", outgoing.INFO)
 
-				s.messageService.SendConsoleMessage(caster, "Dejas de meditar.", outgoing.INFO)
+		// Stop meditation FX
 
-		
+		fxPacket := &outgoing.CreateFxPacket{
 
-				// Stop meditation FX
+			CharIndex: caster.CharIndex,
 
-				fxPacket := &outgoing.CreateFxPacket{
+			FxID: 0,
 
-					CharIndex: caster.CharIndex,
+			Loops: 0,
+		}
 
-					FxID:      0,
+		if conn != nil {
 
-					Loops:     0,
+			conn.Send(fxPacket)
 
-				}
+		}
 
-				if conn != nil {
+		s.areaService.BroadcastNearby(caster, fxPacket)
 
-					conn.Send(fxPacket)
-
-				}
-
-				s.areaService.BroadcastNearby(caster, fxPacket)
-
-			}
-
-		
-
-	
+	}
 
 	// Validations
 	if caster.Mana < spell.ManaRequired {
@@ -318,10 +309,12 @@ func (s *SpellServiceImpl) applySpellEffectToCharacter(target *model.Character, 
 	// Paralysis / Immobilize
 	if spell.Paralyzes {
 		target.Paralyzed = true
+		target.ParalyzedSince = time.Now()
 		s.messageService.SendConsoleMessage(target, "¡Te han paralizado!", outgoing.INFO)
 	}
 	if spell.Immobilizes {
 		target.Immobilized = true
+		target.ParalyzedSince = time.Now()
 		s.messageService.SendConsoleMessage(target, "¡Te han inmovilizado!", outgoing.INFO)
 	}
 
@@ -416,13 +409,13 @@ func (s *SpellServiceImpl) applySpellToNPC(caster *model.Character, target *mode
 
 	// Paralysis
 	if spell.Paralyzes {
-		target.Paralizado = true
-		target.ParalizadoSince = time.Now()
+		target.Paralyzed = true
+		target.ParalyzedSince = time.Now()
 		s.messageService.SendConsoleMessage(caster, "Has paralizado a la criatura.", outgoing.INFO)
 	}
 	if spell.Immobilizes {
-		target.Inmovilizado = true
-		target.ParalizadoSince = time.Now()
+		target.Immobilized = true
+		target.ParalyzedSince = time.Now()
 		s.messageService.SendConsoleMessage(caster, "Has inmovilizado a la criatura.", outgoing.INFO)
 	}
 }
@@ -442,7 +435,7 @@ func (s *SpellServiceImpl) handleNpcDeath(caster *model.Character, target *model
 	for _, drop := range target.NPC.Drops {
 		obj := s.objectService.GetObject(drop.ObjectID)
 		if obj != nil {
-			
+
 			// Check if drop position is valid
 			dropPos := target.Position
 			validPos := s.messageService.MapService().IsInPlayableArea(int(dropPos.X), int(dropPos.Y)) && !s.messageService.MapService().IsBlocked(dropPos.Map, int(dropPos.X), int(dropPos.Y))

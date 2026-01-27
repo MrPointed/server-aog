@@ -53,7 +53,7 @@ func (s *NpcServiceImpl) SpawnNpc(id int, pos model.Position) *model.WorldNPC {
 		HP:           def.MaxHp,
 		RemainingExp: def.Exp,
 		Index:        s.indexManager.AssignIndex(),
-		Respawn:      def.ReSpawn,
+		Respawn:      def.Respawn,
 	}
 
 	s.mu.Lock()

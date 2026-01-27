@@ -89,13 +89,13 @@ func (d *NpcDatRepo) Load() (map[int]*model.NPC, error) {
 			Hostile:     props["HOSTILE"] == "1",
 			CanTrade:    props["COMERCIA"] == "1",
 			Movement:    toInt(props["MOVEMENT"]),
-			ReSpawn:     props["RESPAWN"] == "1" || props["RE_SPAWN"] == "1",
-			LanzaSpells: toInt(props["LANZASPELLS"]),
-			AtacaDoble:  props["ATACADOBLE"] == "1",
+			Respawn:     props["RESPAWN"] == "1" || props["RE_SPAWN"] == "1",
+			CastsSpells: toInt(props["LANZASPELLS"]),
+			DoubleAttack:  props["ATACADOBLE"] == "1",
 		}
 
-		if npc.LanzaSpells > 0 {
-			for i := 1; i <= npc.LanzaSpells; i++ {
+		if npc.CastsSpells > 0 {
+			for i := 1; i <= npc.CastsSpells; i++ {
 				spellKey := fmt.Sprintf("SP%d", i)
 				if val, ok := props[spellKey]; ok {
 					npc.Spells = append(npc.Spells, toInt(val))

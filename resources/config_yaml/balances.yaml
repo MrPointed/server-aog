@@ -200,7 +200,7 @@ balance:
     thirst: 30000
     hunger: 23000
     poison: 500
-    paralyzed: 500
+    paralyzed: 10000
     invisible: 500
     hidden: 500
     cold: 15
@@ -215,7 +215,7 @@ balance:
     intervals:
       move_speed: 380
       attack: 1600
-      paralized: 1 #min
+      paralyzed: 1 #min
 
 
   distribution:

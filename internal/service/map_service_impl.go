@@ -397,6 +397,10 @@ func (s *MapServiceImpl) MoveCharacterTo(char *model.Character, heading model.He
 		newPos.X--
 	}
 
+	if char.Paralyzed || char.Immobilized {
+		return char.Position, false
+	}
+
 	// Boundary checks
 	if !s.IsInPlayableArea(int(newPos.X), int(newPos.Y)) {
 		return char.Position, false

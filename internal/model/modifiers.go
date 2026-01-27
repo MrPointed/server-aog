@@ -37,6 +37,7 @@ type GlobalBalanceConfig struct {
 	IntervalThirst          int64
 	IntervalStartMeditating int64
 	IntervalMeditation      int64
+	IntervalParalyzed       int64
 
 	// NPC Intervals in milliseconds
 	NPCIntervalMove   int64

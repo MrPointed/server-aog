@@ -111,6 +111,9 @@ type Character struct {
 	Dead        bool
 	Hidden      bool
 
+	// Paralysis tracking
+	ParalyzedSince time.Time
+
 	// Stats counters
 	Kills       map[KillType]int
 	JailTime    int64

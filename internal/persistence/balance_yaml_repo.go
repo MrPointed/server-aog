@@ -31,6 +31,7 @@ type yamlBalance struct {
 			MagicHit        int64 `yaml:"magic_hit"`
 			Hunger          int64 `yaml:"hunger"`
 			Thirst          int64 `yaml:"thirst"`
+			Paralyzed       int64 `yaml:"paralyzed"`
 			StartMeditating int64 `yaml:"start_meditating"`
 			Meditation      int64 `yaml:"meditation"`
 		} `yaml:"intervals"`
@@ -45,7 +46,7 @@ type yamlBalance struct {
 			Intervals struct {
 				MoveSpeed int64 `yaml:"move_speed"`
 				Attack    int64 `yaml:"attack"`
-				Paralized int64 `yaml:"paralized"`
+				Paralyzed int64 `yaml:"paralyzed"`
 			} `yaml:"intervals"`
 		} `yaml:"npc"`
 	} `yaml:"balance"`
@@ -78,11 +79,12 @@ func (d *BalanceYamlRepo) Load() (map[model.UserArchetype]*model.ArchetypeModifi
 		IntervalMagicHit:        yb.Balance.Intervals.MagicHit,
 		IntervalHunger:          yb.Balance.Intervals.Hunger,
 		IntervalThirst:          yb.Balance.Intervals.Thirst,
+		IntervalParalyzed:       yb.Balance.Intervals.Paralyzed * 100,
 		IntervalStartMeditating: yb.Balance.Intervals.StartMeditating,
 		IntervalMeditation:      yb.Balance.Intervals.Meditation,
 		NPCIntervalMove:         yb.Balance.NPC.Intervals.MoveSpeed,
 		NPCIntervalAttack:       yb.Balance.NPC.Intervals.Attack,
-		NPCParalizedTime:        yb.Balance.NPC.Intervals.Paralized * 60 * 1000, // min to ms
+		NPCParalizedTime:        yb.Balance.NPC.Intervals.Paralyzed * 60 * 1000, // min to ms
 	}
 
 	// ... (Races and Classes mapping)

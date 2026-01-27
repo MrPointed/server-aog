@@ -202,6 +202,13 @@ func (s *CombatServiceImpl) resolvePVE(attacker *model.Character, victim *model.
 	victim.HP -= damage
 	s.messageService.SendConsoleMessage(attacker, fmt.Sprintf("¡Has golpeado a la criatura por %d!", damage), outgoing.FIGHT)
 
+	// Remove paralysis on hit
+	if victim.Paralyzed || victim.Immobilized {
+		victim.Paralyzed = false
+		victim.Immobilized = false
+		s.messageService.SendConsoleMessage(attacker, "¡La criatura ha recuperado el movimiento!", outgoing.INFO)
+	}
+
 	// Grant experience proportional to damage
 	s.grantExperience(attacker, victim, damage)
 
@@ -228,6 +235,10 @@ func (s *CombatServiceImpl) NpcAtacaUser(npc *model.WorldNPC, victim *model.Char
 
 	// Check interval
 	if !s.intervals.CanNPCAttack(npc) {
+		return false
+	}
+
+	if npc.Paralyzed {
 		return false
 	}
 
@@ -359,11 +370,11 @@ func (s *CombatServiceImpl) handleNpcDeath(killer *model.Character, npc *model.W
 			if obj.Type == model.OTMoney {
 				amount = int(float64(amount) * s.config.GoldMultiplier)
 			}
-			
+
 			// Check if drop position is valid
 			dropPos := npc.Position
 			validPos := s.mapService.IsInPlayableArea(int(dropPos.X), int(dropPos.Y)) && !s.mapService.IsBlocked(dropPos.Map, int(dropPos.X), int(dropPos.Y))
-			
+
 			if validPos {
 				worldObj := &model.WorldObject{
 					Object: obj,

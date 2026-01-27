@@ -164,6 +164,16 @@ func (s *TimedEventsServiceImpl) processRegen() {
 			}
 		}
 
+		// Paralysis / Immobilize Expiration
+		if (char.Paralyzed || char.Immobilized) && !char.ParalyzedSince.IsZero() {
+			if now.Sub(char.ParalyzedSince).Milliseconds() >= s.globalBalance.IntervalParalyzed {
+				char.Paralyzed = false
+				char.Immobilized = false
+				char.ParalyzedSince = time.Time{}
+				s.messageService.SendConsoleMessage(char, "¡Has recuperado el movimiento!", outgoing.INFO)
+			}
+		}
+
 		// Potion Effects Expiration
 		if !char.StrengthEffectEnd.IsZero() && now.After(char.StrengthEffectEnd) {
 			char.Attributes[model.Strength] = char.OriginalAttributes[model.Strength]
