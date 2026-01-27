@@ -111,17 +111,9 @@ func (b *PotionBehavior) Use(char *model.Character, slot int, obj *model.Object,
 	case 3: // HP
 		modifier := utils.RandomNumber(obj.MinModifier, obj.MaxModifier)
 		char.Hp = utils.Min(char.MaxHp, char.Hp+modifier)
-		connection.Send(&outgoing.ConsoleMessagePacket{
-			Message: fmt.Sprintf("Has recuperado %d puntos de vida.", modifier),
-			Font:    outgoing.INFO,
-		})
 	case 4: // Mana
 		modifier := utils.RandomNumber(obj.MinModifier, obj.MaxModifier)
 		char.Mana = utils.Min(char.MaxMana, char.Mana+modifier)
-		connection.Send(&outgoing.ConsoleMessagePacket{
-			Message: fmt.Sprintf("Has recuperado %d puntos de mana.", modifier),
-			Font:    outgoing.INFO,
-		})
 	case 5: // Poison
 		char.Poisoned = false
 		connection.Send(&outgoing.ConsoleMessagePacket{

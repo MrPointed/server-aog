@@ -359,17 +359,24 @@ func (s *CombatServiceImpl) handleNpcDeath(killer *model.Character, npc *model.W
 			if obj.Type == model.OTMoney {
 				amount = int(float64(amount) * s.config.GoldMultiplier)
 			}
-			worldObj := &model.WorldObject{
-				Object: obj,
-				Amount: amount,
-			}
-			if s.mapService.GetObjectAt(npc.Position) == nil {
-				s.mapService.PutObject(npc.Position, worldObj)
-				s.messageService.SendToArea(&outgoing.ObjectCreatePacket{
-					X:            npc.Position.X,
-					Y:            npc.Position.Y,
-					GraphicIndex: int16(obj.GraphicIndex),
-				}, npc.Position)
+			
+			// Check if drop position is valid
+			dropPos := npc.Position
+			validPos := s.mapService.IsInPlayableArea(int(dropPos.X), int(dropPos.Y)) && !s.mapService.IsBlocked(dropPos.Map, int(dropPos.X), int(dropPos.Y))
+			
+			if validPos {
+				worldObj := &model.WorldObject{
+					Object: obj,
+					Amount: amount,
+				}
+				if s.mapService.GetObjectAt(dropPos) == nil {
+					s.mapService.PutObject(dropPos, worldObj)
+					s.messageService.SendToArea(&outgoing.ObjectCreatePacket{
+						X:            dropPos.X,
+						Y:            dropPos.Y,
+						GraphicIndex: int16(obj.GraphicIndex),
+					}, dropPos)
+				}
 			}
 		}
 	}

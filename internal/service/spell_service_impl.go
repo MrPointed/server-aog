@@ -434,17 +434,24 @@ func (s *SpellServiceImpl) handleNpcDeath(caster *model.Character, target *model
 	for _, drop := range target.NPC.Drops {
 		obj := s.objectService.GetObject(drop.ObjectID)
 		if obj != nil {
-			worldObj := &model.WorldObject{
-				Object: obj,
-				Amount: drop.Amount,
-			}
-			if s.messageService.MapService().GetObjectAt(target.Position) == nil {
-				s.messageService.MapService().PutObject(target.Position, worldObj)
-				s.messageService.SendToArea(&outgoing.ObjectCreatePacket{
-					X:            target.Position.X,
-					Y:            target.Position.Y,
-					GraphicIndex: int16(obj.GraphicIndex),
-				}, target.Position)
+			
+			// Check if drop position is valid
+			dropPos := target.Position
+			validPos := s.messageService.MapService().IsInPlayableArea(int(dropPos.X), int(dropPos.Y)) && !s.messageService.MapService().IsBlocked(dropPos.Map, int(dropPos.X), int(dropPos.Y))
+
+			if validPos {
+				worldObj := &model.WorldObject{
+					Object: obj,
+					Amount: drop.Amount,
+				}
+				if s.messageService.MapService().GetObjectAt(target.Position) == nil {
+					s.messageService.MapService().PutObject(target.Position, worldObj)
+					s.messageService.SendToArea(&outgoing.ObjectCreatePacket{
+						X:            target.Position.X,
+						Y:            target.Position.Y,
+						GraphicIndex: int16(obj.GraphicIndex),
+					}, target.Position)
+				}
 			}
 		}
 	}

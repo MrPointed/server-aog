@@ -137,6 +137,10 @@ func (s *MessageServiceImpl) checkDropPos(center model.Position, dx, dy int) *mo
 	ty := int(center.Y) + dy
 
 	// Check strictly playable area from MapService IsBlocked/IsInPlayableArea
+	if !s.mapService.IsInPlayableArea(tx, ty) {
+		return nil
+	}
+	
 	if s.mapService.IsBlocked(center.Map, tx, ty) {
 		return nil
 	}

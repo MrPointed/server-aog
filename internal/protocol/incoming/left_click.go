@@ -235,6 +235,10 @@ func (p *LeftClickPacket) Handle(buffer *network.DataBuffer, connection protocol
 			user.TargetNPC = 0
 			user.TargetUser = 0
 			user.TargetObj = 0
+			connection.Send(&outgoing.ConsoleMessagePacket{
+				Message: "No ves nada interesante.",
+				Font:    outgoing.INFO,
+			})
 		}
 	}
 

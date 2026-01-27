@@ -182,7 +182,6 @@ func (p *DoubleClickPacket) Handle(buffer *network.DataBuffer, connection protoc
 
 		dist := getDist(user.Position, tx, ty)
 		if dist > 2 {
-			connection.Send(&outgoing.ConsoleMessagePacket{Message: "Estás demasiado lejos.", Font: outgoing.INFO})
 			return true, nil
 		}
 
