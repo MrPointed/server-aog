@@ -229,6 +229,8 @@ func GetOutgoingPacketID(packet OutgoingPacket) (ServerPackets, error) {
 		return SP_RollDice, nil
 	case *outgoing.UpdateUserStatsPacket:
 		return SP_UpdateUserStats, nil
+	case *outgoing.UpdateHPPacket:
+		return SP_UpdateHP, nil
 	case *outgoing.UpdateGoldPacket:
 		return SP_UpdateGold, nil
 	case *outgoing.UpdateBankGoldPacket:
