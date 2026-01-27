@@ -97,16 +97,13 @@ func (s *AiServiceImpl) handleNpcAI(npc *model.WorldNPC) {
 	}
 
 	// 2. Movement Logic
-	if time.Since(npc.LastMovement).Milliseconds() < s.globalBalance.NPCIntervalMove {
+	if npc.Paralyzed || npc.Immobilized || time.Since(npc.LastMovement).Milliseconds() < s.globalBalance.NPCIntervalMove {
 		return
 	}
 
 	moved := false
 	switch model.MovementType(npc.NPC.Movement) {
 	case model.MovementRandom:
-		if npc.Immobilized {
-			break
-		}
 		if rand.Intn(15) == 3 {
 			moved = s.moveRandomly(npc)
 		}
@@ -128,9 +125,6 @@ func (s *AiServiceImpl) handleNpcAI(npc *model.WorldNPC) {
 		moved = s.persigueCriminal(npc)
 
 	case model.MovementFollowOwner:
-		if npc.Immobilized {
-			break
-		}
 		moved = s.seguirAmo(npc)
 		if !moved && rand.Intn(15) == 3 {
 			moved = s.moveRandomly(npc)

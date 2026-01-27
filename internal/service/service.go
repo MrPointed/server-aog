@@ -106,8 +106,8 @@ type SpellService interface {
 	GetSpell(id int) *model.Spell
 	CastSpell(caster *model.Character, spellID int, target any)
 	NpcLanzaSpellSobreUser(npc *model.WorldNPC, target *model.Character, spellID int) bool
-	SacerdoteHealUser(target *model.Character)
-	SacerdoteResucitateUser(target *model.Character)
+	PriestHealUser(target *model.Character)
+	PriestResucitateUser(target *model.Character)
 }
 
 type SkillService interface {

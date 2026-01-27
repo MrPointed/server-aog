@@ -171,6 +171,9 @@ func (s *TimedEventsServiceImpl) processRegen() {
 				char.Immobilized = false
 				char.ParalyzedSince = time.Time{}
 				s.messageService.SendConsoleMessage(char, "¡Has recuperado el movimiento!", outgoing.INFO)
+				if conn := s.userService.GetConnection(char); conn != nil {
+					conn.Send(&outgoing.ParalyzeOkPacket{})
+				}
 			}
 		}
 

@@ -307,6 +307,7 @@ func (s *SpellServiceImpl) applySpellEffectToCharacter(target *model.Character, 
 	}
 
 	// Paralysis / Immobilize
+	wasParalyzed := target.Paralyzed || target.Immobilized
 	if spell.Paralyzes {
 		target.Paralyzed = true
 		target.ParalyzedSince = time.Now()
@@ -316,6 +317,20 @@ func (s *SpellServiceImpl) applySpellEffectToCharacter(target *model.Character, 
 		target.Immobilized = true
 		target.ParalyzedSince = time.Now()
 		s.messageService.SendConsoleMessage(target, "¡Te han inmovilizado!", outgoing.INFO)
+	}
+
+	if spell.RemoveParalysis {
+		target.Paralyzed = false
+		target.Immobilized = false
+		target.ParalyzedSince = time.Time{}
+		s.messageService.SendConsoleMessage(target, "¡Has recuperado el movimiento!", outgoing.INFO)
+	}
+
+	isParalyzed := target.Paralyzed || target.Immobilized
+	if isParalyzed != wasParalyzed {
+		if conn := s.userService.GetConnection(target); conn != nil {
+			conn.Send(&outgoing.ParalyzeOkPacket{})
+		}
 	}
 
 	// Poison
@@ -330,7 +345,7 @@ func (s *SpellServiceImpl) applySpellEffectToCharacter(target *model.Character, 
 	}
 }
 
-func (s *SpellServiceImpl) SacerdoteHealUser(target *model.Character) {
+func (s *SpellServiceImpl) PriestHealUser(target *model.Character) {
 	// SND_CURAR_SACERDOTE = 13 (example)
 	s.messageService.SendToArea(&outgoing.PlayWavePacket{
 		Wave: 13,
@@ -354,7 +369,7 @@ func (s *SpellServiceImpl) SacerdoteHealUser(target *model.Character) {
 	}
 }
 
-func (s *SpellServiceImpl) SacerdoteResucitateUser(target *model.Character) {
+func (s *SpellServiceImpl) PriestResucitateUser(target *model.Character) {
 	// SND_RESUCITAR_SACERDOTE = 16 (example)
 	s.messageService.SendToArea(&outgoing.PlayWavePacket{
 		Wave: 16,
@@ -378,6 +393,12 @@ func (s *SpellServiceImpl) SacerdoteResucitateUser(target *model.Character) {
 }
 
 func (s *SpellServiceImpl) applySpellToNPC(caster *model.Character, target *model.WorldNPC, spell *model.Spell) {
+
+	if !target.NPC.Hostile {
+		s.messageService.SendConsoleMessage(caster, "No puedes atacar a una criatura pacífica.", outgoing.INFO)
+		return
+	}
+
 	// FX
 	s.messageService.SendToArea(&outgoing.CreateFxPacket{
 		CharIndex: target.Index,
@@ -417,6 +438,13 @@ func (s *SpellServiceImpl) applySpellToNPC(caster *model.Character, target *mode
 		target.Immobilized = true
 		target.ParalyzedSince = time.Now()
 		s.messageService.SendConsoleMessage(caster, "Has inmovilizado a la criatura.", outgoing.INFO)
+	}
+
+	if spell.RemoveParalysis {
+		target.Paralyzed = false
+		target.Immobilized = false
+		target.ParalyzedSince = time.Time{}
+		s.messageService.SendConsoleMessage(caster, "La criatura ha recuperado el movimiento.", outgoing.INFO)
 	}
 }
 

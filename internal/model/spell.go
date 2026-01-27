@@ -48,6 +48,7 @@ type Spell struct {
 		Immobilizes    bool
 		Poison         bool
 		CurePoison     bool
+		RemoveParalysis bool
 		Revive         bool
 		Blind          bool
 		Dumb           bool // Estupidez

@@ -127,6 +127,9 @@ func (s *CombatServiceImpl) resolvePVP(attacker *model.Character, victim *model.
 		victim.Paralyzed = false
 		victim.Immobilized = false
 		s.messageService.SendConsoleMessage(victim, "¡Has recuperado el movimiento!", outgoing.INFO)
+		if conn := s.messageService.UserService().GetConnection(victim); conn != nil {
+			conn.Send(&outgoing.ParalyzeOkPacket{})
+		}
 	}
 
 	// Feedback
@@ -201,13 +204,6 @@ func (s *CombatServiceImpl) resolvePVE(attacker *model.Character, victim *model.
 
 	victim.HP -= damage
 	s.messageService.SendConsoleMessage(attacker, fmt.Sprintf("¡Has golpeado a la criatura por %d!", damage), outgoing.FIGHT)
-
-	// Remove paralysis on hit
-	if victim.Paralyzed || victim.Immobilized {
-		victim.Paralyzed = false
-		victim.Immobilized = false
-		s.messageService.SendConsoleMessage(attacker, "¡La criatura ha recuperado el movimiento!", outgoing.INFO)
-	}
 
 	// Grant experience proportional to damage
 	s.grantExperience(attacker, victim, damage)
@@ -285,13 +281,6 @@ func (s *CombatServiceImpl) NpcAtacaUser(npc *model.WorldNPC, victim *model.Char
 	victim.Hp -= damage
 	if victim.Hp < 0 {
 		victim.Hp = 0
-	}
-
-	// Remove paralysis on hit
-	if victim.Paralyzed || victim.Immobilized {
-		victim.Paralyzed = false
-		victim.Immobilized = false
-		s.messageService.SendConsoleMessage(victim, "¡Has recuperado el movimiento!", outgoing.INFO)
 	}
 
 	// Feedback

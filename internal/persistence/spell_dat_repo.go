@@ -55,6 +55,7 @@ func (d *SpellDatRepo) Load() (map[int]*model.Spell, error) {
 			Invisibility:    props["INVISIBILIDAD"] == "1",
 			Paralyzes:       props["PARALIZA"] == "1",
 			Immobilizes:     props["INMOVILIZA"] == "1",
+			RemoveParalysis: props["REMOVERPARALISIS"] == "1",
 			Poison:          props["ENVENENA"] == "1",
 			CurePoison:      props["CURAVENENO"] == "1",
 			Revive:          props["REVIVIR"] == "1",

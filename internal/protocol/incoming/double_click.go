@@ -105,7 +105,7 @@ func (p *DoubleClickPacket) Handle(buffer *network.DataBuffer, connection protoc
 
 				user.TradingNPCIndex = npc.Index
 				connection.Send(&outgoing.CommerceInitPacket{})
-				
+
 				// Send NPC Inventory
 				for i, slot := range npc.NPC.Inventory {
 					obj := p.ObjectService.GetObject(slot.ObjectID)
@@ -143,9 +143,9 @@ func (p *DoubleClickPacket) Handle(buffer *network.DataBuffer, connection protoc
 			}
 
 			if user.Dead {
-				p.SpellService.SacerdoteResucitateUser(user)
+				p.SpellService.PriestResucitateUser(user)
 			} else if user.Hp < user.MaxHp {
-				p.SpellService.SacerdoteHealUser(user)
+				p.SpellService.PriestHealUser(user)
 			}
 		}
 		return true, nil

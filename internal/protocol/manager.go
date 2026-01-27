@@ -297,6 +297,8 @@ func GetOutgoingPacketID(packet OutgoingPacket) (ServerPackets, error) {
 		return SP_Fame, nil
 	case *outgoing.MiniStatsPacket:
 		return SP_MiniStats, nil
+	case *outgoing.ParalyzeOkPacket:
+		return SP_ParalyzeOk, nil
 	case *outgoing.SendSkillsPacket:
 		return SP_SendSkills, nil
 	case *outgoing.MeditateTogglePacket:
