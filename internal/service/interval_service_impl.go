@@ -67,7 +67,7 @@ func (s *IntervalServiceImpl) CanNPCAttack(npc *model.WorldNPC) bool {
 	now := time.Now()
 
 	// Check standard attack interval
-	if now.Sub(npc.LastAttack).Milliseconds() < s.globalBalance.IntervalAttack {
+	if now.Sub(npc.LastAttack).Milliseconds() < s.globalBalance.NPCIntervalAttack {
 		return false
 	}
 

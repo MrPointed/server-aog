@@ -88,6 +88,7 @@ type WorldNPC struct {
 	// Stateful AI flags
 	Inmovilizado bool
 	Paralizado   bool
+	ParalizadoSince time.Time
 	OldMovement  int
 	OldHostile   bool
 	AttackedBy   string
@@ -98,4 +99,5 @@ type WorldNPC struct {
 	// Intervals
 	LastAttack time.Time
 	LastSpell  time.Time
+	LastMovement time.Time
 }

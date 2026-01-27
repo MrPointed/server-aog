@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"log/slog"
 	"math/rand"
+	"time"
 
 	"github.com/ao-go-server/internal/config"
 	"github.com/ao-go-server/internal/model"
@@ -415,7 +416,14 @@ func (s *SpellServiceImpl) applySpellToNPC(caster *model.Character, target *mode
 
 	// Paralysis
 	if spell.Paralyzes {
-		// target.Paralyzed = true // NPC struct needs this field
+		target.Paralizado = true
+		target.ParalizadoSince = time.Now()
+		s.messageService.SendConsoleMessage(caster, "Has paralizado a la criatura.", outgoing.INFO)
+	}
+	if spell.Immobilizes {
+		target.Inmovilizado = true
+		target.ParalizadoSince = time.Now()
+		s.messageService.SendConsoleMessage(caster, "Has inmovilizado a la criatura.", outgoing.INFO)
 	}
 }
 

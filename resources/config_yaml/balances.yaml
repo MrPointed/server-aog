@@ -205,13 +205,18 @@ balance:
     hidden: 500
     cold: 15
     move: 200
-    npc_ai: 380
-    npc_attack: 1600
     work: 700
     invocation: 1001
     rain_stamina_loss: 9999
     start_meditating: 2000
     meditation: 250
+
+  npc:
+    intervals:
+      move_speed: 380
+      attack: 1600
+      paralized: 1 #min
+
 
   distribution:
     e: [20, 20, 20, 20, 20]

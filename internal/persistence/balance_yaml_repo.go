@@ -41,6 +41,13 @@ type yamlBalance struct {
 			ManaRecoveryPercentage float64 `yaml:"mana_recovery_percentage"`
 			NewbieMaxLevel         int     `yaml:"newbie_max_level"`
 		} `yaml:"extra"`
+		NPC struct {
+			Intervals struct {
+				MoveSpeed int64 `yaml:"move_speed"`
+				Attack    int64 `yaml:"attack"`
+				Paralized int64 `yaml:"paralized"`
+			} `yaml:"intervals"`
+		} `yaml:"npc"`
 	} `yaml:"balance"`
 }
 
@@ -73,6 +80,9 @@ func (d *BalanceYamlRepo) Load() (map[model.UserArchetype]*model.ArchetypeModifi
 		IntervalThirst:          yb.Balance.Intervals.Thirst,
 		IntervalStartMeditating: yb.Balance.Intervals.StartMeditating,
 		IntervalMeditation:      yb.Balance.Intervals.Meditation,
+		NPCIntervalMove:         yb.Balance.NPC.Intervals.MoveSpeed,
+		NPCIntervalAttack:       yb.Balance.NPC.Intervals.Attack,
+		NPCParalizedTime:        yb.Balance.NPC.Intervals.Paralized * 60 * 1000, // min to ms
 	}
 
 	// ... (Races and Classes mapping)

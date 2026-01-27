@@ -96,7 +96,7 @@ func NewServer(addr string, resourcesPath string) *Server {
 	timedEventsService := service.NewTimedEventsServiceImpl(userService, messageService, cfg, globalBalance)
 	timedEventsService.Start()
 
-	aiService := service.NewAiServiceImpl(npcService, mapService, areaService, userService, combatService, messageService, spellService)
+	aiService := service.NewAiServiceImpl(npcService, mapService, areaService, userService, combatService, messageService, spellService, globalBalance)
 	aiService.Start()
 
 	skillService := service.NewSkillServiceImpl(mapService, objectService, messageService, userService, npcService, spellService, intervalService)

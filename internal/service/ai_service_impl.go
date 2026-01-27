@@ -16,12 +16,13 @@ type AiServiceImpl struct {
 	combatService  CombatService
 	messageService MessageService
 	spellService   SpellService
+	globalBalance  *model.GlobalBalanceConfig
 	stopChan       chan struct{}
 	ticks          uint64
 	enabled        bool
 }
 
-func NewAiServiceImpl(npcService NpcService, mapService MapService, areaService AreaService, userService UserService, combatService CombatService, messageService MessageService, spellService SpellService) AiService {
+func NewAiServiceImpl(npcService NpcService, mapService MapService, areaService AreaService, userService UserService, combatService CombatService, messageService MessageService, spellService SpellService, globalBalance *model.GlobalBalanceConfig) AiService {
 	return &AiServiceImpl{
 		npcService:     npcService,
 		mapService:     mapService,
@@ -30,6 +31,7 @@ func NewAiServiceImpl(npcService NpcService, mapService MapService, areaService 
 		combatService:  combatService,
 		messageService: messageService,
 		spellService:   spellService,
+		globalBalance:  globalBalance,
 		stopChan:       make(chan struct{}),
 		enabled:        true,
 	}
@@ -53,7 +55,7 @@ func (s *AiServiceImpl) IsEnabled() bool {
 }
 
 func (s *AiServiceImpl) aiLoop() {
-	ticker := time.NewTicker(400 * time.Millisecond)
+	ticker := time.NewTicker(100 * time.Millisecond)
 	defer ticker.Stop()
 
 	for {
@@ -77,7 +79,13 @@ func (s *AiServiceImpl) processNpcs() {
 }
 
 func (s *AiServiceImpl) handleNpcAI(npc *model.WorldNPC) {
-	// 1. Hostility/Attack Logic - Can happen every 400ms
+	// 0. Handle Paralysis/Immobilization Expiration
+	if (npc.Paralizado || npc.Inmovilizado) && time.Since(npc.ParalizadoSince).Milliseconds() >= s.globalBalance.NPCParalizedTime {
+		npc.Paralizado = false
+		npc.Inmovilizado = false
+	}
+
+	// 1. Hostility/Attack Logic - Handled by intervals in CombatService
 	if npc.MaestroUser == 0 {
 		if npc.NPC.Type == model.NTGuard {
 			s.guardiasAI(npc, false)
@@ -88,51 +96,58 @@ func (s *AiServiceImpl) handleNpcAI(npc *model.WorldNPC) {
 		}
 	}
 
-	// 2. Movement Logic - Only every 800ms (2 ticks) for smooth client animation
-	if s.ticks%2 != 0 {
+	// 2. Movement Logic
+	if time.Since(npc.LastMovement).Milliseconds() < s.globalBalance.NPCIntervalMove {
 		return
 	}
 
+	moved := false
 	switch model.MovementType(npc.NPC.Movement) {
 	case model.MovementRandom:
 		if npc.Inmovilizado {
-			return
+			break
 		}
 		if rand.Intn(15) == 3 {
-			s.moveRandomly(npc)
+			moved = s.moveRandomly(npc)
 		}
-		if npc.NPC.Type == model.NTGuard {
-			s.persigueCriminal(npc)
-		} else if npc.NPC.Type == model.NTGuardCaos {
-			s.persigueCiudadano(npc)
+		if !moved {
+			if npc.NPC.Type == model.NTGuard {
+				moved = s.persigueCriminal(npc)
+			} else if npc.NPC.Type == model.NTGuardCaos {
+				moved = s.persigueCiudadano(npc)
+			}
 		}
 
 	case model.MovementHostile:
-		s.irUsuarioCercano(npc)
+		moved = s.irUsuarioCercano(npc)
 
 	case model.MovementDefense:
-		s.seguirAgresor(npc)
+		moved = s.seguirAgresor(npc)
 
 	case model.MovementGuardAttackCriminals:
-		s.persigueCriminal(npc)
+		moved = s.persigueCriminal(npc)
 
 	case model.MovementFollowOwner:
 		if npc.Inmovilizado {
-			return
+			break
 		}
-		s.seguirAmo(npc)
-		if rand.Intn(15) == 3 {
-			s.moveRandomly(npc)
+		moved = s.seguirAmo(npc)
+		if !moved && rand.Intn(15) == 3 {
+			moved = s.moveRandomly(npc)
 		}
 
 	case model.MovementObject:
 		s.aiNpcObjeto(npc)
 	}
+
+	if moved {
+		npc.LastMovement = time.Now()
+	}
 }
 
-func (s *AiServiceImpl) moveRandomly(npc *model.WorldNPC) {
+func (s *AiServiceImpl) moveRandomly(npc *model.WorldNPC) bool {
 	heading := model.Heading(rand.Intn(4))
-	s.moveNpc(npc, heading)
+	return s.moveNpc(npc, heading)
 }
 
 func (s *AiServiceImpl) moveNpc(npc *model.WorldNPC, heading model.Heading) bool {
@@ -263,11 +278,11 @@ func (s *AiServiceImpl) hostilMalvadoAI(npc *model.WorldNPC) {
 	}
 }
 
-func (s *AiServiceImpl) irUsuarioCercano(npc *model.WorldNPC) {
+func (s *AiServiceImpl) irUsuarioCercano(npc *model.WorldNPC) bool {
 	if npc.Inmovilizado {
 		// Just attack if someone is in range
 		s.hostilMalvadoAI(npc)
-		return
+		return false
 	}
 
 	// Find closest user in range
@@ -288,20 +303,21 @@ func (s *AiServiceImpl) irUsuarioCercano(npc *model.WorldNPC) {
 	if closestUser != nil {
 		if minDist <= 1 {
 			if s.npcAtacaUser(npc, closestUser) {
-				return
+				return false // Attacking isn't moving
 			}
 		} else {
 			heading := s.findDirection(npc.Position, closestUser.Position)
-			s.moveNpc(npc, heading)
+			return s.moveNpc(npc, heading)
 		}
 	} else if rand.Intn(10) == 0 {
-		s.moveRandomly(npc)
+		return s.moveRandomly(npc)
 	}
+	return false
 }
 
-func (s *AiServiceImpl) persigueCriminal(npc *model.WorldNPC) {
+func (s *AiServiceImpl) persigueCriminal(npc *model.WorldNPC) bool {
 	if npc.Inmovilizado {
-		return
+		return false
 	}
 
 	var target *model.Character
@@ -320,13 +336,14 @@ func (s *AiServiceImpl) persigueCriminal(npc *model.WorldNPC) {
 
 	if target != nil {
 		heading := s.findDirection(npc.Position, target.Position)
-		s.moveNpc(npc, heading)
+		return s.moveNpc(npc, heading)
 	}
+	return false
 }
 
-func (s *AiServiceImpl) persigueCiudadano(npc *model.WorldNPC) {
+func (s *AiServiceImpl) persigueCiudadano(npc *model.WorldNPC) bool {
 	if npc.Inmovilizado {
-		return
+		return false
 	}
 
 	var target *model.Character
@@ -345,13 +362,14 @@ func (s *AiServiceImpl) persigueCiudadano(npc *model.WorldNPC) {
 
 	if target != nil {
 		heading := s.findDirection(npc.Position, target.Position)
-		s.moveNpc(npc, heading)
+		return s.moveNpc(npc, heading)
 	}
+	return false
 }
 
-func (s *AiServiceImpl) seguirAgresor(npc *model.WorldNPC) {
+func (s *AiServiceImpl) seguirAgresor(npc *model.WorldNPC) bool {
 	if npc.AttackedBy == "" {
-		return
+		return false
 	}
 
 	var target *model.Character
@@ -364,31 +382,33 @@ func (s *AiServiceImpl) seguirAgresor(npc *model.WorldNPC) {
 
 	if target == nil || target.Position.Map != npc.Position.Map || target.Dead {
 		npc.AttackedBy = ""
-		return
+		return false
 	}
 
 	dist := npc.Position.GetDistance(target.Position)
 	if dist <= 1 {
 		if s.npcAtacaUser(npc, target) {
-			return
+			return false
 		}
 	} else if !npc.Inmovilizado {
 		heading := s.findDirection(npc.Position, target.Position)
-		s.moveNpc(npc, heading)
+		return s.moveNpc(npc, heading)
 	}
+	return false
 }
 
-func (s *AiServiceImpl) seguirAmo(npc *model.WorldNPC) {
+func (s *AiServiceImpl) seguirAmo(npc *model.WorldNPC) bool {
 	owner := s.userService.GetCharacterByIndex(int16(npc.MaestroUser))
 	if owner == nil || owner.Position.Map != npc.Position.Map {
-		return
+		return false
 	}
 
 	dist := npc.Position.GetDistance(owner.Position)
 	if dist > 3 && dist < 15 {
 		heading := s.findDirection(npc.Position, owner.Position)
-		s.moveNpc(npc, heading)
+		return s.moveNpc(npc, heading)
 	}
+	return false
 }
 
 func (s *AiServiceImpl) aiNpcObjeto(npc *model.WorldNPC) {
