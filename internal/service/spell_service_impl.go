@@ -423,8 +423,9 @@ func (s *SpellServiceImpl) handleNpcDeath(caster *model.Character, target *model
 	s.messageService.SendToArea(&outgoing.CharacterRemovePacket{CharIndex: target.Index}, target.Position)
 
 	if target.RemainingExp > 0 {
-		caster.Exp += target.RemainingExp
-		s.messageService.SendConsoleMessage(caster, fmt.Sprintf("¡Has matado a la criatura! Ganaste %d exp.", target.RemainingExp), outgoing.INFO)
+		bonusExp := int(float32(target.RemainingExp) * float32(s.config.XpMultiplier))
+		caster.Exp += bonusExp
+		s.messageService.SendConsoleMessage(caster, fmt.Sprintf("¡Has matado a la criatura! Ganaste %d exp.", bonusExp), outgoing.INFO)
 		target.RemainingExp = 0
 		s.trainingService.CheckLevel(caster)
 	}
@@ -456,20 +457,21 @@ func (s *SpellServiceImpl) grantExperience(attacker *model.Character, victim *mo
 		return
 	}
 
-	expToGive := int(float32(damage) * (float32(victim.NPC.Exp) / float32(victim.NPC.MaxHp)) * float32(s.config.XpMultiplier))
+	baseShare := int(float32(damage) * (float32(victim.NPC.Exp) / float32(victim.NPC.MaxHp)))
 
 	// Ensure at least 1 exp if damage was dealt and there's exp left
-	if expToGive == 0 && damage > 0 && victim.RemainingExp > 0 {
-		expToGive = 1
+	if baseShare == 0 && damage > 0 && victim.RemainingExp > 0 {
+		baseShare = 1
 	}
 
-	if expToGive > victim.RemainingExp {
-		expToGive = victim.RemainingExp
+	if baseShare > victim.RemainingExp {
+		baseShare = victim.RemainingExp
 	}
 
-	if expToGive > 0 {
+	if baseShare > 0 {
+		expToGive := int(float32(baseShare) * float32(s.config.XpMultiplier))
 		attacker.Exp += expToGive
-		victim.RemainingExp -= expToGive
+		victim.RemainingExp -= baseShare
 		s.messageService.SendConsoleMessage(attacker, fmt.Sprintf("Has ganado %d puntos de experiencia.", expToGive), outgoing.FIGHT)
 		s.trainingService.CheckLevel(attacker)
 	}

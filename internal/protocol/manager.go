@@ -291,6 +291,8 @@ func GetOutgoingPacketID(packet OutgoingPacket) (ServerPackets, error) {
 		return SP_ChangeNpcInventorySlot, nil
 	case *outgoing.AttributesPacket:
 		return SP_Attributes, nil
+	case *outgoing.FamePacket:
+		return SP_Fame, nil
 	case *outgoing.SendSkillsPacket:
 		return SP_SendSkills, nil
 	case *outgoing.MeditateTogglePacket:
