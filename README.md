@@ -1,4 +1,4 @@
-# Argentum Online Go Server
+# ⚔️ Argentum Online Go Server ⚔️
 
 Implementación moderna y de alto rendimiento del servidor de **Argentum Online** escrita en **Go**. Este proyecto busca renovar la arquitectura del juego clásico, ofreciendo mayor estabilidad, concurrencia nativa, facilidad de despliegue y herramientas de gestión avanzadas para administradores y desarrolladores.
 
