@@ -2,6 +2,7 @@
 server
 aog_launcher
 main
+main_bin
 
 # Logs
 *.log
