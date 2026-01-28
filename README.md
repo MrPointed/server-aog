@@ -118,4 +118,4 @@ go run cmd/server/main.go
 
 ## 📄 Licencia
 
-Este proyecto está bajo la Licencia **GNU General Public License v3.0**. Consulta el archivo `LICENSE` para más detalles.
+Este proyecto está bajo la Licencia **GNU General Public License v3.0**. Consulta el archivo [LICENSE](LICENSE) para más detalles.
