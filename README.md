@@ -1,81 +1,121 @@
-# ⚔️ Argentum Online Go Server
+# Argentum Online Go Server
 
-Bienvenido al servidor de Argentum Online desarrollado en Go.
-
----
-
-## 💻 Compatibilidad
-El `servidor` es multiplataforma (windows, linux, mac)
+Implementación moderna y de alto rendimiento del servidor de **Argentum Online** escrita en **Go**. Este proyecto busca renovar la arquitectura del juego clásico, ofreciendo mayor estabilidad, concurrencia nativa, facilidad de despliegue y herramientas de gestión avanzadas para administradores y desarrolladores.
 
 ---
 
-## 🚀 Guía de Inicio Rápido
+## 📋 Requisitos
 
-### 1. Requisitos Previos
-*   **Go** (versión 1.25 o superior recomendada).
-*   Tener el repositorio clonado localmente.
+*   **Go**: Versión 1.25.6 o superior.
+*   **Git**: Para clonar el repositorio.
+*   **Sistema Operativo**: Compatible con Linux, Windows y macOS.
 
-### 2. Instalación del Launcher
-Para poder ejecutar el comando `launcher` desde cualquier lugar, instálalo en tu sistema:
+## 🛠️ Instalación
 
-```bash
-cd ao-go-server
-go install ./cmd/launcher
-```
-> **Nota:** Asegúrate de tener tu `$GOPATH/bin` en la variable de entorno PATH de tu sistema.
+1.  **Clonar el repositorio:**
+    ```bash
+    git clone https://github.com/tu-usuario/ao-go-server.git
+    cd ao-go-server
+    ```
 
-### 3. Compilación Manual (Alternativa)
-Si prefieres no instalarlo globalmente, puedes compilarlo en la carpeta actual:
-```bash
-go build -o launcher ./cmd/launcher
-```
+2.  **Descargar dependencias:**
+    ```bash
+    go mod download
+    ```
+
+3.  **Compilar el Launcher:**
+    Para facilitar la gestión, compilamos la herramienta CLI principal:
+    ```bash
+    go build -o aog_launcher ./cmd/aog_launcher
+    ```
 
 ---
 
-## 🛠️ Comandos Principales
+## ✨ Features Principales
 
-### Gestión del Servidor
-Controla el estado del proceso:
+*   **aog_launcher**: CLI potente y unificada para el inicio, parada, reinicio y gestión integral del ciclo de vida del servidor.
+*   **TUI (Text User Interface)**: Panel de control visual en terminal para monitorear el estado del servidor, logs y métricas en tiempo real sin salir de la consola.
+*   **API de Administración**: Interfaz programable para integrar herramientas externas o paneles web.
+*   **Monitor de Red**: Observabilidad detallada del tráfico de red, paquetes y conexiones activas.
+*   **Hot Reloading**: Capacidad de recargar mapas (`.map`, `.dat`) y archivos de configuración (balances, `server.yaml`) sin detener el servidor.
+*   **Inicio Rápido y Caching**: Carga optimizada de recursos y mapas utilizando concurrencia y sistemas de caché para reducir drásticamente los tiempos de arranque.
+*   **Arquitectura Concurrente**: Aprovecha las Goroutines de Go para manejar miles de conexiones y tareas simultáneas de manera eficiente.
+*   **Multiplataforma**: Ejecutable nativo en cualquier sistema operativo soportado por Go.
+
+---
+
+## ⚙️ Configuración
+
+La configuración del servidor se gestiona principalmente a través de archivos YAML ubicados en `resources/config_yaml/`.
+
+*   **`server.yaml`**: Configuración general (puerto, base de datos, límites).
+*   **`project.yaml`**: Rutas de recursos y configuraciones específicas del proyecto.
+*   **`balances.yaml`**: Balance de clases, npcs y objetos.
+*   **`maps.yaml`**: Propiedades de los mapas.
+
+Puedes editar estos archivos manualmente o utilizar el launcher para ciertas tareas de gestión.
+
+---
+
+## 🚀 Uso
+
+### Usando `aog_launcher` (Recomendado)
+
+El launcher es la herramienta central para interactuar con el servidor.
 
 *   **Iniciar el servidor:**
     ```bash
-    ./launcher start --env dev --port 7666
+    ./aog_launcher start
     ```
-    *(Añade `&` al final en Linux para ejecutarlo en segundo plano).*
-
-*   **Ver estado y tiempo activo:**
+    Opcionalmente puedes especificar puerto y entorno:
     ```bash
-    ./launcher status
-    ./launcher uptime
+    ./aog_launcher start --port 7666 --env prod
     ```
 
-*   **Detener el servidor:**
+*   **Ver estado:**
     ```bash
-    ./launcher stop            # Cierre inmediato
-    ./launcher stop --graceful # Cierre limpio (Guardando datos)
+    ./aog_launcher status
+    ./aog_launcher uptime
     ```
 
-### Gestión del Mundo y Mapas
-Modifica el entorno sin reiniciar:
-
-*   **Recargar un mapa específico:**
+*   **Gestión de conexiones:**
     ```bash
-    ./launcher world reload map_1
+    ./aog_launcher conn list
+    ./aog_launcher conn kick --account <id>
     ```
 
-### Moderación y Conexiones
-Gestiona a los usuarios conectados:
+*   **Recargar mundo (Hot Reload):**
+    ```bash
+    ./aog_launcher world reload map_1
+    ```
 
-*   **Listar conexiones activas:**
+*   **Monitor TUI: (Recomendado)**
     ```bash
-    ./launcher conn list
+    ./aog_launcher monitor
     ```
-*   **Expulsar (Kick) a un usuario:**
-    ```bash
-    ./launcher conn kick --account 1234
-    ./launcher conn kick --ip 192.168.1.1
-    ```
+
+### Ejecución Directa (Desarrollo)
+
+Si prefieres ejecutar el servidor directamente sin el launcher compilado:
+
+```bash
+go run cmd/server/main.go
+```
 
 ---
 
+## 🤝 Contribuir
 
+¡Las contribuciones son bienvenidas! Sigue estos pasos para colaborar:
+
+1.  Haz un **Fork** del repositorio.
+2.  Crea una rama para tu feature o fix: `git checkout -b feature/nueva-funcionalidad`.
+3.  Realiza tus cambios con **Commits claros** y descriptivos.
+4.  Asegúrate de que el código compile.
+5.  Abre un **Pull Request (PR)** hacia la rama `main` describiendo técnicamente tus cambios.
+
+---
+
+## 📄 Licencia
+
+Este proyecto está bajo la Licencia **GNU General Public License v3.0**. Consulta el archivo `LICENSE` para más detalles.
