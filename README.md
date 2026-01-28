@@ -26,9 +26,8 @@ Implementación moderna y de alto rendimiento del servidor de **Argentum Online*
 3.  **Compilar el Launcher:**
     Para facilitar la gestión, compilamos la herramienta CLI principal:
     ```bash
-    go build -o aog_launcher ./cmd/aog_launcher
+    go build -o aog_launcher ./cmd/aog_launcher_cli
     ```
-
 ---
 
 ## ✨ Features Principales
@@ -99,7 +98,7 @@ El launcher es la herramienta central para interactuar con el servidor.
 Si prefieres ejecutar el servidor directamente sin el launcher compilado:
 
 ```bash
-go run cmd/server/main.go
+go run cmd/aog_server/main.go
 ```
 
 ---
