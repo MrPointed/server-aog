@@ -5,7 +5,6 @@ import (
 	"log/slog"
 	"strings"
 
-	"github.com/ao-go-server/internal/actions"
 	"github.com/ao-go-server/internal/config"
 	"github.com/ao-go-server/internal/model"
 	"github.com/ao-go-server/internal/persistence"
@@ -25,14 +24,13 @@ type LoginServiceImpl struct {
 	objectService  ObjectService
 	cityService    CityService
 	spellService   SpellService
-	executor       *actions.ActionExecutor[MapService]
 }
 
 func NewLoginServiceImpl(userRepo persistence.UserRepository,
 	cfg *config.Config, projectCfg *config.ProjectConfig, userService UserService, mapService MapService,
 	bodyService BodyService, indexManager *CharacterIndexManager,
 	messageService MessageService, objectService ObjectService, cityService CityService,
-	spellService SpellService, executor *actions.ActionExecutor[MapService]) LoginService {
+	spellService SpellService) LoginService {
 	return &LoginServiceImpl{
 		userRepo:       userRepo,
 		config:         cfg,
@@ -45,7 +43,6 @@ func NewLoginServiceImpl(userRepo persistence.UserRepository,
 		objectService:  objectService,
 		cityService:    cityService,
 		spellService:   spellService,
-		executor:       executor,
 	}
 }
 
@@ -244,10 +241,8 @@ func (s *LoginServiceImpl) finalizeLogin(conn protocol.Connection, acc *model.Ac
 	s.userService.LogIn(conn)
 
 	// Dispatch to World (Thread-safe map modification)
-	s.executor.Dispatch(func(m MapService) {
-		// TODO: Add collision check logic here similar to 'LegalPos' in VB6
-		m.PutCharacterAtPos(char, char.Position)
-	})
+	// TODO: Add collision check logic here similar to 'LegalPos' in VB6
+	s.mapService.PutCharacterAtPos(char, char.Position)
 
 	// Send Handshake / Game State
 	s.sendInitialGameState(conn, char)
@@ -399,9 +394,7 @@ func (s *LoginServiceImpl) OnUserDisconnect(conn protocol.Connection) {
 		s.userService.LogOut(conn)
 		s.indexManager.FreeIndex(char.CharIndex)
 		// Remove from map
-		s.executor.Dispatch(func(m MapService) {
-			m.RemoveCharacter(char)
-		})
+		s.mapService.RemoveCharacter(char)
 	}
 }
 
@@ -445,16 +438,15 @@ func (s *LoginServiceImpl) TeleportPlayer(nick string, mapID, x, y int) error {
 	}
 
 	newPos := model.Position{Map: mapID, X: byte(x), Y: byte(y)}
-	s.executor.Dispatch(func(m MapService) {
-		m.PutCharacterAtPos(char, newPos)
-		// Notify the client and surrounding areas
-		s.messageService.SendToAreaButUser(&outgoing.CharacterRemovePacket{CharIndex: char.CharIndex}, char.Position, char)
-		conn := s.userService.GetConnection(char)
-		if conn != nil {
-			conn.Send(&outgoing.AreaChangedPacket{Position: newPos})
-		}
-		s.messageService.SendToAreaButUser(&outgoing.CharacterCreatePacket{Character: char}, newPos, char)
-	})
+	s.mapService.PutCharacterAtPos(char, newPos)
+	// Notify the client and surrounding areas
+	s.messageService.SendToAreaButUser(&outgoing.CharacterRemovePacket{CharIndex: char.CharIndex}, char.Position, char)
+	conn := s.userService.GetConnection(char)
+	if conn != nil {
+		conn.Send(&outgoing.AreaChangedPacket{Position: newPos})
+	}
+	s.messageService.SendToAreaButUser(&outgoing.CharacterCreatePacket{Character: char}, newPos, char)
+
 	return nil
 }
 

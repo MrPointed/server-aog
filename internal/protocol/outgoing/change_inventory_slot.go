@@ -16,7 +16,7 @@ func (p *ChangeInventorySlotPacket) Write(buffer *network.DataBuffer) error {
 	buffer.Put(p.Slot)
 	if p.Object == nil {
 		buffer.PutShort(0)
-		buffer.PutCp1252String("")
+		buffer.PutUTF8String("")
 		buffer.PutShort(0)
 		buffer.PutBoolean(false)
 		buffer.PutShort(0)
@@ -30,7 +30,7 @@ func (p *ChangeInventorySlotPacket) Write(buffer *network.DataBuffer) error {
 	}
 
 	buffer.PutShort(int16(p.Object.ID))
-	buffer.PutCp1252String(p.Object.Name)
+	buffer.PutUTF8String(p.Object.Name)
 	buffer.PutShort(int16(p.Amount))
 	buffer.PutBoolean(p.Equipped)
 	buffer.PutShort(int16(p.Object.GraphicIndex))

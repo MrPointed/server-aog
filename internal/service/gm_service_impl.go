@@ -6,7 +6,6 @@ import (
 	"strings"
 	"time"
 
-	"github.com/ao-go-server/internal/actions"
 	"github.com/ao-go-server/internal/model"
 	"github.com/ao-go-server/internal/network"
 	"github.com/ao-go-server/internal/protocol"
@@ -17,19 +16,13 @@ type GmServiceImpl struct {
 	userService    UserService
 	mapService     MapService
 	messageService MessageService
-	executor       interface {
-		Dispatch(actions.Action[MapService])
-	}
 }
 
-func NewGmServiceImpl(userService UserService, mapService MapService, messageService MessageService, executor interface {
-	Dispatch(actions.Action[MapService])
-}) *GmServiceImpl {
+func NewGmServiceImpl(userService UserService, mapService MapService, messageService MessageService) *GmServiceImpl {
 	return &GmServiceImpl{
 		userService:    userService,
 		mapService:     mapService,
 		messageService: messageService,
-		executor:       executor,
 	}
 }
 
@@ -122,31 +115,29 @@ func (s *GmServiceImpl) handleWarpChar(conn protocol.Connection, buffer *network
 
 	newPos := model.Position{Map: int(mapID), X: x, Y: y}
 
-	s.executor.Dispatch(func(m MapService) {
-		// Notify old area (User leaving)
-		s.messageService.SendToAreaButUser(&outgoing.CharacterRemovePacket{CharIndex: targetChar.CharIndex}, targetChar.Position, targetChar)
+	// Notify old area (User leaving)
+	s.messageService.SendToAreaButUser(&outgoing.CharacterRemovePacket{CharIndex: targetChar.CharIndex}, targetChar.Position, targetChar)
 
-		m.PutCharacterAtPos(targetChar, newPos)
+	s.mapService.PutCharacterAtPos(targetChar, newPos)
 
-		targetConn := s.userService.GetConnection(targetChar)
-		if targetConn != nil {
-			targetConn.Send(&outgoing.ChangeMapPacket{MapId: int(mapID), Version: m.GetMap(int(mapID)).Version})
-			targetConn.Send(&outgoing.CharacterCreatePacket{Character: targetChar})
-			targetConn.Send(&outgoing.UserCharIndexInServerPacket{UserIndex: targetChar.CharIndex})
-			targetConn.Send(&outgoing.AreaChangedPacket{Position: newPos})
-			targetConn.Send(&outgoing.PosUpdatePacket{X: x, Y: y})
+	targetConn := s.userService.GetConnection(targetChar)
+	if targetConn != nil {
+		targetConn.Send(&outgoing.ChangeMapPacket{MapId: int(mapID), Version: s.mapService.GetMap(int(mapID)).Version})
+		targetConn.Send(&outgoing.CharacterCreatePacket{Character: targetChar})
+		targetConn.Send(&outgoing.UserCharIndexInServerPacket{UserIndex: targetChar.CharIndex})
+		targetConn.Send(&outgoing.AreaChangedPacket{Position: newPos})
+		targetConn.Send(&outgoing.PosUpdatePacket{X: x, Y: y})
 
-			// Sync new area state to user (NPCs, Objects, Users)
-			s.messageService.AreaService().SendAreaState(targetChar)
-		}
+		// Sync new area state to user (NPCs, Objects, Users)
+		s.messageService.AreaService().SendAreaState(targetChar)
+	}
 
-		// Notify new area (User entering)
-		s.messageService.SendToAreaButUser(&outgoing.CharacterCreatePacket{Character: targetChar}, newPos, targetChar)
+	// Notify new area (User entering)
+	s.messageService.SendToAreaButUser(&outgoing.CharacterCreatePacket{Character: targetChar}, newPos, targetChar)
 
-		// FX and Sound
-		s.messageService.SendToArea(&outgoing.CreateFxPacket{CharIndex: targetChar.CharIndex, FxID: 1, Loops: 0}, newPos)
-		s.messageService.SendToArea(&outgoing.PlayWavePacket{Wave: 2, X: x, Y: y}, newPos)
-	})
+	// FX and Sound
+	s.messageService.SendToArea(&outgoing.CreateFxPacket{CharIndex: targetChar.CharIndex, FxID: 1, Loops: 0}, newPos)
+	s.messageService.SendToArea(&outgoing.PlayWavePacket{Wave: 2, X: x, Y: y}, newPos)
 
 	conn.Send(&outgoing.ConsoleMessagePacket{Message: "Usuario transportado.", Font: outgoing.INFO})
 
@@ -179,28 +170,26 @@ func (s *GmServiceImpl) handleGoToChar(conn protocol.Connection, buffer *network
 		return true, nil
 	}
 
-	s.executor.Dispatch(func(m MapService) {
-		// Notify old area
-		s.messageService.SendToAreaButUser(&outgoing.CharacterRemovePacket{CharIndex: user.CharIndex}, user.Position, user)
+	// Notify old area
+	s.messageService.SendToAreaButUser(&outgoing.CharacterRemovePacket{CharIndex: user.CharIndex}, user.Position, user)
 
-		m.PutCharacterAtPos(user, newPos)
+	s.mapService.PutCharacterAtPos(user, newPos)
 
-		conn.Send(&outgoing.ChangeMapPacket{MapId: newPos.Map, Version: m.GetMap(newPos.Map).Version})
-		conn.Send(&outgoing.CharacterCreatePacket{Character: user})
-		conn.Send(&outgoing.UserCharIndexInServerPacket{UserIndex: user.CharIndex})
-		conn.Send(&outgoing.AreaChangedPacket{Position: newPos})
-		conn.Send(&outgoing.PosUpdatePacket{X: newPos.X, Y: newPos.Y})
+	conn.Send(&outgoing.ChangeMapPacket{MapId: newPos.Map, Version: s.mapService.GetMap(newPos.Map).Version})
+	conn.Send(&outgoing.CharacterCreatePacket{Character: user})
+	conn.Send(&outgoing.UserCharIndexInServerPacket{UserIndex: user.CharIndex})
+	conn.Send(&outgoing.AreaChangedPacket{Position: newPos})
+	conn.Send(&outgoing.PosUpdatePacket{X: newPos.X, Y: newPos.Y})
 
-		// Sync new area state
-		s.messageService.AreaService().SendAreaState(user)
+	// Sync new area state
+	s.messageService.AreaService().SendAreaState(user)
 
-		// Notify new area
-		s.messageService.SendToAreaButUser(&outgoing.CharacterCreatePacket{Character: user}, newPos, user)
+	// Notify new area
+	s.messageService.SendToAreaButUser(&outgoing.CharacterCreatePacket{Character: user}, newPos, user)
 
-		// FX and Sound
-		s.messageService.SendToArea(&outgoing.CreateFxPacket{CharIndex: user.CharIndex, FxID: 1, Loops: 0}, newPos)
-		s.messageService.SendToArea(&outgoing.PlayWavePacket{Wave: 1, X: newPos.X, Y: newPos.Y}, newPos)
-	})
+	// FX and Sound
+	s.messageService.SendToArea(&outgoing.CreateFxPacket{CharIndex: user.CharIndex, FxID: 1, Loops: 0}, newPos)
+	s.messageService.SendToArea(&outgoing.PlayWavePacket{Wave: 1, X: newPos.X, Y: newPos.Y}, newPos)
 
 	conn.Send(&outgoing.ConsoleMessagePacket{Message: "Has sido transportado.", Font: outgoing.INFO})
 

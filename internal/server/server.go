@@ -11,7 +11,6 @@ import (
 	"path/filepath"
 	"syscall"
 
-	"github.com/ao-go-server/internal/actions"
 	"github.com/ao-go-server/internal/api"
 	"github.com/ao-go-server/internal/config"
 	"github.com/ao-go-server/internal/model"
@@ -79,8 +78,6 @@ func NewServer(addr string, resourcesPath string) *Server {
 	}
 	mapService := service.NewMapServiceImpl(mapRepo, objectService, npcService)
 
-	executor := actions.NewActionExecutor[service.MapService](mapService)
-	executor.Start()
 
 	areaService := service.NewAreaServiceImpl(mapService, userService)
 	messageService := service.NewMessageServiceImpl(userService, areaService, mapService, objectService)
@@ -103,10 +100,10 @@ func NewServer(addr string, resourcesPath string) *Server {
 	bankService := service.NewBankServiceImpl(objectService, messageService, userService)
 
 	        userRepo := persistence.NewUserChrRepo(filepath.Join(res, projectCfg.Project.Paths.Charfiles))
-	        loginService := service.NewLoginServiceImpl(userRepo, cfg, projectCfg, userService, mapService, bodyService, indexManager, messageService, objectService, cityService, spellService, executor)
+	        loginService := service.NewLoginServiceImpl(userRepo, cfg, projectCfg, userService, mapService, bodyService, indexManager, messageService, objectService, cityService, spellService)
 		itemActionService := service.NewItemActionServiceImpl(objectService, messageService, intervalService, bodyService, spellService)
 
-	gmService := service.NewGmServiceImpl(userService, mapService, messageService, executor)
+	gmService := service.NewGmServiceImpl(userService, mapService, messageService)
 
 	m := protocol.NewClientPacketsManager()
 	// Register handlers

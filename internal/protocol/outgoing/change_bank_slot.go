@@ -15,7 +15,7 @@ func (p *ChangeBankSlotPacket) Write(buffer *network.DataBuffer) error {
 	buffer.Put(p.Slot)
 	if p.Object == nil {
 		buffer.PutShort(0)
-		buffer.PutCp1252String("")
+		buffer.PutUTF8String("")
 		buffer.PutShort(0)
 		buffer.PutShort(0)
 		buffer.Put(0)
@@ -28,7 +28,7 @@ func (p *ChangeBankSlotPacket) Write(buffer *network.DataBuffer) error {
 	}
 
 	buffer.PutShort(int16(p.Object.ID))
-	buffer.PutCp1252String(p.Object.Name)
+	buffer.PutUTF8String(p.Object.Name)
 	buffer.PutShort(int16(p.Amount))
 	buffer.PutShort(int16(p.Object.GraphicIndex))
 	buffer.Put(byte(p.Object.Type))

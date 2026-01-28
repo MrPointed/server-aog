@@ -15,7 +15,7 @@ func (p *ChangeNpcInventorySlotPacket) Write(buffer *network.DataBuffer) error {
 	buffer.Put(p.Slot)
 	
 	if p.Object == nil {
-		buffer.PutCp1252String("")
+		buffer.PutUTF8String("")
 		buffer.PutShort(0)
 		buffer.PutFloat(0)
 		buffer.PutShort(0)
@@ -28,7 +28,7 @@ func (p *ChangeNpcInventorySlotPacket) Write(buffer *network.DataBuffer) error {
 		return nil
 	}
 
-	buffer.PutCp1252String(p.Object.Name)
+	buffer.PutUTF8String(p.Object.Name)
 	buffer.PutShort(int16(p.Amount))
 	buffer.PutFloat(float32(p.Object.Value))
 	buffer.PutShort(int16(p.Object.GraphicIndex))

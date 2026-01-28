@@ -37,7 +37,7 @@ type ConsoleMessagePacket struct {
 }
 
 func (p *ConsoleMessagePacket) Write(buffer *network.DataBuffer) error {
-	buffer.PutCp1252String(p.Message)
+	buffer.PutUTF8String(p.Message)
 	buffer.Put(byte(p.Font))
 	return nil
 }
