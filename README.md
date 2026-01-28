@@ -18,16 +18,24 @@ Implementación moderna y de alto rendimiento del servidor de **Argentum Online*
     cd ao-go-server
     ```
 
-2.  **Descargar dependencias:**
+2.  **Preparar dependencias:**
     ```bash
+    go mod tidy
     go mod download
     ```
 
 3.  **Compilar el Launcher:**
-    Para facilitar la gestión, compilamos la herramienta CLI principal:
-    ```bash
-    go build -o aog_launcher ./cmd/aog_launcher_cli
-    ```
+    Dependiendo de tu sistema operativo:
+
+    *   **Linux / macOS:**
+        ```bash
+        go build -o aog_launcher ./cmd/aog_launcher_cli
+        ```
+    *   **Windows:**
+        ```powershell
+        go build -o aog_launcher.exe ./cmd/aog_launcher_cli
+        ```
+
 ---
 
 ## ✨ Features Principales
@@ -63,34 +71,35 @@ Puedes editar estos archivos manualmente o utilizar el launcher para ciertas tar
 El launcher es la herramienta central para interactuar con el servidor.
 
 *   **Iniciar el servidor:**
-    ```bash
-    ./aog_launcher start
-    ```
+    *   **Linux / macOS:**
+        ```bash
+        ./aog_launcher start
+        ```
+    *   **Windows:**
+        ```powershell
+        .\aog_launcher.exe start
+        ```
+    
     Opcionalmente puedes especificar puerto y entorno:
     ```bash
+    # Ejemplo en Linux/macOS
     ./aog_launcher start --port 7666 --env prod
     ```
 
 *   **Ver estado:**
     ```bash
+    # Linux/macOS
     ./aog_launcher status
-    ./aog_launcher uptime
-    ```
-
-*   **Gestión de conexiones:**
-    ```bash
-    ./aog_launcher conn list
-    ./aog_launcher conn kick --account <id>
-    ```
-
-*   **Recargar mundo (Hot Reload):**
-    ```bash
-    ./aog_launcher world reload map_1
+    # Windows
+    .\aog_launcher.exe status
     ```
 
 *   **Monitor TUI: (Recomendado)**
     ```bash
+    # Linux/macOS
     ./aog_launcher monitor
+    # Windows
+    .\aog_launcher.exe monitor
     ```
 
 ### Ejecución Directa (Desarrollo)
