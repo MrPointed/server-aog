@@ -164,6 +164,7 @@ func (a *AdminAPI) Start(addr string) error {
 	mux.HandleFunc("/world/unload", a.handleWorldUnload)
 	mux.HandleFunc("/world/reload", a.handleWorldReload)
 	mux.HandleFunc("/world/save", a.handleWorldSave)
+	mux.HandleFunc("/world/reset", a.handleWorldReset)
 
 	mux.HandleFunc("/conn/list", a.handleConnList)
 	mux.HandleFunc("/conn/count", a.handleConnCount)
@@ -207,7 +208,7 @@ func (a *AdminAPI) Start(addr string) error {
 
 func (a *AdminAPI) Stop() {
 	a.SaveHistory()
-	a.loginService.SaveAllPlayers()
+	a.loginService.WorldSave()
 }
 
 func (a *AdminAPI) trackHistory() {
@@ -510,8 +511,18 @@ func (a *AdminAPI) handleNpcRespawn(w http.ResponseWriter, r *http.Request) {
 }
 
 func (a *AdminAPI) handleWorldSave(w http.ResponseWriter, r *http.Request) {
-	a.mapService.SaveCache()
-	fmt.Fprintf(w, "World cache saved")
+	a.loginService.WorldSave()
+	fmt.Fprintf(w, "World saved successfully")
+}
+
+func (a *AdminAPI) handleWorldReset(w http.ResponseWriter, r *http.Request) {
+	slog.Info("Admin requested world reset")
+	a.loginService.WorldSave()
+	if err := a.mapService.ReloadAllMaps(); err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+	fmt.Fprintf(w, "World saved and all maps reloaded")
 }
 
 func (a *AdminAPI) handleAccountLock(w http.ResponseWriter, r *http.Request) {

@@ -14,6 +14,7 @@ type MapService interface {
 	LoadMap(id int) error
 	UnloadMap(id int)
 	ReloadMap(id int) error
+	ReloadAllMaps() error
 	GetMap(id int) *model.Map
 	PutCharacterAtPos(char *model.Character, pos model.Position)
 	RemoveCharacter(char *model.Character)

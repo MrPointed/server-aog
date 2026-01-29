@@ -390,11 +390,19 @@ func (s *Server) Start() error {
 		}
 	}()
 
-	        <-stop
-	        slog.Info("Shutting down server...")
-	        adminAPI.Stop()
-	        return nil
-	}
+	                        <-stop
+
+	                        slog.Info("Shutting down server...")
+
+	                        s.loginService.WorldSave()
+
+	                        adminAPI.Stop()
+
+	                        return nil
+
+	                }
+
+	        
 type connection struct {
 	*network.Connection
 }

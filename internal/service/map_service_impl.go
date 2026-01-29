@@ -19,6 +19,7 @@ type MapServiceImpl struct {
 	objectService ObjectService
 	npcService    NpcService
 	maps          map[int]*model.Map
+	mapsMu        sync.RWMutex
 }
 
 func NewMapServiceImpl(mapDAO persistence.MapRepository, objectService ObjectService, npcService NpcService) MapService {
@@ -170,6 +171,22 @@ func (s *MapServiceImpl) UnloadMap(id int) {
 func (s *MapServiceImpl) ReloadMap(id int) error {
 	s.UnloadMap(id)
 	return s.LoadMap(id)
+}
+
+func (s *MapServiceImpl) ReloadAllMaps() error {
+	s.mapsMu.Lock()
+	ids := make([]int, 0, len(s.maps))
+	for id := range s.maps {
+		ids = append(ids, id)
+	}
+	s.mapsMu.Unlock()
+
+	for _, id := range ids {
+		if err := s.ReloadMap(id); err != nil {
+			return err
+		}
+	}
+	return nil
 }
 
 func (s *MapServiceImpl) resolveMapEntities(m *model.Map) {

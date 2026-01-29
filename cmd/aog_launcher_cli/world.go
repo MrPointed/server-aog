@@ -69,6 +69,21 @@ var worldReloadCmd = &cobra.Command{
 	},
 }
 
+var worldResetCmd = &cobra.Command{
+	Use:   "reset",
+	Short: "Save world and reload all maps",
+	Run: func(cmd *cobra.Command, args []string) {
+		resp, err := http.Get(fmt.Sprintf("%s/world/reset", AdminAPIAddr))
+		if err != nil {
+			fmt.Printf("Error resetting world: %v\n", err)
+			return
+		}
+		body, _ := io.ReadAll(resp.Body)
+		resp.Body.Close()
+		fmt.Println(string(body))
+	},
+}
+
 var worldListCmd = &cobra.Command{
 	Use:   "list",
 	Short: "List loaded maps",
@@ -103,7 +118,7 @@ func init() {
 	worldCmd.AddCommand(worldLoadCmd)
 	worldCmd.AddCommand(worldUnloadCmd)
 	worldCmd.AddCommand(worldReloadCmd)
-	worldCmd.AddCommand(worldListCmd)
+	worldCmd.AddCommand(worldResetCmd)
 	worldCmd.AddCommand(worldSaveCmd)
 	rootCmd.AddCommand(worldCmd)
 }
