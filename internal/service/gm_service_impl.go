@@ -16,13 +16,15 @@ type GmServiceImpl struct {
 	userService    UserService
 	mapService     MapService
 	messageService MessageService
+	loginService   LoginService
 }
 
-func NewGmServiceImpl(userService UserService, mapService MapService, messageService MessageService) *GmServiceImpl {
+func NewGmServiceImpl(userService UserService, mapService MapService, messageService MessageService, loginService LoginService) *GmServiceImpl {
 	return &GmServiceImpl{
 		userService:    userService,
 		mapService:     mapService,
 		messageService: messageService,
+		loginService:   loginService,
 	}
 }
 
@@ -45,9 +47,16 @@ func (s *GmServiceImpl) HandleCommand(conn protocol.Connection, cmdID byte, buff
 		return s.handleGoToChar(conn, buffer)
 	case 32: // /ONLINEGM
 		return s.handleOnlineGM(conn)
+	case 33: // /DOBACKUP
+		return s.handleDoBackup(conn)
 	default:
 		slog.Warn("GM sent unknown command", "gm", user.Name, "command_id", cmdID)
 	}
+	return true, nil
+}
+
+func (s *GmServiceImpl) handleDoBackup(conn protocol.Connection) (bool, error) {
+	s.loginService.WorldSave()
 	return true, nil
 }
 

@@ -3,7 +3,9 @@ package service
 import (
 	"fmt"
 	"log/slog"
+	"os"
 	"strings"
+	"time"
 
 	"github.com/ao-go-server/internal/config"
 	"github.com/ao-go-server/internal/model"
@@ -453,14 +455,7 @@ func (s *LoginServiceImpl) TeleportPlayer(nick string, mapID, x, y int) error {
 func (s *LoginServiceImpl) SavePlayer(nick string) error {
 	char := s.userService.GetCharacterByName(nick)
 	if char != nil {
-		if !char.HasStateChanged {
-			return nil
-		}
-		err := s.userRepo.SaveCharacter(char)
-		if err == nil {
-			char.HasStateChanged = false
-		}
-		return err
+		return s.userRepo.SaveCharacter(char)
 	}
 	return fmt.Errorf("player not found or not online")
 }
@@ -468,10 +463,30 @@ func (s *LoginServiceImpl) SavePlayer(nick string) error {
 func (s *LoginServiceImpl) SaveAllPlayers() {
 	chars := s.userService.GetLoggedCharacters()
 	for _, char := range chars {
-		if char.HasStateChanged {
-			if err := s.userRepo.SaveCharacter(char); err == nil {
-				char.HasStateChanged = false
-			}
-		}
+		s.userRepo.SaveCharacter(char)
+	}
+}
+
+func (s *LoginServiceImpl) WorldSave() {
+	slog.Info("Starting WorldSave...")
+	s.messageService.BroadcastMessage("Servidor> Iniciando WorldSave", outgoing.SERVER)
+
+	// Save all logged players
+	s.SaveAllPlayers()
+
+	// Save map cache (includes objects on ground and map state)
+	s.mapService.SaveCache()
+
+	s.messageService.BroadcastMessage("Servidor> WorldSave ha concluido.", outgoing.SERVER)
+	slog.Info("WorldSave completed.")
+
+	// Log WorldSave
+	logFile := "logs/BackUps.log"
+	os.MkdirAll("logs", 0755)
+	f, err := os.OpenFile(logFile, os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0644)
+	if err == nil {
+		defer f.Close()
+		timestamp := time.Now().Format("02/01/2006 15:04:05")
+		f.WriteString(timestamp + "\n")
 	}
 }

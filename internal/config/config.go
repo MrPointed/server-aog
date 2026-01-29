@@ -13,6 +13,7 @@ type Config struct {
 	MaxConcurrentUsers       int
 	XpMultiplier             float64
 	GoldMultiplier           float64
+	WorldSaveInterval        int
 
 	Gods        []string
 	SemiGods    []string
@@ -39,6 +40,9 @@ type yamlConfig struct {
 		SemiGods    []string `yaml:"semi_gods"`
 		Counselors  []string `yaml:"counselors"`
 		RoleMasters []string `yaml:"role_masters"`
+		Intervals   struct {
+			WorldSave int `yaml:"world_save"`
+		} `yaml:"intervals"`
 		Security struct {
 			MD5Hush struct {
 				Enabled           bool     `yaml:"enabled"`
@@ -57,6 +61,7 @@ func NewDefaultConfig() *Config {
 		MaxConcurrentUsers:       500,
 		XpMultiplier:             1.0,
 		GoldMultiplier:           1.0,
+		WorldSaveInterval:        30, // Default 30 minutes
 	}
 }
 
@@ -88,6 +93,10 @@ func Load(path string) (*Config, error) {
 	cfg.SemiGods = yc.Server.SemiGods
 	cfg.Counselors = yc.Server.Counselors
 	cfg.RoleMasters = yc.Server.RoleMasters
+
+	if yc.Server.Intervals.WorldSave > 0 {
+		cfg.WorldSaveInterval = yc.Server.Intervals.WorldSave
+	}
 
 	cfg.MD5Enabled = yc.Server.Security.MD5Hush.Enabled
 	cfg.AcceptedMD5s = yc.Server.Security.MD5Hush.AcceptedMD5

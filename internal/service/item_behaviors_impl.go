@@ -19,7 +19,6 @@ type FoodBehavior struct {
 func (b *FoodBehavior) Use(char *model.Character, slot int, obj *model.Object, connection protocol.Connection) {
 	// Hunger: 100 is full, 0 is starving.
 	char.Hunger = utils.Min(100, char.Hunger+obj.HungerPoints)
-	char.SetStateChanged()
 	connection.Send(&outgoing.UpdateHungerAndThirstPacket{
 		MinHunger: char.Hunger, MaxHunger: 100,
 		MinThirst: char.Thirstiness, MaxThirst: 100,
@@ -39,7 +38,6 @@ type DrinkBehavior struct {
 func (b *DrinkBehavior) Use(char *model.Character, slot int, obj *model.Object, connection protocol.Connection) {
 	// Thirstiness: 100 is full, 0 is thirsty.
 	char.Thirstiness = utils.Min(100, char.Thirstiness+obj.ThirstPoints)
-	char.SetStateChanged()
 	connection.Send(&outgoing.UpdateHungerAndThirstPacket{
 		MinHunger: char.Hunger, MaxHunger: 100,
 		MinThirst: char.Thirstiness, MaxThirst: 100,
@@ -130,14 +128,11 @@ func (b *PotionBehavior) Use(char *model.Character, slot int, obj *model.Object,
 	case 3: // HP
 		modifier := utils.RandomNumber(obj.MinModifier, obj.MaxModifier)
 		char.Hp = utils.Min(char.MaxHp, char.Hp+modifier)
-		char.SetStateChanged()
 	case 4: // Mana
 		modifier := utils.RandomNumber(obj.MinModifier, obj.MaxModifier)
 		char.Mana = utils.Min(char.MaxMana, char.Mana+modifier)
-		char.SetStateChanged()
 	case 5: // Poison
 		char.Poisoned = false
-		char.SetStateChanged()
 		connection.Send(&outgoing.ConsoleMessagePacket{
 			Message: "Te has curado del envenenamiento.",
 			Font:    outgoing.INFO,
@@ -154,7 +149,6 @@ func (b *PotionBehavior) Use(char *model.Character, slot int, obj *model.Object,
 		})
 		return
 	}
-	char.SetStateChanged() // For attributes
 	connection.Send(outgoing.NewUpdateUserStatsPacket(char))
 	b.svc.RemoveOne(char, slot, connection)
 }
@@ -169,7 +163,6 @@ func (b *MoneyBehavior) Use(char *model.Character, slot int, obj *model.Object, 
 	itemSlot := char.Inventory.GetSlot(slot)
 	goldAmount := itemSlot.Amount
 	char.Gold += goldAmount
-	char.SetStateChanged()
 	connection.Send(&outgoing.ConsoleMessagePacket{
 		Message: fmt.Sprintf("Has guardado %d monedas de oro en tu billetera.", goldAmount),
 		Font:    outgoing.INFO,
@@ -204,7 +197,6 @@ func (b *EquipGenericBehavior) Use(char *model.Character, slot int, obj *model.O
 
 func (b *EquipGenericBehavior) ToggleEquip(char *model.Character, slot int, obj *model.Object, connection protocol.Connection) {
 	itemSlot := char.Inventory.GetSlot(slot)
-	char.SetStateChanged()
 	if itemSlot.Equipped {
 		itemSlot.Equipped = false
 		switch obj.Type {
@@ -256,7 +248,6 @@ func (b *BoatBehavior) Use(char *model.Character, slot int, obj *model.Object, c
 
 func (b *BoatBehavior) ToggleEquip(char *model.Character, slot int, obj *model.Object, connection protocol.Connection) {
 	itemSlot := char.Inventory.GetSlot(slot)
-	char.SetStateChanged()
 	if char.Sailing {
 		char.Sailing = false
 		itemSlot.Equipped = false
@@ -297,7 +288,6 @@ func (b *ScrollBehavior) Use(char *model.Character, slot int, obj *model.Object,
 
 	// Add spell
 	char.Spells = append(char.Spells, obj.SpellIndex)
-	char.SetStateChanged()
 
 	// Notify client
 	connection.Send(&outgoing.ChangeSpellSlotPacket{

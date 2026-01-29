@@ -124,6 +124,7 @@ type LoginService interface {
 	TeleportPlayer(nick string, mapID, x, y int) error
 	SavePlayer(nick string) error
 	SaveAllPlayers()
+	WorldSave()
 }
 
 type BodyService interface {

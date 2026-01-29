@@ -66,7 +66,6 @@ func (s *CombatServiceImpl) ResolveAttack(attacker *model.Character, target any)
 	if attacker.Stamina < 0 {
 		attacker.Stamina = 0
 	}
-	attacker.SetStateChanged()
 	s.messageService.UserService().GetConnection(attacker).Send(outgoing.NewUpdateUserStatsPacket(attacker))
 }
 
@@ -122,13 +121,11 @@ func (s *CombatServiceImpl) resolvePVP(attacker *model.Character, victim *model.
 	if victim.Hp < 0 {
 		victim.Hp = 0
 	}
-	victim.SetStateChanged()
 
 	// Remove paralysis on hit
 	if victim.Paralyzed || victim.Immobilized {
 		victim.Paralyzed = false
 		victim.Immobilized = false
-		victim.SetStateChanged()
 		s.messageService.SendConsoleMessage(victim, "¡Has recuperado el movimiento!", outgoing.INFO)
 		if conn := s.messageService.UserService().GetConnection(victim); conn != nil {
 			conn.Send(&outgoing.ParalyzeOkPacket{})
@@ -285,7 +282,6 @@ func (s *CombatServiceImpl) NpcAtacaUser(npc *model.WorldNPC, victim *model.Char
 	if victim.Hp < 0 {
 		victim.Hp = 0
 	}
-	victim.SetStateChanged()
 
 	// Feedback
 	s.messageService.SendConsoleMessage(victim, fmt.Sprintf("¡%s te ha golpeado por %d!", npc.NPC.Name, damage), outgoing.FIGHT)
@@ -338,7 +334,6 @@ func (s *CombatServiceImpl) grantExperience(attacker *model.Character, victim *m
 	if baseShare > 0 {
 		expToGive := int(float64(baseShare) * s.config.XpMultiplier)
 		attacker.Exp += expToGive
-		attacker.SetStateChanged()
 		victim.RemainingExp -= baseShare
 		s.messageService.SendConsoleMessage(attacker, fmt.Sprintf("Has ganado %d puntos de experiencia.", expToGive), outgoing.FIGHT)
 		s.trainingService.CheckLevel(attacker)
@@ -351,7 +346,6 @@ func (s *CombatServiceImpl) handleNpcDeath(killer *model.Character, npc *model.W
 	if npc.RemainingExp > 0 {
 		bonusExp := int(float64(npc.RemainingExp) * s.config.XpMultiplier)
 		killer.Exp += bonusExp
-		killer.SetStateChanged()
 		s.messageService.SendConsoleMessage(killer, fmt.Sprintf("¡Has matado a la criatura! Ganaste %d exp.", bonusExp), outgoing.INFO)
 		npc.RemainingExp = 0
 		s.trainingService.CheckLevel(killer)

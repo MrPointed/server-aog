@@ -74,7 +74,7 @@ server:
     - RENSOKU
   
   intervals:
-    world_save: 180
+    world_save: 180 # Interval in minutes. Set to 0 to disable automatic world save.
     close_connection: 5
     connection: 3000
 

@@ -61,7 +61,6 @@ func (p *CommerceBuyPacket) Handle(buffer *network.DataBuffer, connection protoc
 
 	if user.Inventory.AddItem(obj.ID, int(amount)) {
 		user.Gold -= totalPrice
-		user.SetStateChanged()
 		connection.Send(&outgoing.ConsoleMessagePacket{
 			Message: fmt.Sprintf("Has comprado %d %s por %d monedas de oro.", amount, obj.Name, totalPrice),
 			Font:    outgoing.INFO,
@@ -133,7 +132,6 @@ func (p *CommerceSellPacket) Handle(buffer *network.DataBuffer, connection proto
 	if sellPrice < 1 { sellPrice = 1 }
 
 	user.Gold += sellPrice
-	user.SetStateChanged()
 	itemSlot.Amount -= int(amount)
 	if itemSlot.Amount <= 0 {
 		itemSlot.ObjectID = 0

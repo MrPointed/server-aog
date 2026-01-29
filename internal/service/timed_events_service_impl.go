@@ -1,6 +1,7 @@
 package service
 
 import (
+	"log/slog"
 	"time"
 
 	"github.com/ao-go-server/internal/config"
@@ -12,15 +13,17 @@ import (
 type TimedEventsServiceImpl struct {
 	userService    UserService
 	messageService MessageService
+	loginService   LoginService
 	config         *config.Config
 	globalBalance  *model.GlobalBalanceConfig
 	stopChan       chan struct{}
 }
 
-func NewTimedEventsServiceImpl(userService UserService, messageService MessageService, cfg *config.Config, globalBalance *model.GlobalBalanceConfig) TimedEventsService {
+func NewTimedEventsServiceImpl(userService UserService, messageService MessageService, loginService LoginService, cfg *config.Config, globalBalance *model.GlobalBalanceConfig) TimedEventsService {
 	return &TimedEventsServiceImpl{
 		userService:    userService,
 		messageService: messageService,
+		loginService:   loginService,
 		config:         cfg,
 		globalBalance:  globalBalance,
 		stopChan:       make(chan struct{}),
@@ -29,6 +32,7 @@ func NewTimedEventsServiceImpl(userService UserService, messageService MessageSe
 
 func (s *TimedEventsServiceImpl) Start() {
 	go s.regenLoop()
+	go s.worldSaveLoop()
 }
 
 func (s *TimedEventsServiceImpl) Stop() {
@@ -43,6 +47,27 @@ func (s *TimedEventsServiceImpl) regenLoop() {
 		select {
 		case <-ticker.C:
 			s.processRegen()
+		case <-s.stopChan:
+			return
+		}
+	}
+}
+
+func (s *TimedEventsServiceImpl) worldSaveLoop() {
+	// World Save interval from config (in minutes)
+	if s.config.WorldSaveInterval <= 0 {
+		slog.Info("Automatic WorldSave is disabled (interval set to 0)")
+		return
+	}
+
+	interval := time.Duration(s.config.WorldSaveInterval) * time.Minute
+	ticker := time.NewTicker(interval)
+	defer ticker.Stop()
+
+	for {
+		select {
+		case <-ticker.C:
+			s.loginService.WorldSave()
 		case <-s.stopChan:
 			return
 		}
@@ -204,7 +229,6 @@ func (s *TimedEventsServiceImpl) processRegen() {
 		}
 
 		if changed {
-			char.SetStateChanged()
 			conn := s.userService.GetConnection(char)
 			if conn != nil {
 				conn.Send(outgoing.NewUpdateUserStatsPacket(char))

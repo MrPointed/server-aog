@@ -159,35 +159,75 @@ func NewServer(addr string, resourcesPath string) *Server {
 
 
 
-        combatService := service.NewCombatServiceImpl(messageService, objectService, npcService, mapService, combatFormulas, intervalService, trainingService, cfg)
-
-        timedEventsService := service.NewTimedEventsServiceImpl(userService, messageService, cfg, globalBalance)
-
-        timedEventsService.Start()
+                        combatService := service.NewCombatServiceImpl(messageService, objectService, npcService, mapService, combatFormulas, intervalService, trainingService, cfg)
 
 
 
-        aiService := service.NewAiServiceImpl(npcService, mapService, areaService, userService, combatService, messageService, spellService, globalBalance)
-
-        aiService.Start()
+                
 
 
 
-        skillService := service.NewSkillServiceImpl(mapService, objectService, messageService, userService, npcService, spellService, intervalService)
-
-        bankService := service.NewBankServiceImpl(objectService, messageService, userService)
+                        skillService := service.NewSkillServiceImpl(mapService, objectService, messageService, userService, npcService, spellService, intervalService)
 
 
 
-        userRepo := persistence.NewUserChrRepo(filepath.Join(res, projectCfg.Project.Paths.Charfiles))
-
-        loginService := service.NewLoginServiceImpl(userRepo, cfg, projectCfg, userService, mapService, bodyService, indexManager, messageService, objectService, cityService, spellService)
-
-        itemActionService := service.NewItemActionServiceImpl(objectService, messageService, intervalService, bodyService, spellService)
+                        bankService := service.NewBankServiceImpl(objectService, messageService, userService)
 
 
 
-        gmService := service.NewGmServiceImpl(userService, mapService, messageService)
+                
+
+
+
+                        userRepo := persistence.NewUserChrRepo(filepath.Join(res, projectCfg.Project.Paths.Charfiles))
+
+
+
+                        loginService := service.NewLoginServiceImpl(userRepo, cfg, projectCfg, userService, mapService, bodyService, indexManager, messageService, objectService, cityService, spellService)
+
+
+
+                        itemActionService := service.NewItemActionServiceImpl(objectService, messageService, intervalService, bodyService, spellService)
+
+
+
+                
+
+
+
+                        timedEventsService := service.NewTimedEventsServiceImpl(userService, messageService, loginService, cfg, globalBalance)
+
+
+
+                        timedEventsService.Start()
+
+
+
+                
+
+
+
+                        aiService := service.NewAiServiceImpl(npcService, mapService, areaService, userService, combatService, messageService, spellService, globalBalance)
+
+
+
+                        aiService.Start()
+
+
+
+                
+
+
+
+                        gmService := service.NewGmServiceImpl(userService, mapService, messageService, loginService)
+
+
+
+                
+
+
+
+        
 
 
 

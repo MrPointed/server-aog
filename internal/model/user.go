@@ -20,8 +20,8 @@ type Account struct {
 }
 
 type CharacterFaccion struct {
-	Criminal   bool
-	ArmadaReal int
+	Criminal    bool
+	ArmadaReal  int
 	FuerzasCaos int
 }
 
@@ -59,12 +59,12 @@ type Character struct {
 	Exp         int
 	ExpToNext   int
 
-	Privileges  PrivilegeLevel
-	Faccion     CharacterFaccion
-	Reputation  CharacterReputation
+	Privileges PrivilegeLevel
+	Faccion    CharacterFaccion
+	Reputation CharacterReputation
 
-	MinHit      int
-	MaxHit      int
+	MinHit int
+	MaxHit int
 
 	Hp          int
 	MaxHp       int
@@ -111,14 +111,12 @@ type Character struct {
 	Dead        bool
 	Hidden      bool
 
-	HasStateChanged bool // Flag to track if character state has changed since last save
-
 	// Paralysis tracking
 	ParalyzedSince time.Time
 
 	// Stats counters
-	Kills       map[KillType]int
-	JailTime    int64
+	Kills    map[KillType]int
+	JailTime int64
 
 	// Targets
 	TargetMap     int
@@ -133,15 +131,15 @@ type Character struct {
 	TargetNpcType NPCType
 
 	// Action Timestamps
-	LastAttack time.Time
-	LastSpell  time.Time
-	LastItem   time.Time
-	LastWork   time.Time
-	LastHungerUpdate time.Time
-	LastThirstUpdate time.Time
-	LastHPRegen      time.Time
-	LastManaRegen    time.Time
-	LastStaminaRegen time.Time
+	LastAttack          time.Time
+	LastSpell           time.Time
+	LastItem            time.Time
+	LastWork            time.Time
+	LastHungerUpdate    time.Time
+	LastThirstUpdate    time.Time
+	LastHPRegen         time.Time
+	LastManaRegen       time.Time
+	LastStaminaRegen    time.Time
 	LastMeditationRegen time.Time
 	MeditatingSince     time.Time
 
@@ -208,10 +206,5 @@ func NewCharacter(name string, race Race, gender Gender, archetype UserArchetype
 		OriginalAttributes: make(map[Attribute]byte),
 		Skills:             make(map[Skill]int),
 		Kills:              make(map[KillType]int),
-		HasStateChanged:    false,
 	}
-}
-
-func (c *Character) SetStateChanged() {
-	c.HasStateChanged = true
 }

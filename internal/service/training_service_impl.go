@@ -99,7 +99,6 @@ func (s *TrainingServiceImpl) CheckLevel(char *model.Character) {
 
 	if leveledUp {
 		char.SkillPoints += ptsAwarded
-		char.SetStateChanged()
 		if ptsAwarded > 0 {
 			s.messageService.SendConsoleMessage(char, fmt.Sprintf("Has ganado un total de %d skillpoints.", ptsAwarded), outgoing.INFO)
 		}
