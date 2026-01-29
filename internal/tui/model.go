@@ -74,6 +74,9 @@ type Model struct {
 	configListCursor int
 	configEditing    bool
 	configInput      textinput.Model
+
+	// Charts State
+	chartsData ChartsDataMsg
 }
 
 func InitialModel() Model {
@@ -90,7 +93,7 @@ func InitialModel() Model {
 	return Model{
 		tabs: []string{
 			"Control", "Monitor", "Logs", "Users", "Maps", 
-			"Config", "Econ", "Events", "Mod", "Sim",
+			"Config", "Charts", "Events", "Mod", "Sim",
 		},
 		activeTab: 0,
 		
@@ -167,6 +170,9 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 				cmds = append(cmds, fetchConfigListCmd())
 			}
 		}
+		if m.activeTab == 6 { // Charts Tab
+			cmds = append(cmds, fetchChartsDataCmd())
+		}
 	
 	case ServerStatusMsg:
 		m.serverStatus = msg.Status
@@ -237,6 +243,9 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		if msg.Err == nil {
 			m.configItems = msg.Items
 		}
+	
+	case ChartsDataMsg:
+		m.chartsData = msg
 	}
 
 	// Dispatch to active tab logic if needed (e.g. navigation)
@@ -254,6 +263,8 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		m, cmd = m.updateMaps(msg)
 	case 5:
 		m, cmd = m.updateConfig(msg)
+	case 6:
+		m, cmd = m.updateCharts(msg)
 	default:
 		// Other tabs not implemented yet
 	}
@@ -340,6 +351,8 @@ func (m Model) View() string {
 		content = m.viewMaps()
 	case 5:
 		content = m.viewConfig()
+	case 6:
+		content = m.viewCharts()
 	default:
 		content = fmt.Sprintf("View for %s not implemented yet.", m.tabs[m.activeTab])
 	}

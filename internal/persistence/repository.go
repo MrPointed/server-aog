@@ -32,6 +32,7 @@ type SpellRepository interface {
 type UserRepository interface {
 	Exists(nick string) bool
 	Load(nick string) (*model.Character, error)
+	GetAllCharacters() ([]*model.Character, error)
 	Get(nick string) (*model.Account, error)
 	Create(nick, password, mail string) (*model.Account, error)
 	SaveAccount(acc *model.Account) error

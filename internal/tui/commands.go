@@ -363,3 +363,25 @@ func setConfigCmd(key string, value string) tea.Cmd {
 		return ActionMsg{Output: string(body)}
 	}
 }
+
+type ChartsDataMsg struct {
+	HistoryHourly     []int          `json:"history_hourly"`
+	HistoryDaily      []int          `json:"history_daily"`
+	Err               error
+}
+
+func fetchChartsDataCmd() tea.Cmd {
+	return func() tea.Msg {
+		resp, err := http.Get("http://localhost:7667/monitor/charts")
+		if err != nil {
+			return ChartsDataMsg{Err: err}
+		}
+		defer resp.Body.Close()
+
+		var data ChartsDataMsg
+		if err := json.NewDecoder(resp.Body).Decode(&data); err != nil {
+			return ChartsDataMsg{Err: err}
+		}
+		return data
+	}
+}

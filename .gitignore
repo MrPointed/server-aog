@@ -3,7 +3,7 @@ server
 aog_launcher
 main
 main_bin
-
+stats_history.bin
 # Logs
 *.log
 server.pid

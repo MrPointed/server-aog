@@ -1,13 +1,17 @@
 package api
 
 import (
+	"encoding/gob"
 	"encoding/json"
 	"fmt"
 	"log/slog"
 	"net/http"
+	"os"
+	"path/filepath"
 	"runtime"
 	"sort"
 	"strconv"
+	"sync"
 	"time"
 
 	"github.com/ao-go-server/internal/config"
@@ -26,10 +30,24 @@ type AdminAPI struct {
 	config         *config.Config
 	globalBalance  *model.GlobalBalanceConfig
 	configPath     string
+	historyPath    string
+
+	// History tracking
+	mu                sync.RWMutex
+	userHistoryHourly []int
+	userHistoryDaily  []int
+	lastHistoryUpdate time.Time
+	location          *time.Location
 }
 
 func NewAdminAPI(mapService service.MapService, userService service.UserService, loginService service.LoginService, messageService service.MessageService, npcService service.NpcService, aiService service.AiService, cfg *config.Config, globalBalance *model.GlobalBalanceConfig, configPath string) *AdminAPI {
-	return &AdminAPI{
+	loc, err := time.LoadLocation("America/Argentina/Buenos_Aires")
+	if err != nil {
+		// Fallback to FixedZone if TZ data is not available
+		loc = time.FixedZone("ART", -3*60*60)
+	}
+
+	api := &AdminAPI{
 		mapService:     mapService,
 		userService:    userService,
 		loginService:   loginService,
@@ -39,6 +57,69 @@ func NewAdminAPI(mapService service.MapService, userService service.UserService,
 		config:         cfg,
 		globalBalance:  globalBalance,
 		configPath:     configPath,
+		historyPath:    filepath.Join(filepath.Dir(filepath.Dir(configPath)), "data", "stats_history.bin"),
+		// Initialize history
+		userHistoryHourly: make([]int, 24),
+		userHistoryDaily:  make([]int, 0, 30),
+		lastHistoryUpdate: time.Now().In(loc),
+		location:          loc,
+	}
+
+	api.LoadHistory()
+	return api
+}
+
+type historyData struct {
+	Hourly            []int
+	Daily             []int
+	LastHistoryUpdate time.Time
+}
+
+func (a *AdminAPI) LoadHistory() {
+	a.mu.Lock()
+	defer a.mu.Unlock()
+
+	file, err := os.Open(a.historyPath)
+	if err != nil {
+		return
+	}
+	defer file.Close()
+
+	var data historyData
+	if err := gob.NewDecoder(file).Decode(&data); err == nil {
+		a.userHistoryHourly = data.Hourly
+		a.userHistoryDaily = data.Daily
+		a.lastHistoryUpdate = data.LastHistoryUpdate.In(a.location)
+		
+		// Ensure hourly has 24 entries
+		if len(a.userHistoryHourly) != 24 {
+			newHourly := make([]int, 24)
+			copy(newHourly, a.userHistoryHourly)
+			a.userHistoryHourly = newHourly
+		}
+	}
+}
+
+func (a *AdminAPI) SaveHistory() {
+	a.mu.RLock()
+	data := historyData{
+		Hourly:            a.userHistoryHourly,
+		Daily:             a.userHistoryDaily,
+		LastHistoryUpdate: a.lastHistoryUpdate,
+	}
+	a.mu.RUnlock()
+
+	file, err := os.Create(a.historyPath)
+	if err != nil {
+		slog.Error("Failed to save history", "error", err)
+		return
+	}
+	defer file.Close()
+
+	if err := gob.NewEncoder(file).Encode(data); err != nil {
+		slog.Error("Failed to encode history", "error", err)
+	} else {
+		slog.Info("History saved", "path", a.historyPath)
 	}
 }
 
@@ -77,17 +158,72 @@ func (a *AdminAPI) Start(addr string) error {
 	mux.HandleFunc("/config/reload", a.handleConfigReload)
 	
 	mux.HandleFunc("/monitor/stats", a.handleMonitorStats)
+	mux.HandleFunc("/monitor/charts", a.handleMonitorCharts)
 
 	mux.HandleFunc("/event/start", a.handleEventStart)
 	mux.HandleFunc("/event/stop", a.handleEventStop)
 	mux.HandleFunc("/event/list", a.handleEventList)
 
 	slog.Info("Admin API listening", "addr", addr)
+	
+	// Start history tracking
+	go a.trackHistory()
+
 	return http.ListenAndServe(addr, mux)
 }
 
-func (a *AdminAPI) handleConfigReload(w http.ResponseWriter, r *http.Request) {
-	newCfg, err := config.Load(a.configPath)
+func (a *AdminAPI) Stop() {
+	a.SaveHistory()
+}
+
+func (a *AdminAPI) trackHistory() {
+	ticker := time.NewTicker(1 * time.Minute)
+	a.recordHistory()
+
+	for range ticker.C {
+		a.recordHistory()
+	}
+}
+
+func (a *AdminAPI) recordHistory() {
+	now := time.Now().In(a.location)
+	count := len(a.userService.GetLoggedConnections())
+	
+	a.mu.Lock()
+	defer a.mu.Unlock()
+
+	// Hourly slot (0-23)
+	hour := now.Hour()
+	a.userHistoryHourly[hour] = count
+
+	// Daily history
+	if now.Sub(a.lastHistoryUpdate) >= 24*time.Hour {
+		a.userHistoryDaily = append(a.userHistoryDaily, count)
+		if len(a.userHistoryDaily) > 30 {
+			a.userHistoryDaily = a.userHistoryDaily[1:]
+		}
+		a.lastHistoryUpdate = now
+		// Periodically save (offload to goroutine to avoid holding lock during IO)
+		go a.SaveHistory()
+	}
+}
+
+func (a *AdminAPI) handleMonitorCharts(w http.ResponseWriter, r *http.Request) {
+        a.mu.RLock()
+        hH := make([]int, len(a.userHistoryHourly))
+        copy(hH, a.userHistoryHourly)
+        hD := make([]int, len(a.userHistoryDaily))
+        copy(hD, a.userHistoryDaily)
+        a.mu.RUnlock()
+
+        res := map[string]interface{}{
+                "history_hourly":     hH,
+                "history_daily":      hD,
+        }
+        json.NewEncoder(w).Encode(res)
+}
+
+func (a *AdminAPI) handleConfigReload(w http.ResponseWriter, r *http.Request) {	newCfg, err := config.Load(a.configPath)
 	if err != nil {
 		http.Error(w, fmt.Sprintf("Error reloading config: %v", err), http.StatusInternalServerError)
 		return

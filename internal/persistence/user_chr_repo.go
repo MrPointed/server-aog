@@ -27,6 +27,25 @@ func (d *UserChrRepo) Exists(nick string) bool {
 	return err == nil
 }
 
+func (d *UserChrRepo) GetAllCharacters() ([]*model.Character, error) {
+	files, err := os.ReadDir(d.basePath)
+	if err != nil {
+		return nil, err
+	}
+
+	var characters []*model.Character
+	for _, file := range files {
+		if !file.IsDir() && strings.HasSuffix(strings.ToLower(file.Name()), ".chr") {
+			nick := strings.TrimSuffix(file.Name(), ".chr")
+			char, err := d.Load(nick)
+			if err == nil {
+				characters = append(characters, char)
+			}
+		}
+	}
+	return characters, nil
+}
+
 func (d *UserChrRepo) Load(nick string) (*model.Character, error) {
 	data, err := ReadINI(d.getFilePath(nick))
 	if err != nil {

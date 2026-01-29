@@ -22,19 +22,18 @@ import (
 )
 
 type Server struct {
-	addr           string
-	packetsManager *protocol.ClientPacketsManager
-	mapService     service.MapService
-	userService    service.UserService
-	loginService   service.LoginService
-	messageService service.MessageService
-	npcService     service.NpcService
-	aiService      service.AiService
-	config         *config.Config
-	globalBalance  *model.GlobalBalanceConfig
-	resourcesPath  string
+        addr           string
+        packetsManager *protocol.ClientPacketsManager
+        mapService     service.MapService
+        userService    service.UserService
+        loginService   service.LoginService
+        messageService service.MessageService
+        npcService     service.NpcService
+        aiService      service.AiService
+        config         *config.Config
+        globalBalance  *model.GlobalBalanceConfig
+        resourcesPath  string
 }
-
 func NewServer(addr string, resourcesPath string) *Server {
 	res := resourcesPath
 	cfgPath := filepath.Join(res, "config_yaml")
@@ -96,85 +95,84 @@ func NewServer(addr string, resourcesPath string) *Server {
 	aiService := service.NewAiServiceImpl(npcService, mapService, areaService, userService, combatService, messageService, spellService, globalBalance)
 	aiService.Start()
 
-	skillService := service.NewSkillServiceImpl(mapService, objectService, messageService, userService, npcService, spellService, intervalService)
-	bankService := service.NewBankServiceImpl(objectService, messageService, userService)
-
+	        skillService := service.NewSkillServiceImpl(mapService, objectService, messageService, userService, npcService, spellService, intervalService)
+	        bankService := service.NewBankServiceImpl(objectService, messageService, userService)
+	
 	        userRepo := persistence.NewUserChrRepo(filepath.Join(res, projectCfg.Project.Paths.Charfiles))
 	        loginService := service.NewLoginServiceImpl(userRepo, cfg, projectCfg, userService, mapService, bodyService, indexManager, messageService, objectService, cityService, spellService)
-		itemActionService := service.NewItemActionServiceImpl(objectService, messageService, intervalService, bodyService, spellService)
-
-	gmService := service.NewGmServiceImpl(userService, mapService, messageService)
-
-	m := protocol.NewClientPacketsManager()
-	// Register handlers
-	m.RegisterHandler(protocol.CP_GMCommands, &incoming.GMCommandsPacket{GMService: gmService})
-	m.RegisterHandler(protocol.CP_LoginExistingCharacter, &incoming.LoginExistingCharacterPacket{LoginService: loginService})
-	m.RegisterHandler(protocol.CP_LoginNewCharacter, &incoming.LoginNewCharacterPacket{LoginService: loginService})
-	m.RegisterHandler(protocol.CP_ThrowDice, &incoming.ThrowDicesPacket{})
-	m.RegisterHandler(protocol.CP_Walk, &incoming.WalkPacket{MapService: mapService, AreaService: areaService, MessageService: messageService})
-	m.RegisterHandler(protocol.CP_RequestPositionUpdate, &incoming.RequestPositionUpdatePacket{})
-	m.RegisterHandler(protocol.CP_RequestAttributes, &incoming.RequestAttributesPacket{})
-	m.RegisterHandler(protocol.CP_RequestFame, &incoming.RequestFamePacket{})
-	m.RegisterHandler(protocol.CP_RequestMiniStats, &incoming.RequestMiniStatsPacket{})
-	m.RegisterHandler(protocol.CP_RequestSkills, &incoming.RequestSkillsPacket{})
-	m.RegisterHandler(protocol.CP_Talk, &incoming.TalkPacket{MessageService: messageService})
-	m.RegisterHandler(protocol.CP_Yell, &incoming.YellPacket{MessageService: messageService})
-	m.RegisterHandler(protocol.CP_Whisper, &incoming.WhisperPacket{UserService: userService})
-	m.RegisterHandler(protocol.CP_Attack, &incoming.AttackPacket{MapService: mapService, CombatService: combatService, AreaService: areaService})
-	m.RegisterHandler(protocol.CP_PickUp, &incoming.PickUpPacket{MapService: mapService, MessageService: messageService})
-	m.RegisterHandler(protocol.CP_Online, &incoming.OnlinePacket{UserService: userService})
-	m.RegisterHandler(protocol.CP_Meditate, &incoming.MeditatePacket{AreaService: areaService})
-	m.RegisterHandler(protocol.CP_Quit, &incoming.QuitPacket{})
-	m.RegisterHandler(protocol.CP_Drop, &incoming.DropPacket{MapService: mapService, MessageService: messageService, ObjectService: objectService})
-	m.RegisterHandler(protocol.CP_CastSpell, &incoming.CastSpellPacket{MapService: mapService, SpellService: spellService})
-	m.RegisterHandler(protocol.CP_LeftClick, &incoming.LeftClickPacket{MapService: mapService, NpcService: npcService, UserService: userService, ObjectService: objectService, AreaService: areaService})
-	m.RegisterHandler(protocol.CP_UseItem, &incoming.UseItemPacket{ItemActionService: itemActionService})
-	m.RegisterHandler(protocol.CP_EquipItem, &incoming.EquipItemPacket{ItemActionService: itemActionService})
-	m.RegisterHandler(protocol.CP_ModifySkills, &incoming.ModifySkillsPacket{})
-	m.RegisterHandler(protocol.CP_ChangeHeading, &incoming.ChangeHeadingPacket{AreaService: areaService})
-	m.RegisterHandler(protocol.CP_Double_Click, &incoming.DoubleClickPacket{MapService: mapService, NpcService: npcService, UserService: userService, ObjectService: objectService, AreaService: areaService, BankService: bankService, SpellService: spellService})
-	m.RegisterHandler(protocol.CP_Work, &incoming.UseSkillPacket{AreaService: areaService})
-	m.RegisterHandler(protocol.CP_WorkLeftClick, &incoming.UseSkillClickPacket{SkillService: skillService})
-	m.RegisterHandler(protocol.CP_Resurrect, &incoming.ResurrectPacket{MapService: mapService, AreaService: areaService, MessageService: messageService})
-
-	m.RegisterHandler(protocol.CP_CommerceEnd, &incoming.CommerceEndPacket{})
-	m.RegisterHandler(protocol.CP_CommerceBuy, &incoming.CommerceBuyPacket{NpcService: npcService, ObjectService: objectService, MessageService: messageService})
-	m.RegisterHandler(protocol.CP_CommerceSell, &incoming.CommerceSellPacket{NpcService: npcService, ObjectService: objectService, MessageService: messageService})
-
-	m.RegisterHandler(protocol.CP_BankEnd, &incoming.BankEndPacket{BankService: bankService})
-	m.RegisterHandler(protocol.CP_BankExtractItem, &incoming.BankExtractItemPacket{BankService: bankService})
-	m.RegisterHandler(protocol.CP_BankDeposit, &incoming.BankDepositPacket{BankService: bankService})
-	m.RegisterHandler(protocol.CP_ExtractGold, &incoming.ExtractGoldPacket{BankService: bankService})
-	m.RegisterHandler(protocol.CP_DepositGold, &incoming.DepositGoldPacket{BankService: bankService})
-
-	return &Server{
-		addr:           addr,
-		packetsManager: m,
-		mapService:     mapService,
-		userService:    userService,
-		loginService:   loginService,
-		messageService: messageService,
-		npcService:     npcService,
-		aiService:      aiService,
-		config:         cfg,
-		globalBalance:  globalBalance,
-		resourcesPath:  res,
+	        itemActionService := service.NewItemActionServiceImpl(objectService, messageService, intervalService, bodyService, spellService)
+	
+	        gmService := service.NewGmServiceImpl(userService, mapService, messageService)
+	
+	        m := protocol.NewClientPacketsManager()
+	        // Register handlers
+	        m.RegisterHandler(protocol.CP_GMCommands, &incoming.GMCommandsPacket{GMService: gmService})
+	        m.RegisterHandler(protocol.CP_LoginExistingCharacter, &incoming.LoginExistingCharacterPacket{LoginService: loginService})
+	        m.RegisterHandler(protocol.CP_LoginNewCharacter, &incoming.LoginNewCharacterPacket{LoginService: loginService})
+	        m.RegisterHandler(protocol.CP_ThrowDice, &incoming.ThrowDicesPacket{})
+	        m.RegisterHandler(protocol.CP_Walk, &incoming.WalkPacket{MapService: mapService, AreaService: areaService, MessageService: messageService})
+	        m.RegisterHandler(protocol.CP_RequestPositionUpdate, &incoming.RequestPositionUpdatePacket{})
+	        m.RegisterHandler(protocol.CP_RequestAttributes, &incoming.RequestAttributesPacket{})
+	        m.RegisterHandler(protocol.CP_RequestFame, &incoming.RequestFamePacket{})
+	        m.RegisterHandler(protocol.CP_RequestMiniStats, &incoming.RequestMiniStatsPacket{})
+	        m.RegisterHandler(protocol.CP_RequestSkills, &incoming.RequestSkillsPacket{})
+	        m.RegisterHandler(protocol.CP_Talk, &incoming.TalkPacket{MessageService: messageService})
+	        m.RegisterHandler(protocol.CP_Yell, &incoming.YellPacket{MessageService: messageService})
+	        m.RegisterHandler(protocol.CP_Whisper, &incoming.WhisperPacket{UserService: userService})
+	        m.RegisterHandler(protocol.CP_Attack, &incoming.AttackPacket{MapService: mapService, CombatService: combatService, AreaService: areaService})
+	        m.RegisterHandler(protocol.CP_PickUp, &incoming.PickUpPacket{MapService: mapService, MessageService: messageService})
+	        m.RegisterHandler(protocol.CP_Online, &incoming.OnlinePacket{UserService: userService})
+	        m.RegisterHandler(protocol.CP_Meditate, &incoming.MeditatePacket{AreaService: areaService})
+	        m.RegisterHandler(protocol.CP_Quit, &incoming.QuitPacket{})
+	        m.RegisterHandler(protocol.CP_Drop, &incoming.DropPacket{MapService: mapService, MessageService: messageService, ObjectService: objectService})
+	        m.RegisterHandler(protocol.CP_CastSpell, &incoming.CastSpellPacket{MapService: mapService, SpellService: spellService})
+	        m.RegisterHandler(protocol.CP_LeftClick, &incoming.LeftClickPacket{MapService: mapService, NpcService: npcService, UserService: userService, ObjectService: objectService, AreaService: areaService})
+	        m.RegisterHandler(protocol.CP_UseItem, &incoming.UseItemPacket{ItemActionService: itemActionService})
+	        m.RegisterHandler(protocol.CP_EquipItem, &incoming.EquipItemPacket{ItemActionService: itemActionService})
+	        m.RegisterHandler(protocol.CP_ModifySkills, &incoming.ModifySkillsPacket{})
+	        m.RegisterHandler(protocol.CP_ChangeHeading, &incoming.ChangeHeadingPacket{AreaService: areaService})
+	        m.RegisterHandler(protocol.CP_Double_Click, &incoming.DoubleClickPacket{MapService: mapService, NpcService: npcService, UserService: userService, ObjectService: objectService, AreaService: areaService, BankService: bankService, SpellService: spellService})
+	        m.RegisterHandler(protocol.CP_Work, &incoming.UseSkillPacket{AreaService: areaService})
+	        m.RegisterHandler(protocol.CP_WorkLeftClick, &incoming.UseSkillClickPacket{SkillService: skillService})
+	        m.RegisterHandler(protocol.CP_Resurrect, &incoming.ResurrectPacket{MapService: mapService, AreaService: areaService, MessageService: messageService})
+	
+	        m.RegisterHandler(protocol.CP_CommerceEnd, &incoming.CommerceEndPacket{})
+	        m.RegisterHandler(protocol.CP_CommerceBuy, &incoming.CommerceBuyPacket{NpcService: npcService, ObjectService: objectService, MessageService: messageService})
+	        m.RegisterHandler(protocol.CP_CommerceSell, &incoming.CommerceSellPacket{NpcService: npcService, ObjectService: objectService, MessageService: messageService})
+	
+	        m.RegisterHandler(protocol.CP_BankEnd, &incoming.BankEndPacket{BankService: bankService})
+	        m.RegisterHandler(protocol.CP_BankExtractItem, &incoming.BankExtractItemPacket{BankService: bankService})
+	        m.RegisterHandler(protocol.CP_BankDeposit, &incoming.BankDepositPacket{BankService: bankService})
+	        m.RegisterHandler(protocol.CP_ExtractGold, &incoming.ExtractGoldPacket{BankService: bankService})
+	        m.RegisterHandler(protocol.CP_DepositGold, &incoming.DepositGoldPacket{BankService: bankService})
+	
+	        return &Server{
+	                addr:           addr,
+	                packetsManager: m,
+	                mapService:     mapService,
+	                userService:    userService,
+	                loginService:   loginService,
+	                messageService: messageService,
+	                npcService:     npcService,
+	                aiService:      aiService,
+	                config:         cfg,
+	                globalBalance:  globalBalance,
+	                resourcesPath:  res,
+	        }
 	}
-}
-
-func (s *Server) Start() error {
-	lc := net.ListenConfig{}
-	listener, err := lc.Listen(context.Background(), "tcp", s.addr)
-	if err != nil {
-		return err
-	}
-	defer listener.Close()
-
-	// Start Admin API
-	configPath := filepath.Join(s.resourcesPath, "config_yaml", "server.yaml")
-	adminAPI := api.NewAdminAPI(s.mapService, s.userService, s.loginService, s.messageService, s.npcService, s.aiService, s.config, s.globalBalance, configPath)
-	go adminAPI.Start(":7667")
-
+	
+	func (s *Server) Start() error {
+	        lc := net.ListenConfig{}
+	        listener, err := lc.Listen(context.Background(), "tcp", s.addr)
+	        if err != nil {
+	                return err
+	        }
+	        defer listener.Close()
+	
+	        // Start Admin API
+	        configPath := filepath.Join(s.resourcesPath, "config_yaml", "server.yaml")
+	        adminAPI := api.NewAdminAPI(s.mapService, s.userService, s.loginService, s.messageService, s.npcService, s.aiService, s.config, s.globalBalance, configPath)
+	        go adminAPI.Start(":7667")
 	if err := os.WriteFile("server.pid", []byte(fmt.Sprintf("%d", os.Getpid())), 0644); err != nil {
 		slog.Warn("could not write server.pid", "error", err)
 	}
@@ -195,11 +193,11 @@ func (s *Server) Start() error {
 		}
 	}()
 
-	<-stop
-	slog.Info("Shutting down server...")
-	return nil
-}
-
+	        <-stop
+	        slog.Info("Shutting down server...")
+	        adminAPI.Stop()
+	        return nil
+	}
 type connection struct {
 	*network.Connection
 }
