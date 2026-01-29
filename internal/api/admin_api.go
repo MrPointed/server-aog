@@ -16,6 +16,7 @@ import (
 
 	"github.com/ao-go-server/internal/config"
 	"github.com/ao-go-server/internal/model"
+	"github.com/ao-go-server/internal/persistence"
 	"github.com/ao-go-server/internal/protocol/outgoing"
 	"github.com/ao-go-server/internal/service"
 )
@@ -23,6 +24,7 @@ import (
 type AdminAPI struct {
 	mapService     service.MapService
 	userService    service.UserService
+	userRepo       persistence.UserRepository
 	loginService   service.LoginService
 	messageService service.MessageService
 	npcService     service.NpcService
@@ -38,9 +40,10 @@ type AdminAPI struct {
 	userHistoryDaily  []int
 	lastHistoryUpdate time.Time
 	location          *time.Location
+	classDistribution map[string]int
 }
 
-func NewAdminAPI(mapService service.MapService, userService service.UserService, loginService service.LoginService, messageService service.MessageService, npcService service.NpcService, aiService service.AiService, cfg *config.Config, globalBalance *model.GlobalBalanceConfig, configPath string) *AdminAPI {
+func NewAdminAPI(mapService service.MapService, userService service.UserService, userRepo persistence.UserRepository, loginService service.LoginService, messageService service.MessageService, npcService service.NpcService, aiService service.AiService, cfg *config.Config, globalBalance *model.GlobalBalanceConfig, configPath string) *AdminAPI {
 	loc, err := time.LoadLocation("America/Argentina/Buenos_Aires")
 	if err != nil {
 		// Fallback to FixedZone if TZ data is not available
@@ -50,6 +53,7 @@ func NewAdminAPI(mapService service.MapService, userService service.UserService,
 	api := &AdminAPI{
 		mapService:     mapService,
 		userService:    userService,
+		userRepo:       userRepo,
 		loginService:   loginService,
 		messageService: messageService,
 		npcService:     npcService,
@@ -63,10 +67,39 @@ func NewAdminAPI(mapService service.MapService, userService service.UserService,
 		userHistoryDaily:  make([]int, 0, 30),
 		lastHistoryUpdate: time.Now().In(loc),
 		location:          loc,
+		classDistribution: make(map[string]int),
 	}
 
 	api.LoadHistory()
+	api.calculateClassDistribution()
 	return api
+}
+
+func (a *AdminAPI) calculateClassDistribution() {
+	allChars, err := a.userRepo.GetAllCharacters()
+	if err != nil {
+		slog.Error("Failed to calculate class distribution", "error", err)
+		return
+	}
+
+	dist := make(map[string]int)
+	// Initialize all archetypes with 0
+	archetypes := []model.UserArchetype{
+		model.Mage, model.Cleric, model.Warrior, model.Assasin,
+		model.Thief, model.Bard, model.Druid, model.Bandit,
+		model.Paladin, model.Hunter, model.Worker, model.Pirate,
+	}
+	for _, arch := range archetypes {
+		dist[archetypeToString(arch)] = 0
+	}
+
+	for _, c := range allChars {
+		if c.Level >= 25 {
+			typeName := archetypeToString(c.Archetype)
+			dist[typeName]++
+		}
+	}
+	a.classDistribution = dist
 }
 
 type historyData struct {
@@ -209,18 +242,37 @@ func (a *AdminAPI) recordHistory() {
 }
 
 func (a *AdminAPI) handleMonitorCharts(w http.ResponseWriter, r *http.Request) {
-        a.mu.RLock()
-        hH := make([]int, len(a.userHistoryHourly))
-        copy(hH, a.userHistoryHourly)
-        hD := make([]int, len(a.userHistoryDaily))
-        copy(hD, a.userHistoryDaily)
-        a.mu.RUnlock()
+	a.mu.RLock()
+	hH := make([]int, len(a.userHistoryHourly))
+	copy(hH, a.userHistoryHourly)
+	hD := make([]int, len(a.userHistoryDaily))
+	copy(hD, a.userHistoryDaily)
+	a.mu.RUnlock()
 
-        res := map[string]interface{}{
-                "history_hourly":     hH,
-                "history_daily":      hD,
-        }
-        json.NewEncoder(w).Encode(res)
+	res := map[string]interface{}{
+		"class_distribution": a.classDistribution,
+		"history_hourly":     hH,
+		"history_daily":      hD,
+	}
+	json.NewEncoder(w).Encode(res)
+}
+
+func archetypeToString(a model.UserArchetype) string {
+	switch a {
+	case model.Mage: return "Mage"
+	case model.Cleric: return "Cleric"
+	case model.Warrior: return "Warrior"
+	case model.Assasin: return "Assasin"
+	case model.Thief: return "Thief"
+	case model.Bard: return "Bard"
+	case model.Druid: return "Druid"
+	case model.Bandit: return "Bandit"
+	case model.Paladin: return "Paladin"
+	case model.Hunter: return "Hunter"
+	case model.Worker: return "Worker"
+	case model.Pirate: return "Pirate"
+	default: return "Unknown"
+	}
 }
 
 func (a *AdminAPI) handleConfigReload(w http.ResponseWriter, r *http.Request) {	newCfg, err := config.Load(a.configPath)

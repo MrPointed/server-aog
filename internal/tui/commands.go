@@ -365,6 +365,7 @@ func setConfigCmd(key string, value string) tea.Cmd {
 }
 
 type ChartsDataMsg struct {
+	ClassDistribution map[string]int `json:"class_distribution"`
 	HistoryHourly     []int          `json:"history_hourly"`
 	HistoryDaily      []int          `json:"history_daily"`
 	Err               error
