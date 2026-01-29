@@ -79,6 +79,17 @@ func (s *MapServiceImpl) LoadMaps() {
 }
 
 func (s *MapServiceImpl) SaveCache() {
+	s.mapsMu.RLock()
+	// We clone the map pointers to avoid holding the lock during IO, 
+	// though the map objects themselves are still shared. 
+	// For AO's map data this is usually acceptable as tile data doesn't change 
+	// structure, only content (which gob will read).
+	mapsToSave := make(map[int]*model.Map, len(s.maps))
+	for k, v := range s.maps {
+		mapsToSave[k] = v
+	}
+	s.mapsMu.RUnlock()
+
 	file, err := os.Create(MapCacheFile)
 	if err != nil {
 		slog.Error("Could not create cache file", "error", err)
@@ -87,7 +98,7 @@ func (s *MapServiceImpl) SaveCache() {
 	defer file.Close()
 
 	encoder := gob.NewEncoder(file)
-	if err := encoder.Encode(s.maps); err != nil {
+	if err := encoder.Encode(mapsToSave); err != nil {
 		slog.Error("Error encoding maps cache", "error", err)
 	} else {
 		slog.Info("Maps cache saved successfully.")

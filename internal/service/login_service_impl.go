@@ -5,6 +5,7 @@ import (
 	"log/slog"
 	"os"
 	"strings"
+	"sync"
 	"time"
 
 	"github.com/ao-go-server/internal/config"
@@ -462,9 +463,17 @@ func (s *LoginServiceImpl) SavePlayer(nick string) error {
 
 func (s *LoginServiceImpl) SaveAllPlayers() {
 	chars := s.userService.GetLoggedCharacters()
+	var wg sync.WaitGroup
 	for _, char := range chars {
-		s.userRepo.SaveCharacter(char)
+		wg.Add(1)
+		go func(c *model.Character) {
+			defer wg.Done()
+			if err := s.userRepo.SaveCharacter(c); err != nil {
+				slog.Error("Failed to save character during WorldSave", "name", c.Name, "error", err)
+			}
+		}(char)
 	}
+	wg.Wait()
 }
 
 func (s *LoginServiceImpl) WorldSave() {

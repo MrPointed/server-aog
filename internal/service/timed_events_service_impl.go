@@ -54,22 +54,19 @@ func (s *TimedEventsServiceImpl) regenLoop() {
 }
 
 func (s *TimedEventsServiceImpl) worldSaveLoop() {
-	// World Save interval from config (in minutes)
-	if s.config.WorldSaveInterval <= 0 {
-		slog.Info("Automatic WorldSave is disabled (interval set to 0)")
-		return
-	}
-
-	interval := time.Duration(s.config.WorldSaveInterval) * time.Minute
-	ticker := time.NewTicker(interval)
-	defer ticker.Stop()
+	slog.Info("Automatic WorldSave loop started", "interval_minutes", s.config.WorldSaveInterval)
+	lastSave := time.Now()
 
 	for {
 		select {
-		case <-ticker.C:
-			s.loginService.WorldSave()
 		case <-s.stopChan:
 			return
+		case <-time.After(30 * time.Second): // Check every 30s
+			interval := s.config.WorldSaveInterval
+			if interval > 0 && time.Since(lastSave) >= time.Duration(interval)*time.Minute {
+				s.loginService.WorldSave()
+				lastSave = time.Now()
+			}
 		}
 	}
 }

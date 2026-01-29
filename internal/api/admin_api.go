@@ -333,6 +333,7 @@ func (a *AdminAPI) handleConfigList(w http.ResponseWriter, r *http.Request) {
 		{"key": "admins_only", "description": "Restrict access to admins only", "type": "bool", "value": a.config.RestrictedToAdmins},
 		{"key": "xp_multiplier", "description": "Global XP Multiplier", "type": "float", "value": a.config.XpMultiplier},
 		{"key": "gold_multiplier", "description": "Global Gold Multiplier", "type": "float", "value": a.config.GoldMultiplier},
+		{"key": "world_save_interval", "description": "Automatic WorldSave interval (minutes). Set to 0 to disable.", "type": "int", "value": a.config.WorldSaveInterval},
 		{"key": "interval_attack", "description": "Interval between attacks (ms)", "type": "int64", "value": a.globalBalance.IntervalAttack},
 		{"key": "interval_spell", "description": "Interval between spells (ms)", "type": "int64", "value": a.globalBalance.IntervalSpell},
 		{"key": "interval_item", "description": "Interval to use items (ms)", "type": "int64", "value": a.globalBalance.IntervalItem},
@@ -363,6 +364,8 @@ func (a *AdminAPI) handleConfigGet(w http.ResponseWriter, r *http.Request) {
 		val = a.config.XpMultiplier
 	case "gold_multiplier":
 		val = a.config.GoldMultiplier
+	case "world_save_interval":
+		val = a.config.WorldSaveInterval
 	case "interval_attack":
 		val = a.globalBalance.IntervalAttack
 	case "interval_spell":
@@ -686,6 +689,10 @@ func (a *AdminAPI) handleConfigSet(w http.ResponseWriter, r *http.Request) {
 	case "gold_multiplier":
 		if f, err := strconv.ParseFloat(val, 64); err == nil {
 			a.config.GoldMultiplier = f
+		}
+	case "world_save_interval":
+		if i, err := strconv.Atoi(val); err == nil {
+			a.config.WorldSaveInterval = i
 		}
 	case "interval_attack":
 		if i, err := strconv.ParseInt(val, 10, 64); err == nil {

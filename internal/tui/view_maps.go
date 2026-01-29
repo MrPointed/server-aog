@@ -20,7 +20,7 @@ func (m Model) updateMaps(msg tea.Msg) (Model, tea.Cmd) {
 					m.mapActionCursor--
 				}
 			case "down", "j":
-				if m.mapActionCursor < 1 { // 0: Reload, 1: Unload
+				if m.mapActionCursor < 2 { // 0: Reload, 1: Unload, 2: World Save
 					m.mapActionCursor++
 				}
 			case "enter":
@@ -33,6 +33,8 @@ func (m Model) updateMaps(msg tea.Msg) (Model, tea.Cmd) {
 					return m, reloadMapCmd(mapID)
 				case 1:
 					return m, unloadMapCmd(mapID)
+				case 2:
+					return m, worldSaveManualCmd()
 				}
 			}
 			return m, nil
@@ -119,7 +121,7 @@ func (m Model) viewMaps() string {
 
 	// Action Menu Overlay
 	if m.mapActionMenuOpen {
-		actions := []string{"Reload", "Unload"}
+		actions := []string{"Reload", "Unload", "World Save"}
 		menu := "\n\n" + titleStyle.Render(fmt.Sprintf("[Action: Map %d]", m.selectedMapID)) + "\n"
 		
 		for i, action := range actions {

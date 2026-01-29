@@ -324,6 +324,18 @@ func unloadMapCmd(id int) tea.Cmd {
 	}
 }
 
+func worldSaveManualCmd() tea.Cmd {
+	return func() tea.Msg {
+		resp, err := http.Get("http://localhost:7667/world/save")
+		if err != nil {
+			return ActionMsg{Err: err}
+		}
+		defer resp.Body.Close()
+		body, _ := io.ReadAll(resp.Body)
+		return ActionMsg{Output: string(body)}
+	}
+}
+
 type ConfigItem struct {
 	Key         string      `json:"key"`
 	Description string      `json:"description"`
