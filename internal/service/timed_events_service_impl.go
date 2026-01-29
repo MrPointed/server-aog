@@ -204,6 +204,7 @@ func (s *TimedEventsServiceImpl) processRegen() {
 		}
 
 		if changed {
+			char.SetStateChanged()
 			conn := s.userService.GetConnection(char)
 			if conn != nil {
 				conn.Send(outgoing.NewUpdateUserStatsPacket(char))

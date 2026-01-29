@@ -207,6 +207,7 @@ func (a *AdminAPI) Start(addr string) error {
 
 func (a *AdminAPI) Stop() {
 	a.SaveHistory()
+	a.loginService.SaveAllPlayers()
 }
 
 func (a *AdminAPI) trackHistory() {

@@ -60,6 +60,7 @@ func (s *BankServiceImpl) DepositGold(char *model.Character, amount int) {
 
 	char.Gold -= amount
 	char.BankGold += amount
+	char.SetStateChanged()
 
 	conn := s.userService.GetConnection(char)
 	if conn != nil {
@@ -80,6 +81,7 @@ func (s *BankServiceImpl) ExtractGold(char *model.Character, amount int) {
 
 	char.BankGold -= amount
 	char.Gold += amount
+	char.SetStateChanged()
 
 	conn := s.userService.GetConnection(char)
 	if conn != nil {
@@ -122,6 +124,7 @@ func (s *BankServiceImpl) DepositItem(char *model.Character, slotIdx int, amount
 			invSlot.ObjectID = 0
 			invSlot.Amount = 0
 		}
+		char.SetStateChanged()
 		
 		s.syncInventorySlot(char, slotIdx)
 		s.syncBank(char)
@@ -156,6 +159,7 @@ func (s *BankServiceImpl) ExtractItem(char *model.Character, bankSlotIdx int, am
 			bankSlot.ObjectID = 0
 			bankSlot.Amount = 0
 		}
+		char.SetStateChanged()
 		
 		s.syncBankSlot(char, bankSlotIdx)
 		s.syncInventory(char)

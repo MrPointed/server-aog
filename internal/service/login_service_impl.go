@@ -386,7 +386,7 @@ func (s *LoginServiceImpl) OnUserDisconnect(conn protocol.Connection) {
 	char := conn.GetUser()
 	if char != nil {
 		slog.Info("User disconnected, saving...", "name", char.Name)
-		s.userRepo.SaveCharacter(char)
+		s.SavePlayer(char.Name)
 
 		// Broadcast removal
 		s.messageService.SendToAreaButUser(&outgoing.CharacterRemovePacket{CharIndex: char.CharIndex}, char.Position, char)
@@ -453,7 +453,14 @@ func (s *LoginServiceImpl) TeleportPlayer(nick string, mapID, x, y int) error {
 func (s *LoginServiceImpl) SavePlayer(nick string) error {
 	char := s.userService.GetCharacterByName(nick)
 	if char != nil {
-		return s.userRepo.SaveCharacter(char)
+		if !char.HasStateChanged {
+			return nil
+		}
+		err := s.userRepo.SaveCharacter(char)
+		if err == nil {
+			char.HasStateChanged = false
+		}
+		return err
 	}
 	return fmt.Errorf("player not found or not online")
 }
@@ -461,6 +468,10 @@ func (s *LoginServiceImpl) SavePlayer(nick string) error {
 func (s *LoginServiceImpl) SaveAllPlayers() {
 	chars := s.userService.GetLoggedCharacters()
 	for _, char := range chars {
-		s.userRepo.SaveCharacter(char)
+		if char.HasStateChanged {
+			if err := s.userRepo.SaveCharacter(char); err == nil {
+				char.HasStateChanged = false
+			}
+		}
 	}
 }

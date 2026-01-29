@@ -53,6 +53,7 @@ func (s *MessageServiceImpl) HandleDeath(char *model.Character, message string) 
 	char.Weapon = 0
 	char.Shield = 0
 	char.Helmet = 0
+	char.SetStateChanged()
 
 	conn := s.userService.GetConnection(char)
 
@@ -192,6 +193,7 @@ func (s *MessageServiceImpl) HandleResurrection(char *model.Character) {
 	char.Hp = char.MaxHp
 	char.Head = char.OriginalHead
 	char.Body = s.userService.BodyService().GetBody(char.Race, char.Gender)
+	char.SetStateChanged()
 
 	conn := s.userService.GetConnection(char)
 	if conn != nil {

@@ -248,6 +248,7 @@ func (s *MapServiceImpl) PutCharacterAtPos(char *model.Character, pos model.Posi
 		m.AddCharacter(char)
 		tile.Character = char
 		char.Position = pos
+		char.SetStateChanged()
 	})
 }
 
@@ -449,6 +450,7 @@ func (s *MapServiceImpl) MoveCharacterTo(char *model.Character, heading model.He
 
 		char.Heading = heading
 		char.Position = newPos
+		char.SetStateChanged()
 
 		// Ensure it's in the map's characters list (should already be there if same map)
 		gameMap.AddCharacter(char)

@@ -39,6 +39,7 @@ func (p *PickUpPacket) Handle(buffer *network.DataBuffer, connection protocol.Co
 
 	// Add to inventory
 	if char.Inventory.AddItem(worldObj.Object.ID, worldObj.Amount) {
+		char.SetStateChanged()
 		// Sync inventory (simplified: update all slots or just the modified one?)
 		// Find which slot was used (AddItem should return it)
 		// For now, let's just find the slot with this ID

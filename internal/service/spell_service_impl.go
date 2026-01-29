@@ -124,6 +124,7 @@ func (s *SpellServiceImpl) CastSpell(caster *model.Character, spellID int, targe
 	// Consume resources
 	caster.Mana -= spell.ManaRequired
 	caster.Stamina -= spell.StaminaRequired
+	caster.SetStateChanged()
 
 	// Update last spell time
 	s.intervals.UpdateLastSpell(caster)
@@ -288,6 +289,7 @@ func (s *SpellServiceImpl) applySpellEffectToCharacter(target *model.Character, 
 		if target.Hp > target.MaxHp {
 			target.Hp = target.MaxHp
 		}
+		target.SetStateChanged()
 		s.messageService.SendConsoleMessage(target, fmt.Sprintf("Te han sanado %d puntos.", amount), outgoing.FIGHT)
 	}
 
@@ -298,6 +300,7 @@ func (s *SpellServiceImpl) applySpellEffectToCharacter(target *model.Character, 
 		if target.Hp < 0 {
 			target.Hp = 0
 		}
+		target.SetStateChanged()
 
 		s.messageService.SendConsoleMessage(target, fmt.Sprintf("¡%s te quitó %d puntos de vida!", casterName, amount), outgoing.FIGHT)
 
@@ -311,11 +314,13 @@ func (s *SpellServiceImpl) applySpellEffectToCharacter(target *model.Character, 
 	if spell.Paralyzes {
 		target.Paralyzed = true
 		target.ParalyzedSince = time.Now()
+		target.SetStateChanged()
 		s.messageService.SendConsoleMessage(target, "¡Te han paralizado!", outgoing.INFO)
 	}
 	if spell.Immobilizes {
 		target.Immobilized = true
 		target.ParalyzedSince = time.Now()
+		target.SetStateChanged()
 		s.messageService.SendConsoleMessage(target, "¡Te han inmovilizado!", outgoing.INFO)
 	}
 
@@ -323,6 +328,7 @@ func (s *SpellServiceImpl) applySpellEffectToCharacter(target *model.Character, 
 		target.Paralyzed = false
 		target.Immobilized = false
 		target.ParalyzedSince = time.Time{}
+		target.SetStateChanged()
 		s.messageService.SendConsoleMessage(target, "¡Has recuperado el movimiento!", outgoing.INFO)
 	}
 
@@ -336,6 +342,7 @@ func (s *SpellServiceImpl) applySpellEffectToCharacter(target *model.Character, 
 	// Poison
 	if spell.Poison {
 		target.Poisoned = true
+		target.SetStateChanged()
 		s.messageService.SendConsoleMessage(target, "¡Te han envenenado!", outgoing.INFO)
 	}
 
@@ -354,6 +361,7 @@ func (s *SpellServiceImpl) PriestHealUser(target *model.Character) {
 	}, target.Position)
 
 	target.Hp = target.MaxHp
+	target.SetStateChanged()
 	s.messageService.SendConsoleMessage(target, "El sacerdote te ha curado!!", outgoing.INFO)
 
 	// If newbie, restore everything
@@ -386,6 +394,7 @@ func (s *SpellServiceImpl) PriestResucitateUser(target *model.Character) {
 		}
 		target.Body = s.userService.BodyService().GetBody(target.Race, target.Gender)
 		target.Head = target.OriginalHead
+		target.SetStateChanged()
 
 		s.messageService.SendToArea(&outgoing.CharacterChangePacket{Character: target}, target.Position)
 		s.messageService.SendConsoleMessage(target, "¡Has sido resucitado!", outgoing.INFO)
@@ -454,6 +463,7 @@ func (s *SpellServiceImpl) handleNpcDeath(caster *model.Character, target *model
 	if target.RemainingExp > 0 {
 		bonusExp := int(float32(target.RemainingExp) * float32(s.config.XpMultiplier))
 		caster.Exp += bonusExp
+		caster.SetStateChanged()
 		s.messageService.SendConsoleMessage(caster, fmt.Sprintf("¡Has matado a la criatura! Ganaste %d exp.", bonusExp), outgoing.INFO)
 		target.RemainingExp = 0
 		s.trainingService.CheckLevel(caster)
@@ -507,6 +517,7 @@ func (s *SpellServiceImpl) grantExperience(attacker *model.Character, victim *mo
 	if baseShare > 0 {
 		expToGive := int(float32(baseShare) * float32(s.config.XpMultiplier))
 		attacker.Exp += expToGive
+		attacker.SetStateChanged()
 		victim.RemainingExp -= baseShare
 		s.messageService.SendConsoleMessage(attacker, fmt.Sprintf("Has ganado %d puntos de experiencia.", expToGive), outgoing.FIGHT)
 		s.trainingService.CheckLevel(attacker)

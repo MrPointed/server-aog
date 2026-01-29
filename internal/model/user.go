@@ -111,6 +111,8 @@ type Character struct {
 	Dead        bool
 	Hidden      bool
 
+	HasStateChanged bool // Flag to track if character state has changed since last save
+
 	// Paralysis tracking
 	ParalyzedSince time.Time
 
@@ -206,5 +208,10 @@ func NewCharacter(name string, race Race, gender Gender, archetype UserArchetype
 		OriginalAttributes: make(map[Attribute]byte),
 		Skills:             make(map[Skill]int),
 		Kills:              make(map[KillType]int),
+		HasStateChanged:    false,
 	}
+}
+
+func (c *Character) SetStateChanged() {
+	c.HasStateChanged = true
 }
