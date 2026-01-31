@@ -235,9 +235,13 @@ func NewServer(addr string, resourcesPath string) *Server {
 
         // Register handlers
 
-        m.RegisterHandler(protocol.CP_GMCommands, &incoming.GMCommandsPacket{GMService: gmService})
+        	m.RegisterHandler(protocol.CP_GMCommands, &incoming.GMCommandsPacket{GMService: gmService})
 
-        m.RegisterHandler(protocol.CP_LoginExistingCharacter, &incoming.LoginExistingCharacterPacket{LoginService: loginService})
+        	m.RegisterHandler(protocol.CP_Ping, &incoming.PingPacket{})
+
+        	m.RegisterHandler(protocol.CP_LoginExistingCharacter, &incoming.LoginExistingCharacterPacket{LoginService: loginService})
+
+        
 
         m.RegisterHandler(protocol.CP_LoginNewCharacter, &incoming.LoginNewCharacterPacket{LoginService: loginService})
 

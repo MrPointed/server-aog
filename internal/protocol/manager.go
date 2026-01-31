@@ -70,6 +70,7 @@ const (
 	CP_Meditate ClientPackets = 79
 	CP_Resurrect ClientPackets = 80
 	CP_GMCommands ClientPackets = 122
+	CP_Ping ClientPackets = 160
 )
 
 type ClientPacketsManager struct {
@@ -305,6 +306,8 @@ func GetOutgoingPacketID(packet OutgoingPacket) (ServerPackets, error) {
 		return SP_MeditateToggle, nil
 	case *outgoing.NavigateTogglePacket:
 		return SP_ToggleNavigate, nil
+	case *outgoing.PongPacket:
+		return SP_Pong, nil
 	}
 	return 0, fmt.Errorf("unknown outgoing packet type")
 }
